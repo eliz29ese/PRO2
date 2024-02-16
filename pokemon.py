@@ -1,11 +1,12 @@
 """
 TODO: Implement in this file the Pokemon hierarchy.
 """
-ffrom abc import ABC, abstractmethod
+from abc import ABC, abstractmethod
 #import pandas
 class Pokemon(ABC):
-    """
-    def __init__(self, name:str, level:int, strength:int, defense:int, hp:int, total_hp:int, agility:int):
+    
+    @abstractmethod
+    def __init__(self, name:str, level:int, strength:int, defense:int, hp:int, total_hp:int, agility:int, pokemon_type:str):
         self._name = name
         self._level = level
         self._strenght = strength
@@ -13,7 +14,8 @@ class Pokemon(ABC):
         self._hp = hp
         self._total_hp = total_hp
         self._agility = agility
-    """
+        self._pokemon_type = pokemon_type
+    
     
     @property
     def name(self):
@@ -102,6 +104,3 @@ class Pokemon(ABC):
             self._pokemon_type = value
         else:
             raise ValueError("Pokemon type must be a string")
-            
-    
-    
