@@ -110,14 +110,14 @@ class Pokemon(ABC):
         pass
     
     def basic_attack(self, opponent: 'Pokemon') -> int:
-        diferencia = self._strength - opponent._defense 
-        daño = max(1,diferencia)
-        opponent._hp -= daño
-        return daño
+        difference = self._strength - opponent._defense 
+        damage = max(1,difference)
+        opponent._hp -= damage
+        return damage
     
     def is_debilitated(self) -> bool: 
-        return self.hp == 0
+        return self._hp == 0
     
-    def  __str__(self) -> str:
-        cadena = f"{self._name} ({self._pokemon_type}) Stats: Level: {self._level}, ATT: {self._strength}, DEF: {self._defense}, AGI: {self._agility}, HP: {self._hp}/{self._total_hp}"
-        return cadena 
+    def  __str__(self):
+        string = f"{self._name} ({self._pokemon_type}) Stats: Level: {self._level}, ATT: {self._strength}, DEF: {self._defense}, AGI: {self._agility}, HP: {self._hp}/{self._total_hp}"
+        return string
