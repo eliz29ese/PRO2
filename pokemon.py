@@ -118,6 +118,6 @@ class Pokemon(ABC):
     def is_debilitated(self) -> bool: 
         return self._hp == 0
     
-    def  __str__(self):
+    def  __str__(self) -> str:
         string = f"{self._name} ({self._pokemon_type}) Stats: Level: {self._level}, ATT: {self._strength}, DEF: {self._defense}, AGI: {self._agility}, HP: {self._hp}/{self._total_hp}"
         return string
