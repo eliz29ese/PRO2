@@ -175,3 +175,19 @@ class WaterPokemon(Pokemon):
             return 1
         else:
             return -1
+
+class GrassPokemon(Pokemon):
+    def heal(self) -> int:
+        n = int(self._heal*self._hp)
+        self._hp += n
+        if self._hp > self._total_hp:
+            self._hp = self.total_hp
+        return n
+    
+    def effectiveness(self, p: Pokemon) -> int:
+        if p._pokemon_type == "Water":
+            return 1
+        elif p._pokemon_type == "Fire":
+            return -1
+        else:
+            return 0
