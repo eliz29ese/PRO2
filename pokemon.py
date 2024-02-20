@@ -121,3 +121,57 @@ class Pokemon(ABC):
     def  __str__(self) -> str:
         string = f"{self._name} ({self._pokemon_type}) Stats: Level: {self._level}, ATT: {self._strength}, DEF: {self._defense}, AGI: {self._agility}, HP: {self._hp}/{self._total_hp}"
         return string
+
+
+class WaterPokemon(Pokemon):
+    
+    def __init__(self, name, level, strength, defense, hp, total_hp, agility, surge_mode:bool = False):
+        super().__init__(name, level, strength, defense, hp, total_hp, agility, pokemon_type="Water") 
+        
+    @property
+    def surge_mode(self):
+        return self._surge_mode
+    
+    @surge_mode.setter
+    def surge_mode(self, value: bool):
+        # Setter for the surge mode
+        if isinstance(value, bool):
+            self._surge_mode = value
+        else:
+            raise ValueError("Pokemon type must be a boolean")
+
+    def check_surge_activation(self)->bool:
+        if self._hp <=  (self._total_hp/2):
+            return True
+        else:
+            return False
+        
+    def water_attack(self, p: Pokemon) -> int:
+        if self.check_surge_activation():
+            self._surge_mode = True
+        else:
+            self._surge_mode = False
+            
+        if p._pokemon_type == "Water":
+            factor = 1
+        elif p._pokemon_type == "Fire":
+            factor = 1.5
+        else:
+            factor = 0.5
+            
+        if self._surge_mode == True:
+            factor += 0.1
+            
+        n = int(max(1, (factor*self._strenght)))
+        p._total_hp -= n  
+        if p._total_hp < 0:
+            p._total_hp = 0
+        return n
+    
+    def effectiveness(self, p: Pokemon) -> int:
+        if p._pokemon_type == "Water":
+            return 0
+        elif p._pokemon_type == "Fire":
+            return 1
+        else:
+            return -1
