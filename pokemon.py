@@ -9,7 +9,7 @@ class Pokemon(ABC):
     def __init__(self, name:str, level:int, strength:int, defense:int, hp:int, total_hp:int, agility:int, pokemon_type:str):
         self._name = name
         self._level = level
-        self._strenght = strength
+        self._strength = strength
         self._defense = defense
         self._hp = hp
         self._total_hp = total_hp
@@ -177,6 +177,30 @@ class WaterPokemon(Pokemon):
             return -1
 
 class GrassPokemon(Pokemon):
+    
+    def __init__(self, name:str, level:int, strength:int, defense:int, hp:int, total_hp:int, agility:int, healing:float):
+        super().__init__(name, level, strength, defense, hp, total_hp, agility, "Grass")
+        self._healing = healing
+        
+    @property
+    def healing(self):
+            return self._healing
+    @healing.setter
+    def healing(self, value: float):
+            # Setter for the temperature
+            if isinstance(value, float):
+                self._healing = value
+            else:
+                raise ValueError("Healing must be a float")
+                
+    def grass_attack(self, p: Pokemon) -> int:
+        
+        factor = 1.5 if isinstance(p, WaterPokemon) else (1 if isinstance(p, GrassPokemon) else 0.5)
+        grass_damage = int((max(1, (factor*self._strength) - p._defense))//1)
+        p._hp -= max(0,grass_damage)
+            
+        return grass_damage 
+        
     def heal(self) -> int:
         n = int(self._heal*self._hp)
         self._hp += n
@@ -191,3 +215,39 @@ class GrassPokemon(Pokemon):
             return -1
         else:
             return 0
+            
+class FirePokemon(Pokemon):
+        
+    def __init__(self, name:str, level:int, strength:int, defense:int, hp:int, total_hp:int, agility:int, temperature:float):
+        super().__init__(name, level, strength, defense, hp, total_hp, agility, "Fire")
+        self._temperature = temperature
+        
+    @property
+    def temperature(self):
+            return self._temperature
+    @temperature.setter
+    def temperature(self, value: float):
+            # Setter for the temperature
+            if isinstance(value, float):
+                self._temperature = value
+            else:
+                raise ValueError("Temperature must be a float")
+                
+    def fire_attack(self, p:Pokemon)-> int:
+            
+            factor = 1.5 if isinstance(p, GrassPokemon) else (1 if isinstance(p, FirePokemon) else 0.5)
+            fire_damage = int((max(1, (factor*self._strength) - p._defense))//1)
+            p._hp -= max(0,fire_damage)
+                
+            return fire_damage 
+        
+    def embers(self, p: Pokemon) -> int: 
+            
+            embers_damage = int((self.strength*self.temperature)//1)
+            p._hp -= max(0, embers_damage)
+            
+            return embers_damage
+        
+    def effectiveness(self, p: Pokemon) -> int:
+
+            return (1 if isinstance(p, GrassPokemon) else (0 if isinstance(p, FirePokemon) else -1))
