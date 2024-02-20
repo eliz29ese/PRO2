@@ -202,7 +202,7 @@ class GrassPokemon(Pokemon):
         return grass_damage 
         
     def heal(self) -> int:
-        n = int(self._heal*self._hp)
+        n = int(self._healing*self._hp)
         self._hp += n
         if self._hp > self._total_hp:
             self._hp = self.total_hp
