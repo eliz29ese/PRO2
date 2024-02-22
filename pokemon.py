@@ -113,6 +113,7 @@ class Pokemon(ABC):
         difference = self._strength - opponent._defense 
         damage = max(1,difference)
         opponent._hp -= damage
+        opponent._hp = max(0, opponent._hp)
         return damage
     
     def is_debilitated(self) -> bool: 
