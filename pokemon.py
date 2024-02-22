@@ -67,10 +67,10 @@ class Pokemon(ABC):
     @hp.setter
     def hp(self, value: int):
         # Setter for the health points
-        if isinstance(value, int):
+        #if isinstance(value, int):
             self._hp = value
-        else:
-            raise ValueError("Health points must be an interger")
+        #else:
+            #raise ValueError("Health points must be an interger")
             
     @property
     def total_hp(self):
@@ -162,10 +162,10 @@ class WaterPokemon(Pokemon):
         if self._surge_mode == True:
             factor += 0.1
             
-        n = int(max(1, (factor*self._strenght)))
-        p._total_hp -= n  
-        if p._total_hp < 0:
-            p._total_hp = 0
+        n = int(max(1, (factor*self._strength)))
+        p._hp -= n  
+        if p._hp < 0:
+            p._hp = 0
         return n
     
     def effectiveness(self, p: Pokemon) -> int:
@@ -197,7 +197,8 @@ class GrassPokemon(Pokemon):
         
         factor = 1.5 if isinstance(p, WaterPokemon) else (1 if isinstance(p, GrassPokemon) else 0.5)
         grass_damage = int((max(1, (factor*self._strength) - p._defense))//1)
-        p._hp -= max(0,grass_damage)
+        p._hp -= grass_damage
+        p._hp = max(0, p._hp)
             
         return grass_damage 
         
@@ -237,15 +238,16 @@ class FirePokemon(Pokemon):
             
             factor = 1.5 if isinstance(p, GrassPokemon) else (1 if isinstance(p, FirePokemon) else 0.5)
             fire_damage = int((max(1, (factor*self._strength) - p._defense))//1)
-            p._hp -= max(0,fire_damage)
+            p._hp -= fire_damage
+            p._hp = max(0, p._hp)
                 
             return fire_damage 
         
     def embers(self, p: Pokemon) -> int: 
             
             embers_damage = int((self.strength*self.temperature)//1)
-            p._hp -= max(0, embers_damage)
-            
+            p._hp -= embers_damage
+            p._hp = max(0, p._hp)
             return embers_damage
         
     def effectiveness(self, p: Pokemon) -> int:
