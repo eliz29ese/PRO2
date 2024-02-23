@@ -1,13 +1,14 @@
-""
+"""
 TODO: Implement in the file the Trainer class
 """
 
 from pokemon import Pokemon, WaterPokemon, FirePokemon, GrassPokemon
 
 class Trainer(Pokemon):
+    
     def __init__(self, name:str, pokemon:list):
         self._name = name
-        self._pokrmon = pokemon
+        self._pokemon = pokemon
         
     @property
     def name(self):
@@ -15,10 +16,10 @@ class Trainer(Pokemon):
     @name.setter
     def name(self, value: str):
         # Setter for the name
-        if isinstance(value, str):
+        if isinstance(value, str) and len(value)>0 :
             self._name = value
         else:
-            raise ValueError("Name must be a string")
+            raise ValueError("Name must be a non-empty string")
             
     @property
     def pokemon(self):
@@ -47,9 +48,7 @@ class Trainer(Pokemon):
     
     def select_next_pokemon(self) -> Pokemon:
         pokemon_selected = self._select_first_pokemon()
-        if pokemon_selected == None:
-            return("All pokemons are debilitated")
         for pokemon in self._pokemon:
             if pokemon._hp > 0 and (pokemon._effectiveness() > pokemon_selected._effectiveness()):
-                pokemon._selected = pokemon
+                pokemon_selected = pokemon
         return pokemon_selected
