@@ -229,3 +229,6 @@ class FirePokemon(Pokemon):
         
     def effectiveness(self, p: Pokemon) -> int:
             return (1 if p._pokemon_type == "Grass" else (0 if p._pokemon_type == "Fire" else -1))
+        
+    def effectiveness(self, p: Pokemon) -> int:
+            return (1 if p._pokemon_type == "Grass" else (0 if p._pokemon_type == "Fire" else -1))
