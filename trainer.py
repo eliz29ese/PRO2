@@ -4,7 +4,7 @@ TODO: Implement in the file the Trainer class
 
 from pokemon import Pokemon, WaterPokemon, FirePokemon, GrassPokemon
 
-class Trainer(Pokemon):
+class Trainer():
     
     def __init__(self, name:str, pokemon:list):
         self._name = name
@@ -31,6 +31,9 @@ class Trainer(Pokemon):
             self._pokemon = value
         else:
             raise ValueError("Pokemon must be a list")
+        for p in self._pokemon:
+            if not isinstance(p, Pokemon):
+                raise TypeError("Elements of pokemon list must be Pokemon")
             
     def all_debilitated(self) -> bool:
         all_debilitated = True
