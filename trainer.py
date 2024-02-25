@@ -12,7 +12,7 @@ class Trainer():
         
     @property
     def name(self):
-        return self._level
+        return self._name
     @name.setter
     def name(self, value: str):
         # Setter for the name
