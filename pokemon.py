@@ -147,7 +147,7 @@ class WaterPokemon(Pokemon):
         else:
             self._surge_mode = False
             
-        factor = 1 if isinstance(p, WaterPokemon) else (0.5 if isinstance(p, GrassPokemon) else 1.5)
+        factor = 1 if p._pokemon_type == "Water" else (0.5 if p._pokemon_type == "Grass" else 1.5)
             
         if self._surge_mode == True:
             factor += 0.1
@@ -179,7 +179,7 @@ class GrassPokemon(Pokemon):
                 raise ValueError("Healing must be a float")
                 
     def grass_attack(self, p: Pokemon) -> int:
-        factor = 1.5 if isinstance(p, WaterPokemon) else (1 if isinstance(p, GrassPokemon) else 0.5)
+        factor = 1.5 if p._pokemon_type == "Water" else (1 if p._pokemon_type == "Grass" else 0.5)
         grass_damage = int((max(1, (factor*self._strength) - p._defense))) 
         p._hp -= grass_damage
         p._hp = max(0, p._hp)
@@ -214,7 +214,7 @@ class FirePokemon(Pokemon):
                 raise ValueError("Temperature must be a float")
                 
     def fire_attack(self, p:Pokemon)-> int:
-            factor = 1.5 if isinstance(p, GrassPokemon) else (1 if isinstance(p, FirePokemon) else 0.5)
+            factor = 1.5 if p._pokemon_type == "Grass" else (1 if p._pokemon_type == "Fire" else 0.5)
             fire_damage = int((max(1, (factor*self._strength) - p._defense)))
             p._hp -= fire_damage
             p._hp = max(0, p._hp)
@@ -226,9 +226,6 @@ class FirePokemon(Pokemon):
             p._hp -= embers_damage
             p._hp = max(0, p._hp)  
             return embers_damage
-        
-    def effectiveness(self, p: Pokemon) -> int:
-            return (1 if p._pokemon_type == "Grass" else (0 if p._pokemon_type == "Fire" else -1))
         
     def effectiveness(self, p: Pokemon) -> int:
             return (1 if p._pokemon_type == "Grass" else (0 if p._pokemon_type == "Fire" else -1))
