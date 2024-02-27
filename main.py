@@ -89,16 +89,57 @@ def main():
     """
     The main function that reads from a file and starts the simulation.
     """
-
+    class Battle:
+    
+        
+        def attack_order (self, p1:Pokemon, p2:Pokemon) -> tuple[Pokemon,Pokemon]:
+            
+            if p1.agility < p2.agility:
+                return p2, p1
+            else:
+                return p1, p2
+            
+        def battle_begins (self, trainer1: Trainer, trainer2: Trainer) -> None:
+            
+            while not(trainer1.all_debilitated() or trainer2.all_debilitated()):
+                
+                p1 = trainer1.select_first_pokemon()
+                p2 = trainer2.select_first_pokemon()
+                
+                print("=================================")
+                print(f"Battle between: {trainer1.name} vs {trainer2.name} begins! \n{trainer1.name} chooses {p1.name}\n{trainer2.name} chooses {p2.name}")
+                print("=================================")
+            
+                X = 1
+                while not (p1.is_debilitated() and p2.is_debilitated()):
+                     
+                    print (f"┌───────── Round {X} ─────────┐ \n Fighter 1: {p1.name} ({p1.pokemon_type}) Stats: Level: {p1.level}, ATT: {p1.strength}, DEF: {p1.defense}, AGI: {p1.agility}, HP: {p1.hp}/{p1.total_hp}. \n\n Figther 2: {p2.name} ({p2.pokemon_type}) Stats: Level: {p2.level}, ATT: {p2.strength}, DEF: {p2.defense}, AGI: {p2.agility}, HP: {p2.hp}/{p2.total_hp}. \n\n Actions") 
+                    
+                    attacker, defender = self.attack_order(p1, p2)
+                    
+                    if X%2 == 1: 
+                        attacker.basic_attack(defender) 
+                    else:
+                        
+                        if  attacker._pokemon_type == 'Water': 
+                            attacker.water_attack(defender)
+                        elif attacker._pokemon_type == 'Fire':
+                            attacker.fire_attack(defender)
+                        else:
+                            attacker.grass_attack(defender)
+                        
+                    X += 1
+                    break 
+                break
+        
     with open(sys.argv[1]) as f:
         pokemon_text = f.read()
         simulator = PokemonSimulator()
         trainer1, trainer2 = simulator.parse_file(pokemon_text)
         print ("""TODO: Implement the rest of the practice from here. Define classes and functions and
         maintain the code structured, respecting the object-oriented programming paradigm""")
+        battle = Battle()
+        battle.battle_begins(trainer1, trainer2)
         
-
-
 if __name__ == '__main__':
     main()
-
