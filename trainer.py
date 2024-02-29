@@ -50,7 +50,7 @@ class Trainer():
         return None
     
     def select_next_pokemon(self) -> Pokemon:
-        pokemon_selected = self._select_first_pokemon()
+        pokemon_selected = self.select_first_pokemon()
         for pokemon in self._pokemon:
             if pokemon._hp > 0 and (pokemon._effectiveness() > pokemon_selected._effectiveness()):
                 pokemon_selected = pokemon
