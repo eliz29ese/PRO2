@@ -12,7 +12,7 @@ class Trainer():
         
     @property
     def name(self):
-        return self._name
+        return self._name 
     @name.setter
     def name(self, value: str):
         # Setter for the name
@@ -49,9 +49,13 @@ class Trainer():
                 return pokemon 
         return None
     
-    def select_next_pokemon(self) -> Pokemon:
+    def select_next_pokemon(self, p:Pokemon) -> Pokemon:
         pokemon_selected = self.select_first_pokemon()
         for pokemon in self._pokemon:
-            if pokemon._hp > 0 and (pokemon._effectiveness() > pokemon_selected._effectiveness()):
-                pokemon_selected = pokemon
+            if pokemon._hp > 0:
+                if (pokemon.effectiveness(p) > pokemon_selected.effectiveness(p)):
+                    pokemon_selected = pokemon
+                elif pokemon.effectiveness(p) == pokemon_selected.effectiveness(p):
+                    if pokemon._level > pokemon_selected._level :
+                        pokemon_selected = pokemon
         return pokemon_selected
