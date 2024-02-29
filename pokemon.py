@@ -136,10 +136,7 @@ class WaterPokemon(Pokemon):
             raise ValueError("Pokemon type must be a boolean")
 
     def check_surge_activation(self)->bool:
-        if self._hp < (self._total_hp/2):
-            return True
-        else:
-            return False
+        return self._hp < (self._total_hp/2)
         
     def water_attack(self, p: Pokemon) -> int:
         if self.check_surge_activation():
