@@ -36,7 +36,7 @@ class PokemonSimulator:
             
             # Creating pokemons based on their type
             if pokemon_type == 'Fire':
-                temperature = details[6].split(': ')[1]
+                temperature = float(details[6].split(': ')[1])
                 # TODO: Implement creation of a FirePokemon
                 pokemon_name = FirePokemon(pokemon_name, level, strength, defense, hp, total_hp, agility, temperature)
                 pokemons.append(pokemon_name)
@@ -44,7 +44,7 @@ class PokemonSimulator:
                 print (f"name: {pokemon_name}, level: {level}, strength: {strength}, defense: {defense}, hp: {hp}, total_hp: {total_hp}, agility: {agility}, temperature: {temperature} ")
             elif pokemon_type == 'Grass':
                 # TODO: Implement creation of a GrassPokemon
-                healing = details[6].split(': ')[1]
+                healing = float(details[6].split(': ')[1])
                 # Printing the attributes for now
                 pokemon_name = GrassPokemon(pokemon_name, level, strength, defense, hp, total_hp, agility, healing)
                 pokemons.append(pokemon_name)
@@ -84,62 +84,103 @@ class PokemonSimulator:
         return trainer1, trainer2
 
 
+
+
+class Battle():
+    
+    def select_first_pokemons(self, trainer1, trainer2):
+        if not(trainer1.all_debilitated() or trainer2.all_debilitated()):
+            p1 = trainer1.select_first_pokemon()
+            p2 = trainer2.select_first_pokemon()
+        return trainer1, p1, trainer2, p2
+    
+    
+    def new_battle(self, attacker, defender, X):
+        while not (attacker.is_debilitated() or defender.is_debilitated()):
+             
+            print (f"┌───────── Round {X} ─────────┐ \n Fighter 1: {attacker.name} ({attacker.pokemon_type}) Stats: Level: {attacker.level}, ATT: {attacker.strength}, DEF: {attacker.defense}, AGI: {attacker.agility}, HP: {attacker.hp}/{attacker.total_hp}. \n\n Figther 2: {defender.name} ({defender.pokemon_type}) Stats: Level: {defender.level}, ATT: {defender.strength}, DEF: {defender.defense}, AGI: {defender.agility}, HP: {defender.hp}/{defender.total_hp}. \n\n Actions") 
+            
+            
+            if X%2 == 1: 
+                damage = attacker.basic_attack(defender) 
+                print(f"{attacker._name} uses a basic_attack on {defender._name}! (Damage: -{damage} HP: {defender._hp}) ")
+
+            else:
+                
+                if  attacker._pokemon_type == 'Water': 
+                    damage = attacker.water_attack(defender)
+                    
+                elif attacker._pokemon_type == 'Fire':
+                    damage = attacker.fire_attack(defender)
+                    damage2 = attacker._embers()
+                    print(f"- {attacker.name} uses embers on {defender.name}! (Damage: -{damage2} HP: {defender.hp}) ")
+                else:
+                    damage = attacker.grass_attack(defender)
+                    healing = attacker.heal()
+                    print(f"{attacker.name} is healing! (Healing: {healing}+HP: {attacker.hp}) ")
+                print(f"{attacker._name} uses a {attacker._pokemon_type}_attack on {defender._name}! (Damage: -{damage} HP: {defender._hp}) ")
+            X+=1
+        return(X)
+    def choose_attacker_defender(self, trainer1, p1, trainer2, p2):
+        if not(trainer1.all_debilitated() or trainer2.all_debilitated()):
+            
+            if p1.agility < p2.agility:
+                attacker_trainer, attacker, defender_trainer, defender =  trainer2, p2, trainer1, p1
+            else:
+                attacker_trainer, attacker, defender_trainer, defender = trainer1, p1, trainer2, p2
+            return(attacker_trainer, attacker, defender_trainer, defender)
+                
+    def begin_battle(self, trainer1, p1, trainer2, p2):
+        print("=================================")
+        print(f"Battle between: {trainer1.name} vs {trainer2.name} begins! \n{trainer1.name} chooses {p1.name}\n{trainer2.name} chooses {p2.name}")
+        print("=================================")
+        
+        attacker_trainer, attacker, defender_trainer, defender = self.choose_attacker_defender(trainer1, p1, trainer2, p2)
+        X = 1
+        while not(trainer1.all_debilitated() or trainer2.all_debilitated()):
+            
+            X = self.new_battle(attacker, defender, X)
+                
+                
+            if defender.is_debilitated():
+                defender = defender_trainer.select_next_pokemon()
+                
+
+        if trainer1.all_debilitated():
+            winner = trainer2
+        else:
+            winner = trainer1
+        print("=================================")
+        print(f"End of the Battle: {winner.name} wins! ")
+        print("=================================")
+
+
+
+
+
+
+
 def main():
 
     """
     The main function that reads from a file and starts the simulation.
     """
-    class Battle:
-    
-        
-        def attack_order (self, p1:Pokemon, p2:Pokemon) -> tuple[Pokemon,Pokemon]:
-            
-            if p1.agility < p2.agility:
-                return p2, p1
-            else:
-                return p1, p2
-            
-        def battle_begins (self, trainer1: Trainer, trainer2: Trainer) -> None:
-            
-            while not(trainer1.all_debilitated() or trainer2.all_debilitated()):
-                
-                p1 = trainer1.select_first_pokemon()
-                p2 = trainer2.select_first_pokemon()
-                
-                print("=================================")
-                print(f"Battle between: {trainer1.name} vs {trainer2.name} begins! \n{trainer1.name} chooses {p1.name}\n{trainer2.name} chooses {p2.name}")
-                print("=================================")
-            
-                X = 1
-                while not (p1.is_debilitated() and p2.is_debilitated()):
-                     
-                    print (f"┌───────── Round {X} ─────────┐ \n Fighter 1: {p1.name} ({p1.pokemon_type}) Stats: Level: {p1.level}, ATT: {p1.strength}, DEF: {p1.defense}, AGI: {p1.agility}, HP: {p1.hp}/{p1.total_hp}. \n\n Figther 2: {p2.name} ({p2.pokemon_type}) Stats: Level: {p2.level}, ATT: {p2.strength}, DEF: {p2.defense}, AGI: {p2.agility}, HP: {p2.hp}/{p2.total_hp}. \n\n Actions") 
-                    
-                    attacker, defender = self.attack_order(p1, p2)
-                    
-                    if X%2 == 1: 
-                        attacker.basic_attack(defender) 
-                    else:
-                        
-                        if  attacker._pokemon_type == 'Water': 
-                            attacker.water_attack(defender)
-                        elif attacker._pokemon_type == 'Fire':
-                            attacker.fire_attack(defender)
-                        else:
-                            attacker.grass_attack(defender)
-                        
-                    X += 1
-                    break 
-                break
-        
+
     with open(sys.argv[1]) as f:
         pokemon_text = f.read()
         simulator = PokemonSimulator()
         trainer1, trainer2 = simulator.parse_file(pokemon_text)
         print ("""TODO: Implement the rest of the practice from here. Define classes and functions and
         maintain the code structured, respecting the object-oriented programming paradigm""")
-        battle = Battle()
-        battle.battle_begins(trainer1, trainer2)
         
+    battle = Battle()
+    
+    trainer1, p1, trainer2, p2 = battle.select_first_pokemons(trainer1, trainer2)
+    
+    battle.begin_battle(trainer1, p1, trainer2, p2)
+        
+        
+     
 if __name__ == '__main__':
-    main()
+    main()   
+        
