@@ -14,7 +14,7 @@ class Pokemon(ABC):
         self._total_hp = total_hp
         self._agility = agility
         self._pokemon_type = pokemon_type
-        ######
+        
         
 
     def  __str__(self) -> str:
@@ -24,17 +24,17 @@ class Pokemon(ABC):
     
     @property
     def name(self):
-        return self._name
+        return self.name
    
             
     @property
     def level(self):
-        return self._level
+        return self.level
     @level.setter
     def level(self, value: int):
         # Setter for the level
         if isinstance(value, int) and (value>=0 and value<=100):
-            self._level = value
+            self.level = value
         else:
             raise ValueError("Level must be an interger between 0 and 100")
             
@@ -45,59 +45,57 @@ class Pokemon(ABC):
     def strength(self, value: int):
         # Setter for strength
         if isinstance(value, int):
-            self._strength = value
+            self.strength = value
         else:
             raise ValueError("Strength must be an interger")
             
     @property
     def defense(self):
-        return self._defense
+        return self.defense
     @defense.setter
     def defense(self, value: int):
         # Setter for defense
         if isinstance(value, int):
-            self._defense = value
+            self.defense = value
         else:
             raise ValueError("Defense must be an interger")
             
     @property
     def hp(self):
-        return self._hp
+        return self.hp
     @hp.setter
     def hp(self, value: int):
         # Setter for the health points
         if isinstance(value, int):
-            self._hp = value
+            self.hp = value
         else:
             raise ValueError("Health points must be an interger")
             
     @property
     def total_hp(self):
-        return self._total_hp
+        return self.total_hp
     
             
     @property
     def agility(self):
-        return self._agility
+        return self.agility
     @agility.setter
     def agility(self, value: int):
         # Setter for the agility
         if isinstance(value, int):
-            self._agility = value
+            self.agility = value
         else:
             raise ValueError("Agility must be an interger")
             
     @property
     def pokemon_type(self):
-        return self._pokemon_type
-    
-    #POKEMON TYPE TIENE SETTER?????
-    
+        return self.pokemon_type
+        
     @pokemon_type.setter
     def pokemon_type(self, value: str):
         # Setter for the pokemon type
         if isinstance(value, str):
-            self._pokemon_type = value
+            self.pokemon_type = value
         else:
             raise ValueError("Pokemon type must be a string")
 
@@ -106,13 +104,13 @@ class Pokemon(ABC):
         pass
     
     def basic_attack(self, opponent: 'Pokemon') -> int:
-        damage = max(1, self._strength - opponent._defense )
-        opponent._hp -= damage
-        opponent._hp = max(0, opponent._hp)
+        damage = max(1, self.strength - opponent.defense )
+        opponent.hp -= damage
+        opponent.hp = max(0, opponent._hp)
         return damage
     
     def is_debilitated(self) -> bool: 
-        return self._hp == 0
+        return self.hp == 0
     
    
 
@@ -125,38 +123,37 @@ class WaterPokemon(Pokemon):
         
     @property
     def surge_mode(self):
-        return self._surge_mode
+        return self.surge_mode
     
     @surge_mode.setter
     def surge_mode(self, value: bool):
         # Setter for the surge mode
         if isinstance(value, bool):
-            self._surge_mode = value
+            self.surge_mode = value
         else:
             raise ValueError("Pokemon type must be a boolean")
 
     def check_surge_activation(self)->bool:
-        return self._hp < (self._total_hp/2)
+        return self.hp < (self.total_hp/2)
         
     def water_attack(self, p: Pokemon) -> int:
         if self.check_surge_activation():
-            self._surge_mode = True
+            self.surge_mode = True
         else:
-            self._surge_mode = False
+            self.surge_mode = False
             
-        factor = 1 if p._pokemon_type == "Water" else (0.5 if p._pokemon_type == "Grass" else 1.5)
+        factor = 1 if p.pokemon_type == "Water" else (0.5 if p.pokemon_type == "Grass" else 1.5)
             
         if self._surge_mode == True:
             factor += 0.1
             
-        water_damage = int(max(1, (factor*self._strength - p._defense)))
-        p._hp -= water_damage  
-        p._hp = max(0, p._hp)
+        water_damage = int(max(1, (factor*self.strength - p.defense)))
+        p.hp -= water_damage  
+        p.hp = max(0, p.hp)
         return water_damage
     
     def effectiveness(self, p: Pokemon) -> int:
-        ###ESTA MANERA O LA D FIRE POKEMON????
-        return (-1 if p._pokemon_type == "Grass" else (1 if p._pokemon_type == "Fire" else 0))
+        return (-1 if p.pokemon_type == "Grass" else (1 if p.pokemon_type == "Fire" else 0))
 
 class GrassPokemon(Pokemon):
     
@@ -166,32 +163,32 @@ class GrassPokemon(Pokemon):
         
     @property
     def healing(self):
-            return self._healing
+            return self.healing
     @healing.setter
     def healing(self, value: float):
             # Setter for the temperature
             if isinstance(value, float):
-                self._healing = value
+                self.healing = value
             else:
                 raise ValueError("Healing must be a float")
                 
     def grass_attack(self, p: Pokemon) -> int:
-        factor = 1.5 if p._pokemon_type == "Water" else (1 if p._pokemon_type == "Grass" else 0.5)
-        grass_damage = int((max(1, (factor*self._strength) - p._defense))) 
-        p._hp -= grass_damage
-        p._hp = max(0, p._hp)
+        factor = 1.5 if p.pokemon_type == "Water" else (1 if p.pokemon_type == "Grass" else 0.5)
+        grass_damage = int((max(1, (factor*self.strength) - p.defense))) 
+        p.hp -= grass_damage
+        p.hp = max(0, p.hp)
             
         return grass_damage 
         
     def heal(self) -> int:
-        n = int(self._healing*self._hp)
-        self._hp += n
-        if self._hp > self._total_hp:
-            self._hp = self.total_hp
+        n = int(self.healing*self.hp)
+        self.hp += n
+        if self.hp > self.total_hp:
+            self.hp = self.totalhp
         return n
     
     def effectiveness(self, p: Pokemon) -> int:
-        return (0 if p._pokemon_type == "Grass" else (-1 if p._pokemon_type == "Fire" else 1))
+        return (0 if p.pokemon_type == "Grass" else (-1 if p.pokemon_type == "Fire" else 1))
             
 class FirePokemon(Pokemon):
         
@@ -201,28 +198,29 @@ class FirePokemon(Pokemon):
         
     @property
     def temperature(self):
-            return self._temperature
+            return self.temperature
     @temperature.setter
     def temperature(self, value: float):
             # Setter for the temperature
             if isinstance(value, float):
-                self._temperature = value
+                self.temperature = value
             else:
                 raise ValueError("Temperature must be a float")
                 
     def fire_attack(self, p:Pokemon)-> int:
-            factor = 1.5 if p._pokemon_type == "Grass" else (1 if p._pokemon_type == "Fire" else 0.5)
-            fire_damage = int((max(1, (factor*self._strength) - p._defense)))
-            p._hp -= fire_damage
-            p._hp = max(0, p._hp)
+            factor = 1.5 if p.pokemon_type == "Grass" else (1 if p.pokemon_type == "Fire" else 0.5)
+            fire_damage = int((max(1, (factor*self.strength) - p.defense)))
+            p.hp -= fire_damage
+            p.hp = max(0, p.hp)
                 
             return fire_damage 
         
     def embers(self, p: Pokemon) -> int: 
-            embers_damage = int((self._strength*self._temperature))  
-            p._hp -= embers_damage
-            p._hp = max(0, p._hp)  
+            embers_damage = int((self.strength*self.temperature))  
+            p.hp -= embers_damage
+            p.hp = max(0, p.hp)  
             return embers_damage
         
     def effectiveness(self, p: Pokemon) -> int:
-            return (1 if p._pokemon_type == "Grass" else (0 if p._pokemon_type == "Fire" else -1))
+            return (1 if p.pokemon_type == "Grass" else (0 if p.pokemon_type == "Fire" else -1))
+            
