@@ -1,6 +1,7 @@
 import sys
 from pokemon import Pokemon, WaterPokemon, FirePokemon, GrassPokemon
 from trainer import Trainer
+import pandas
 class PokemonSimulator:
     """A class that simulates Pokemon trainers and their Pokemon."""
     def create_trainer_and_pokemons(self, text: str):
@@ -70,6 +71,7 @@ class PokemonSimulator:
         trainer1 = self.create_trainer_and_pokemons(info_trainer_1)
         trainer2 = self.create_trainer_and_pokemons(info_trainer_2)
         return trainer1, trainer2
+    
 class Battle:
 
 
@@ -78,16 +80,52 @@ class Battle:
         if p1.agility < p2.agility:
             return p2, p1
         else:
-            return p1, p2
+            return p1, p2 
+        
+    def pandas_stats (self, lista_p: list) -> None: 
+        data = pandas.DataFrame(lista_p, columns=["Pokemon_names","Damage", 'Pokemon_type', 'Opponent_type', 'Healing'])
+        print(data)
+        
+
+        group_col = "Pokemon_names"
+        target_col = "Damage" #sobre cual realizar la operacion 
+        single_stats = data.groupby(group_col).agg({target_col :["mean","std"]})
+        print('\n', "*"*37, '\n', "          Individual Damage      ", '\n',  "*"*37 )
+        print (single_stats)
+        
+        group_col = "Pokemon_type"
+        target_col = "Damage" #sobre cual realizar la operacion 
+        type_stats = data.groupby(group_col).agg({target_col :["mean","std"]})
+        print('\n', "*"*37, '\n', "     Damage group by Pokemon Type     ", '\n',  "*"*37 )
+        print(type_stats)
+        
+        group_col = ["Pokemon_type", 'Opponent_type']
+        target_col = "Damage" #sobre cual realizar la operacion 
+        type2_stats = data.groupby(group_col).agg({target_col :["mean","std"]})
+        print('\n', "*"*57, '\n', "Pokemon damage to Opponent pokemon group by Pokemon Type     ", '\n',  "*"*57 )
+        print(type2_stats)
+        
+        group_col = "Pokemon_names"
+        target_col = "Healing" #sobre cual realizar la operacion 
+        healing_stats = data.groupby(group_col).agg({target_col :["mean","std"]})
+        print('\n', "*"*37, '\n', "          Individual Healing      ", '\n',  "*"*37 )
+        print(healing_stats)
+        
+        group_col = "Pokemon_type"
+        target_col = "Healing" #sobre cual realizar la operacion 
+        healing_type_stats = data.groupby(group_col).agg({target_col :["mean","std"]})
+        print('\n', "*"*37, '\n', "     Healing group by Pokemon Type     ", '\n',  "*"*37 )
+        print(healing_type_stats)
+
 
     def battle_begins (self, trainer1: Trainer, trainer2: Trainer):
-        
-        round_comb = 1
+        lista_p =[]
+        comb_num = 1
         loser = None 
         winner = None
         while not(trainer1.all_debilitated() or trainer2.all_debilitated()):
             
-            if round_comb == 1:
+            if comb_num == 1:
                 p1 = trainer1.select_first_pokemon()
                 p2 = trainer2.select_first_pokemon()
                 
@@ -103,35 +141,47 @@ class Battle:
                     p1= winner
                     p2= trainer2.select_next_pokemon(p1)
                     print(f'{trainer2._name} chooses {p2.name}')
+                    
+            print('*'*33)
+            print(f'     Combat number {comb_num} begins')
+            print('*'*33)
+
+            loser, winner = self.combat(p1,p2, lista_p) 
+            comb_num += 1
+        if trainer1.all_debilitated():
+            print("=" * 43)
+            print(f"End of the Battle: {trainer2.name} wins!")
+            print("=" * 43)
+
+        elif trainer2.all_debilitated():
+            print("=" * 43)
+            print(f"End of the Battle: {trainer1.name} wins!")
+            print("=" * 43)
+        
+        self.pandas_stats(lista_p)
 
             
-            loser, winner = self.combat(p1,p2) 
-            round_comb += 1
-        if trainer1.all_debilitated():
-            print("=" * 33)
-            print(f"End of the Battle: {trainer2.name} wins!")
-            print("=" * 33)
-        elif trainer2.all_debilitated():
-            print("=" * 33)
-            print(f"End of the Battle: {trainer1.name} wins!")
-            print("=" * 33)
             
-            
-    def combat(self,p1,p2) -> tuple[Pokemon, Pokemon]:
+    def combat(self,p1 ,p2, lista_p:list ) -> tuple[Pokemon, Pokemon]:
             round_num = 1
+
             while not (p1.is_debilitated() or p2.is_debilitated()):
 
-                print (f"┌───────── Round {round_num} ─────────┐ \n Fighter 1: {p1._name} ({p1.pokemon_type}) Stats: Level: {p1.level}, ATT: {p1.strength}, DEF: {p1.defense}, AGI: {p1.agility}, HP: {p1.hp}/{p1.total_hp}. \n\n Figther 2: {p2.name} ({p2.pokemon_type}) Stats: Level: {p2.level}, ATT: {p2.strength}, DEF: {p2.defense}, AGI: {p2.agility}, HP: {p2.hp}/{p2.total_hp}. \n\n Actions") 
+                print (f" \n ┌───────── Round {round_num} ─────────┐ \n Fighter 1: {p1._name} ({p1.pokemon_type}) Stats: Level: {p1.level}, ATT: {p1.strength}, DEF: {p1.defense}, AGI: {p1.agility}, HP: {p1.hp}/{p1.total_hp}. \n\n Figther 2: {p2.name} ({p2.pokemon_type}) Stats: Level: {p2.level}, ATT: {p2.strength}, DEF: {p2.defense}, AGI: {p2.agility}, HP: {p2.hp}/{p2.total_hp}. \n\n Actions") 
 
                 attacker, defender = self.attack_order(p1, p2)
                 
-                self.attack(round_num, attacker, defender)
+                damage, healing = self.attack(round_num, attacker, defender)
+                
+                lista_p.append([attacker._name, damage, attacker._pokemon_type, defender._pokemon_type, healing])
                 
                 if defender.is_debilitated():
                     print(f'{defender._name} is debilitated')
                     return defender, attacker
                 
-                self.attack(round_num, defender , attacker)
+                damage, healing = self.attack(round_num, defender , attacker)
+                
+                lista_p.append([defender._name, damage, defender._pokemon_type, attacker._pokemon_type, healing])
                 
                 if attacker.is_debilitated():
                     print(f'{attacker._name} is debilitated')
@@ -141,7 +191,7 @@ class Battle:
                 round_num += 1
 
     def attack (self, round_num, attacker, defender):
-        
+        healing = 0 
         if round_num%2 == 0: 
             damage = attacker.basic_attack(defender) 
             print(f"{attacker.name} uses a basic_attack on {defender.name}! (Damage: -{damage} HP: {defender.hp})")
@@ -156,13 +206,15 @@ class Battle:
                 damage = attacker.fire_attack(defender)
                 print(f"{attacker._name} uses a {attacker._pokemon_type}_attack on {defender.name}! (Damage: -{damage} HP: {defender._hp})")
                 ember_damage = attacker.embers(defender)
+                damage += ember_damage 
                 print(f"{attacker._name} uses embers on {defender._name}! (Damage: -{ember_damage} HP: {defender._hp})")
             else:
                 damage = attacker.grass_attack(defender)
                 print(f"{attacker.name} uses a {attacker._pokemon_type}_attack on {defender.name}! (Damage: -{damage} HP: {defender._hp})")
                 healing = attacker.heal()
                 print(f"{attacker.name} is healing! (Healing: +{healing} HP: {attacker._hp})")
-            
+                
+        return damage, healing
     
         
 def main():
