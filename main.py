@@ -75,7 +75,7 @@ class PokemonSimulator:
 class Battle:
 
 
-    def attack_order (self, p1:Pokemon, p2:Pokemon) -> tuple[Pokemon,Pokemon]:
+    def attack_order (self, p1:Pokemon, p2:Pokemon) -> tuple:
 
         if p1.agility < p2.agility:
             return p2, p1
@@ -133,14 +133,14 @@ class Battle:
                 print(f"Battle between: {trainer1.name} vs {trainer2.name} begins! \n{trainer1.name} chooses {p1.name}\n{trainer2.name} chooses {p2.name}")
                 print("=================================")
             else: 
-                if p1._name == loser._name:
+                if p1.name == loser.name:
                     p2 = winner
                     p1= trainer1.select_next_pokemon(p2)
-                    print(f'{trainer1._name} chooses {p1.name}')
-                elif p2._name == loser._name: 
+                    print(f'{trainer1.name} chooses {p1.name}')
+                elif p2.name == loser.name: 
                     p1= winner
                     p2= trainer2.select_next_pokemon(p1)
-                    print(f'{trainer2._name} chooses {p2.name}')
+                    print(f'{trainer2.name} chooses {p2.name}')
                     
             print('*'*33)
             print(f'     Combat number {comb_num} begins')
@@ -162,29 +162,29 @@ class Battle:
 
             
             
-    def combat(self,p1 ,p2, lista_p:list ) -> tuple[Pokemon, Pokemon]:
+    def combat(self,p1 ,p2, lista_p:list ) -> tuple:
             round_num = 1
 
             while not (p1.is_debilitated() or p2.is_debilitated()):
 
-                print (f" \n ┌───────── Round {round_num} ─────────┐ \n Fighter 1: {p1._name} ({p1.pokemon_type}) Stats: Level: {p1.level}, ATT: {p1.strength}, DEF: {p1.defense}, AGI: {p1.agility}, HP: {p1.hp}/{p1.total_hp}. \n\n Figther 2: {p2.name} ({p2.pokemon_type}) Stats: Level: {p2.level}, ATT: {p2.strength}, DEF: {p2.defense}, AGI: {p2.agility}, HP: {p2.hp}/{p2.total_hp}. \n\n Actions") 
+                print (f" \n ┌───────── Round {round_num} ─────────┐ \n Fighter 1: {p1.name} ({p1.pokemon_type}) Stats: Level: {p1.level}, ATT: {p1.strength}, DEF: {p1.defense}, AGI: {p1.agility}, HP: {p1.hp}/{p1.total_hp}. \n\n Figther 2: {p2.name} ({p2.pokemon_type}) Stats: Level: {p2.level}, ATT: {p2.strength}, DEF: {p2.defense}, AGI: {p2.agility}, HP: {p2.hp}/{p2.total_hp}. \n\n Actions") 
 
                 attacker, defender = self.attack_order(p1, p2)
                 
                 damage, healing = self.attack(round_num, attacker, defender)
                 
-                lista_p.append([attacker._name, damage, attacker._pokemon_type, defender._pokemon_type, healing])
+                lista_p.append([attacker.name, damage, attacker.pokemon_type, defender.pokemon_type, healing])
                 
                 if defender.is_debilitated():
-                    print(f'{defender._name} is debilitated')
+                    print(f'{defender.name} is debilitated')
                     return defender, attacker
                 
                 damage, healing = self.attack(round_num, defender , attacker)
                 
-                lista_p.append([defender._name, damage, defender._pokemon_type, attacker._pokemon_type, healing])
+                lista_p.append([defender.name, damage, defender.pokemon_type, attacker.pokemon_type, healing])
                 
                 if attacker.is_debilitated():
-                    print(f'{attacker._name} is debilitated')
+                    print(f'{attacker.name} is debilitated')
                     return attacker, defender
                     
 
@@ -198,21 +198,21 @@ class Battle:
             
         else:
 
-            if  attacker._pokemon_type == 'Water': 
+            if  attacker.pokemon_type == 'Water': 
                 damage = attacker.water_attack(defender)
-                print(f"{attacker._name} uses a {attacker._pokemon_type}_attack on {defender.name}! (Damage: -{damage} HP: {defender._hp})")
+                print(f"{attacker.name} uses a {attacker.pokemon_type}_attack on {defender.name}! (Damage: -{damage} HP: {defender.hp})")
                 
-            elif attacker._pokemon_type == 'Fire':
+            elif attacker.pokemon_type == 'Fire':
                 damage = attacker.fire_attack(defender)
-                print(f"{attacker._name} uses a {attacker._pokemon_type}_attack on {defender.name}! (Damage: -{damage} HP: {defender._hp})")
+                print(f"{attacker.name} uses a {attacker.pokemon_type}_attack on {defender.name}! (Damage: -{damage} HP: {defender.hp})")
                 ember_damage = attacker.embers(defender)
                 damage += ember_damage 
-                print(f"{attacker._name} uses embers on {defender._name}! (Damage: -{ember_damage} HP: {defender._hp})")
+                print(f"{attacker.name} uses embers on {defender.name}! (Damage: -{ember_damage} HP: {defender.hp})")
             else:
                 damage = attacker.grass_attack(defender)
-                print(f"{attacker.name} uses a {attacker._pokemon_type}_attack on {defender.name}! (Damage: -{damage} HP: {defender._hp})")
+                print(f"{attacker.name} uses a {attacker.pokemon_type}_attack on {defender.name}! (Damage: -{damage} HP: {defender.hp})")
                 healing = attacker.heal()
-                print(f"{attacker.name} is healing! (Healing: +{healing} HP: {attacker._hp})")
+                print(f"{attacker.name} is healing! (Healing: +{healing} HP: {attacker.hp})")
                 
         return damage, healing
     
