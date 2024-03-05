@@ -14,13 +14,13 @@ class Trainer():
     name : str 
         The name of the trainer. 
     pokemon : list 
-        A list that contains Pokemon objects which belong to the Trainer. 
+        A list with Pokemon objects that belong to the Trainer. 
         
     Methods 
     ------- 
     all_debilitated(self)): 
-        Checks if all the pokemons of the list of the trainer are debilitated, it checks if 
-        HP is zero. This function returns True if all pokemons of the trainer are debilitated.
+        Checks if all the pokemons of the list of the trainer are debilitated, if 
+        HP is zero in all of them. Returns True if all pokemons of the trainer are debilitated
         and False otherwise.
 
     select_first_pokemon(self):
@@ -29,15 +29,14 @@ class Trainer():
     
     select_next_pokemon(self, p:Pokemon):
         Chooses the next pokemon in the list between the pokemons that are not debilitated.
-        It selects the one that has the best effectiveness, the one who can do the best vs. the 
-        opponent Pokemon p. If there exist multiple pokemons with the same effectiveness, it chooses 
-        the one with the highest level. It returns that pokemon.
+        It selects the one that has the best effectiveness against the opponet. If there exist
+        multiple pokemons with the same effectiveness, it chooses the one with the highest level. 
     
     """ 
     
     def __init__(self, name:str, pokemon:list):
         """
-         Assigns attributes to the object. 
+         Creates a Trainer with the attributes given. 
          
          Parameters 
          ---------- 
@@ -81,7 +80,7 @@ class Trainer():
             
     def all_debilitated(self) -> bool:
         """
-        Checks if all the pokemons of the list of the trainer (attribute pokemon) are debilitated, 
+        Checks if all the pokemons of the list of the trainer are debilitated, 
         it checks if HP is zero in all the pokemons.  
      
         Returns 
@@ -119,9 +118,8 @@ class Trainer():
     def select_next_pokemon(self, p:Pokemon) -> Pokemon:
         """
         Chooses the next pokemon in the list between the pokemons that are not debilitated.
-        It selects the one that has the best effectiveness, the one who can do the best vs. the 
-        opponent Pokemon p. If there exist multiple pokemons with the same effectiveness, 
-        it chooses the one with the highest level.
+        It selects the one that has the best effectiveness against the opponent. If there exist
+        multiple pokemons with the same effectiveness, it chooses the one with the highest level.
     
         Parameters 
         -------- 
@@ -131,7 +129,7 @@ class Trainer():
         Returns 
         -------- 
         Pokemon
-            The pokemon selected based on its effectiveness and level.  
+            The pokemon chosen based on its effectiveness and level.  
             
         """ 
         pokemon_selected = self.select_first_pokemon()
@@ -144,6 +142,3 @@ class Trainer():
                         pokemon_selected = pokemon
         return pokemon_selected
                 
-        
-            
-        
