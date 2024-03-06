@@ -116,7 +116,7 @@ class Pokemon(ABC):
         if isinstance(value, int) and (value>=0 and value<=100):
             self._level = value
         else:
-            raise ValueError("Level must be an interger between 0 and 100")
+            raise ValueError("Level must be an integer between 0 and 100")
             
     @property
     def strength(self):
@@ -127,7 +127,7 @@ class Pokemon(ABC):
         if isinstance(value, int):
             self._strength = value
         else:
-            raise ValueError("Strength must be an interger")
+            raise ValueError("Strength must be an integer")
             
     @property
     def defense(self):
@@ -138,7 +138,7 @@ class Pokemon(ABC):
         if isinstance(value, int):
             self._defense = value
         else:
-            raise ValueError("Defense must be an interger")
+            raise ValueError("Defense must be an integer")
             
     @property
     def hp(self):
@@ -149,7 +149,7 @@ class Pokemon(ABC):
         if isinstance(value, int):
             self._hp = value
         else:
-            raise ValueError("Health points must be an interger")
+            raise ValueError("Health points must be an integer")
             
     @property
     def total_hp(self):
@@ -165,7 +165,7 @@ class Pokemon(ABC):
         if isinstance(value, int):
             self._agility = value
         else:
-            raise ValueError("Agility must be an interger")
+            raise ValueError("Agility must be an integer")
             
     @property
     def pokemon_type(self):
@@ -246,7 +246,7 @@ class WaterPokemon(Pokemon):
         Checks if the Pokemon's HP attribute is less than half of its total_hp, returning True if so.
 
     water_attack(p: Pokemon) -> int:
-        Executes a water attack, calculating the damage dealt as an interfer of the maximum 
+        Executes a water attack, calculating the damage dealt as an integer of the maximum 
         between 1 and  (factor*strength - defense), obtaining the value factor beforehand based on
         the opponent's class. If the surge_mode attribute is True, the factor increases
         by 0.1. Returns the damage done.
@@ -299,7 +299,7 @@ class WaterPokemon(Pokemon):
         
     def water_attack(self, p: Pokemon) -> int:
         """
-        Executes a water attack, calculating the damage dealt as an interfer of the maximum 
+        Executes a water attack, calculating the damage dealt as an integer of the maximum 
         between 1 and  (factor*strength - defense), obtaining the value factor beforehand based on
         the opponent's class. If the surge_mode attribute is True, the factor increases
         by 0.1.
@@ -349,7 +349,7 @@ class GrassPokemon(Pokemon):
     Methods 
     ------- 
     grass_attack(p: Pokemon) -> int:
-        Executes a grass attack, calculating the damage dealt as an interference of the maximum 
+        Executes a grass attack, calculating the damage dealt as an integer of the maximum 
         between 1 and (factor*strength - defense), obtaining the factor value beforehand based on
         the opponent's class. Returns the damage done.
         
@@ -393,7 +393,7 @@ class GrassPokemon(Pokemon):
                 
     def grass_attack(self, p: Pokemon) -> int:
         """
-        Executes a grass attack, calculating the damage dealt as an interference of the maximum 
+        Executes a grass attack, calculating the damage dealt as an integer of the maximum 
         between 1 and (factor*strength - defense), obtaining the factor value beforehand based on
         the opponent's class.
         
@@ -437,8 +437,46 @@ class GrassPokemon(Pokemon):
         return (0 if p.pokemon_type == "Grass" else (-1 if p.pokemon_type == "Fire" else 1))
             
 class FirePokemon(Pokemon):
+    """
+    A subclass of Pokemon with the Fire type.
+    
+    Attributes
+    ---------- 
+    temperature : float 
+        A float value representing the temperature of the Fire Pokemon, which will affect
+        its ability to execute embers attack.
+
+    Methods 
+    ------- 
+    fire_attack(p: Pokemon) -> int:
+        Executes a fire attack, calculating the damage dealt as an integer of the maximum 
+        between 1 and (factor*strength - defense), obtaining the factor value beforehand based on
+        the opponent's class. Returns the damage done.
+        
+    embers() -> int:
+        Decreases the opponent's health points by strength*temperature damage units, 
+        rounding down to the lower integer.
+            
+    effectiveness(p: Pokemon) -> int:
+        Establishes the effectiveness of the Fire Pokemon based on the class of its opponent.
+    """
         
     def __init__(self, name:str, level:int, strength:int, defense:int, hp:int, total_hp:int, agility:int, temperature:float):
+        """
+        Creates a Fire Pokemon object with the given attributes, inheriting attributes
+        from the Pokemon class.
+     
+        Parameters
+        ----------
+        temperature : float 
+            A float value representing the temperature of the Fire Pokemon, which will affect
+            its ability to execute embers attack.
+     
+        Returns
+        -------
+        None
+        
+        """
         super().__init__(name, level, strength, defense, hp, total_hp, agility, pokemon_type="Fire")
         self._temperature = temperature
         
@@ -454,6 +492,16 @@ class FirePokemon(Pokemon):
                 raise ValueError("Temperature must be a float")
                 
     def fire_attack(self, p:Pokemon)-> int:
+            """
+            Executes a fire attack, calculating the damage dealt as an integer of the maximum 
+            between 1 and (factor*strength - defense), obtaining the factor value beforehand based on
+            the opponent's class.
+            
+            Returns
+            -------
+            int
+                Returns the damage caused to the opponent.
+            """
             factor = 1.5 if p.pokemon_type == "Grass" else (1 if p.pokemon_type == "Fire" else 0.5)
             fire_damage = int((max(1, (factor*self.strength) - p.defense)))
             p.hp -= fire_damage
@@ -462,11 +510,31 @@ class FirePokemon(Pokemon):
             return fire_damage 
         
     def embers(self, p: Pokemon) -> int: 
+            """
+            Damages the opponent by decreasing its health points by strength*temperature damage units, 
+            rounding down to the lower integer.
+            
+            Returns
+            -------
+            int
+                The damage done to the opponent.
+            """
+        
             embers_damage = int((self.strength*self.temperature))  
             p.hp -= embers_damage
             p.hp = max(0, p.hp)  
             return embers_damage
         
     def effectiveness(self, p: Pokemon) -> int:
+            """
+            Establishes the effectiveness of the Fire Pokemon based on the class of its 
+            opponent. 
+            
+            Returns
+            -------
+            int
+                The effectiveness value: 1 if the opponent type is Grass, 0 if is Fire and
+                -1 if is Water.
+            """
             return (1 if p.pokemon_type == "Grass" else (0 if p.pokemon_type == "Fire" else -1))
             
