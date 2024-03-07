@@ -6,8 +6,8 @@ from pokemon import Pokemon, WaterPokemon, FirePokemon, GrassPokemon
 
 class Trainer():
     """
-    A trainer is an object that represents a player in a battle, and who has multiple
-    pokemons which can be used during a combat.
+    A class of trainer objects representing players in a battle, each equipped with multiple Pokemon 
+    that will be used in combats.
     
     Attributes 
     ---------- 
@@ -19,18 +19,14 @@ class Trainer():
     Methods 
     ------- 
     all_debilitated(self)): 
-        Checks if all the pokemons of the list of the trainer are debilitated, if 
-        HP is zero in all of them. Returns True if all pokemons of the trainer are debilitated
-        and False otherwise.
+        Checks if all the pokemons of the list of the trainer are debilitated.
 
     select_first_pokemon(self):
-        Chooses the first pokemon of the pokemon list that is not debilitated (HP is not zero).
-        It returns the pokemon selected, or None if all the pokemons are debilitated.
+        Chooses the first pokemon of the pokemon list that is not debilitated.
     
     select_next_pokemon(self, p:Pokemon):
-        Chooses the next pokemon in the list between the pokemons that are not debilitated.
-        It selects the one that has the best effectiveness against the opponet. If there exist
-        multiple pokemons with the same effectiveness, it chooses the one with the highest level. 
+        Chooses the next pokemon in the list between the pokemons that are not debilitated, 
+        the most effective one, and among those, the one with the highest level.
     
     """ 
     
@@ -55,9 +51,30 @@ class Trainer():
         
     @property
     def name(self):
+        """
+        Gets the name of the Trainer.
+        
+        Returns
+        -------
+        str
+            The name of the Trainer.
+        """
         return self._name
     @name.setter
     def name(self, value: str):
+        """
+       Set the name of the Trainer.
+    
+       Parameters
+       ----------
+       value : str
+           The new name for the Trainer.
+    
+       Raises
+       ------
+       ValueError
+           If the provided value is not a non-empty string.
+       """
         # Setter for the name
         if isinstance(value, str) and len(value)>0 :
             self._name = value
@@ -66,9 +83,32 @@ class Trainer():
             
     @property
     def pokemon(self):
+        """
+        Gets the pokemon list of the Trainer.
+        
+        Returns
+        -------
+        list
+            The pokemon list of the Trainer.
+        """
         return self._pokemon
     @pokemon.setter
     def pokemon(self, value: list):
+        """
+       Set the pokemon list of the Trainer, containing Pokemon objects.
+    
+       Parameters
+       ----------
+       value : list
+           The new list containing Pokemon objects for the Trainer.
+    
+       Raises
+       ------
+       ValueError
+           If the provided value is not a list.
+       TypeError
+           If the provided values inside the list are not Pokemon objects.
+       """
         # Setter for the pokemon list
         if isinstance(value, list):
             self._pokemon = value
@@ -120,7 +160,11 @@ class Trainer():
         Chooses the next pokemon in the list between the pokemons that are not debilitated.
         It selects the one that has the best effectiveness against the opponent. If there exist
         multiple pokemons with the same effectiveness, it chooses the one with the highest level.
-    
+        
+        Preconditions
+        -------------
+        At least one Pokemon of the Trainer is not debilitated.
+
         Parameters 
         -------- 
         p : Pokemon 
@@ -142,3 +186,7 @@ class Trainer():
                         pokemon_selected = pokemon
         return pokemon_selected
                 
+        
+            
+        
+        
