@@ -196,7 +196,7 @@ class Battle:
         self._pandas_stats(data_list_p)
     
             
-    def _combat (self, p1:Pokemon, p2:Pokemon, data_list_p:list ) -> tuple[Pokemon, Pokemon]: 
+    def _combat (self, p1:Pokemon, p2:Pokemon, data_list_p:list ) -> tuple: 
             
             """Simulates a combat between two Pokémon.
                     
@@ -258,7 +258,7 @@ class Battle:
 
                 round_num += 1
     
-    def _attack_order (self, p1:Pokemon, p2:Pokemon) -> tuple[Pokemon,Pokemon]:
+    def _attack_order (self, p1:Pokemon, p2:Pokemon) -> tuple:
         
         """Determines the attack order between two Pokémon based on their agility.
     
@@ -288,7 +288,7 @@ class Battle:
         else:
             return p1, p2 
 
-    def _attack (self, attacker:Pokemon , defender:Pokemon, round_num:int) -> tuple[int, int]:
+    def _attack (self, attacker:Pokemon , defender:Pokemon, round_num:int) -> tuple:
         
         """Simulates an attack from the attacker Pokémon to the defender Pokémon.
     
