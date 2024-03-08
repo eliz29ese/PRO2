@@ -2,7 +2,7 @@
 TODO: Implement in the file the Trainer class
 """
 
-from pokemon import Pokemon, WaterPokemon, FirePokemon, GrassPokemon
+from pokemon import Pokemon
 
 class Trainer():
     """
@@ -183,11 +183,6 @@ class Trainer():
                     if pokemon.level > pokemon_selected.level :
                         pokemon_selected = pokemon
         return pokemon_selected
-                
-        
-            
-        
-        
                 
         
             
