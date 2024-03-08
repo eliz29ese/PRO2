@@ -36,13 +36,11 @@ class PokemonSimulator:
             # Creating pokemons based on their type
             if pokemon_type == 'Fire':
                 temperature = float(details[6].split(': ')[1])
-                # TODO: Implement creation of a FirePokemon
                 pokemon_name = FirePokemon(pokemon_name, level, strength, defense, hp, total_hp, agility, temperature)
                 pokemons.append(pokemon_name)
                 # Printing the attributes for now
                 print (f"name: {pokemon_name}, level: {level}, strength: {strength}, defense: {defense}, hp: {hp}, total_hp: {total_hp}, agility: {agility}, temperature: {temperature} ")
             elif pokemon_type == 'Grass':
-                # TODO: Implement creation of a GrassPokemon
                 healing = float(details[6].split(': ')[1])
                 # Printing the attributes for now
                 pokemon_name = GrassPokemon(pokemon_name, level, strength, defense, hp, total_hp, agility, healing)
@@ -50,7 +48,6 @@ class PokemonSimulator:
                 print (f"name: {pokemon_name},  level: {level}, strength: {strength}, defense: {defense}, hp: {hp}, total_hp: {total_hp}, agility: {agility}, healing: {healing} ")
             elif pokemon_type == 'Water':
                 surge_mode = False
-                # TODO: Implement creation of a WaterPokemon
                 pokemon_name = WaterPokemon(pokemon_name, level, strength, defense, hp, total_hp, agility)
                 pokemons.append(pokemon_name)
                 # Printing the attributes for now
@@ -82,7 +79,7 @@ class Battle:
     
     This class contains methods to simulate a battle between two trainers and their Pokémon.
     To start a battle, an instance of this class must be created and the "battle_begins" method must be called.
-    All other methods necessary to carry out the battle are called internally by "battle_begins".
+    All other methods necessary to carry out the battle are called internally by "battle_begins()".
     
     Battle Premises:
         - The Battle consists of combats, which in turn are composed of rounds.
@@ -105,7 +102,7 @@ class Battle:
             Initiates the battle between two trainers and their respective Pokémon.
     
     Private Methods:
-        _combat(self, p1, p2, lista_p:list) -> tuple[Pokemon, Pokemon]:
+        _combat(self, p1:Pokemon, p2:Pokemon, lista_p:list) -> tuple[Pokemon, Pokemon]:
             Simulates a combat between two Pokémon.
         
         _attack_order(self, p1:Pokemon, p2:Pokemon) -> tuple[Pokemon, Pokemon]:
@@ -172,17 +169,16 @@ class Battle:
             else: 
                 if p1._name == combat_loser.name:
                     p2 = combat_winner
-                    #pokemon_trainer1
                     p1= trainer1.select_next_pokemon(p2)
                     print(f'{trainer1.name} chooses {p1.name}')
                 elif p2._name == combat_loser._name: 
-                    p1= combat_winner
+                    p1 = combat_winner
                     p2= trainer2.select_next_pokemon(p1)
                     print(f'{trainer2.name} chooses {p2.name}')
                     
-            print('-'*33)
+            print('*'*33)
             print(f'     Combat number {combat_num} begins')
-            print('-'*33)
+            print('*'*33)
 
             combat_loser, combat_winner = self._combat(p1,p2, data_list_p) 
             combat_num += 1
@@ -200,7 +196,7 @@ class Battle:
         self._pandas_stats(data_list_p)
     
             
-    def _combat (self,pokemon_t1, pokemon_t2, data_list_p:list ) -> tuple[Pokemon, Pokemon]: 
+    def _combat (self, p1:Pokemon, p2:Pokemon, data_list_p:list ) -> tuple[Pokemon, Pokemon]: 
             
             """Simulates a combat between two Pokémon.
                     
@@ -217,10 +213,10 @@ class Battle:
                     
             Parameters:
             -----------
-            pokemon_t1 : Pokemon
+            p1 : Pokemon
                 Pokémon instance from the first trainer. This will face pokemon_t2 in combat.
-            pokemon_t2 : Pokemon
-                Pokémon instance from the second trainer. This will face pokemon_t2 in combat.
+            p2 : Pokemon
+                Pokémon instance from the second trainer. This will face pokemon_t1 in combat.
             data_list_p : list
                 Empty list defined in the battle_begins() method.
                 After each attack, essential information about it is added to the list, which is then used to calculate battle statistics.
@@ -237,11 +233,11 @@ class Battle:
             """
             round_num = 1
 
-            while not (pokemon_t1.is_debilitated() or pokemon_t2.is_debilitated()):
+            while not (p1.is_debilitated() or p2.is_debilitated()):
 
-                print (f" \n ┌───────── Round {round_num} ─────────┐ \n Fighter 1: {pokemon_t1.name} ({pokemon_t1.pokemon_type}) Stats: Level: {pokemon_t1.level}, ATT: {pokemon_t1.strength}, DEF: {pokemon_t1.defense}, AGI: {pokemon_t1.agility}, HP: {pokemon_t1.hp}/{pokemon_t1.total_hp}. \n\n Figther 2: {pokemon_t2.name} ({pokemon_t2.pokemon_type}) Stats: Level: {pokemon_t2.level}, ATT: {pokemon_t2.strength}, DEF: {pokemon_t2.defense}, AGI: {pokemon_t2.agility}, HP: {pokemon_t2.hp}/{pokemon_t2.total_hp}. \n\n Actions") 
+                print (f" \n ┌───────── Round {round_num} ─────────┐ \n Fighter 1: {p1.name} ({p1.pokemon_type}) Stats: Level: {p1.level}, ATT: {p1.strength}, DEF: {p1.defense}, AGI: {p1.agility}, HP: {p1.hp}/{p1.total_hp}. \n\n Figther 2: {p2.name} ({p2.pokemon_type}) Stats: Level: {p2.level}, ATT: {p2.strength}, DEF: {p2.defense}, AGI: {p2.agility}, HP: {p2.hp}/{p2.total_hp}. \n\n Actions") 
             
-                attacker, defender = self._attack_order(pokemon_t1, pokemon_t2)
+                attacker, defender = self._attack_order(p1, p2)
                 
                 #Primer ataque de la ronda
                 damage, healing = self._attack(attacker, defender, round_num)
@@ -262,7 +258,7 @@ class Battle:
 
                 round_num += 1
     
-    def _attack_order (self, pokemon_t1:Pokemon, pokemon_t2:Pokemon) -> tuple[Pokemon,Pokemon]:
+    def _attack_order (self, p1:Pokemon, p2:Pokemon) -> tuple[Pokemon,Pokemon]:
         
         """Determines the attack order between two Pokémon based on their agility.
     
@@ -271,9 +267,9 @@ class Battle:
     
         Parameters
         ----------
-        pokemon_t1 : Pokemon
+        p1 : Pokemon
             One of the Pokémon instances from the first trainer.
-        pokemon_t2 : Pokemon
+        p2 : Pokemon
             One of the Pokémon instances from the second trainer. 
     
         Returns
@@ -284,13 +280,13 @@ class Battle:
     
         Note
         ----
-        pokemon_t1 and pokemon_t2 were already selected from the trainer's Pokémon list in the battle_begins() method.
+        p1 and p2 were already selected from the trainer's Pokémon list in the battle_begins() method.
         """
 
-        if pokemon_t1.agility < pokemon_t2.agility:
-            return pokemon_t2, pokemon_t1
+        if p1.agility < p2.agility:
+            return p2, p1
         else:
-            return pokemon_t1, pokemon_t2 
+            return p1, p2 
 
     def _attack (self, attacker:Pokemon , defender:Pokemon, round_num:int) -> tuple[int, int]:
         
@@ -317,7 +313,8 @@ class Battle:
         Returns:
         --------
         tuple[int, int]
-            - The first element of the tuple (index 0) represents the damage caused by the attacks.
+            - The first element of the tuple (index 0) represents the damage caused by the attacks. 
+            (For Fire type Pokémon, their damage is also increased by the 'embers()' attack if executed.)
             - The second element of the tuple (index 1) represents the amount of healing obtained.
                   - For Pokémon that are not of type 'Grass', healing is 0.
                   - For Pokémon of type 'Grass', healing represents the amount of life restored using the 'heal()' method.
@@ -384,7 +381,6 @@ class Battle:
         
         #Create a DataFrame using the combat list data 
         data = pandas.DataFrame(data_list_p, columns=["Pokemon_name","Damage", 'Pokemon_type', 'Opponent_type', 'Healing'])
-        print(data)
         
         #Statistics for individual Pokémon damage
         group_col = "Pokemon_name"
@@ -427,14 +423,10 @@ def main():
     The main function that reads from a file and starts the simulation.
     """
 
-    
-
     with open(sys.argv[1]) as f:
         pokemon_text = f.read()
         simulator = PokemonSimulator()
         trainer1, trainer2 = simulator.parse_file(pokemon_text)
-        print ("""TODO: Implement the rest of the practice from here. Define classes and functions and
-        maintain the code structured, respecting the object-oriented programming paradigm""")
         battle = Battle()
         battle.battle_begins(trainer1, trainer2)
 
