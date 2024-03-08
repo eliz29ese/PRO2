@@ -1,68 +1,67 @@
 """
-TODO: Implement in this file the Pokemon hierarchy.
+TODO: Implement in this file the Pokémon hierarchy.
 """
 from abc import ABC, abstractmethod
 #import pandas
 class Pokemon(ABC):
     """
-    An abstract class that enables the creation of Pokemon objects, establishing their properties 
+    An abstract class that enables the creation of Pokémon objects, establishing their properties 
     and basic methods, which will be complemented in its child classes to be used in battles.
     
     Attributes
     ----------
     name : str
-        Name of the Pokemon.
+        Name of the Pokémon.
     level : int
-        Level of the Pokemon.
+        Level of the Pokémon.
     strength : int
-        Strength of the Pokemon.
+        Strength of the Pokémon.
     defense : int
-        Defense of the Pokemon.
+        Defense of the Pokémon.
     hp : int
-        Current health points of the Pokemon.
+        Current health points of the Pokémon.
     total_hp : int
-        Maximum health points of the Pokemon.
+        Maximum health points of the Pokémon.
     agility : int
-        Agility of the Pokemon.
+        Agility of the Pokémon.
     pokemon_type : str
-        Type of the Pokemon, it will be determined by the child classes.
+        Type of the Pokémon, it will be determined by the child classes.
     
     Methods
     -------
-                     ????       __str__() -> str:
-                                Returns a string with the Pokemon's properties.
-    effectiveness(opponent: 'Pokemon') -> int:
-        Abstract method to calculate the effectiveness of a Pokemon against its opponent.
-    basic_attack(opponent: 'Pokemon') -> int:
-        Carries out a basic attack on the opponent, damaging its health points.
-    is_debilitated() -> bool:
-        Checks that the Pokemon is not debilitated.
+    
+    effectiveness(opponent: 'Pokémon') -> int:
+        Abstract method to calculate the effectiveness of a Pokémon against its opponent.
         
+    basic_attack(opponent: 'Pokémon') -> int:
+        Carries out a basic attack on the opponent, damaging its health points.
+        
+    is_debilitated() -> bool:
+        Checks that the Pokémon is not debilitated. 
     """
-
       
     def __init__(self, name:str, level:int, strength:int, defense:int, hp:int, total_hp:int, agility:int, pokemon_type:str):
         """
-        Creates a Pokemon object with the attributes given.
+        Creates a Pokémon object with the attributes given.
      
         Parameters
         ----------
         name : str
-            Name of the Pokemon.
+            Name of the Pokémon.
         level : int
-            Level of the Pokemon.
+            Level of the Pokémon.
         strength : int
-            Strength attribute of the Pokemon.
+            Strength attribute of the Pokémon.
         defense : int
-            Defense attribute of the Pokemon.
+            Defense attribute of the Pokémon.
         hp : int
-            Current health points of the Pokemon.
+            Current health points of the Pokémon.
         total_hp : int
-            Maximum health points of the Pokemon.
+            Maximum health points of the Pokémon.
         agility : int
-            Agility attribute of the Pokemon.
+            Agility attribute of the Pokémon.
         pokemon_type : str
-            Type of the Pokemon.
+            Type of the Pokémon.
      
         Returns
         -------
@@ -82,12 +81,12 @@ class Pokemon(ABC):
     @property
     def name(self):
         """
-        Gets the name of the Pokemon.
+        Gets the name of the Pokémon.
         
         Returns
         -------
         str
-            The name of the Pokemon.
+            The name of the Pokémon.
         """
         
         return self._name
@@ -96,23 +95,23 @@ class Pokemon(ABC):
     @property
     def level(self):
         """
-        Gets the level of the Pokemon.
+        Gets the level of the Pokémon.
         
         Returns
         -------
         int
-            The level of the Pokemon.
+            The level of the Pokémon.
         """
         return self._level
     @level.setter
     def level(self, value: int):
         """
-        Set the level of the Pokemon.
+        Set the level of the Pokémon.
         
         Parameters
         ----------
         value : int
-            The new level of the Pokemon.
+            The new level of the Pokémon.
         
         Raises
         ------
@@ -128,23 +127,23 @@ class Pokemon(ABC):
     @property
     def strength(self):
         """
-        Gets the strength of the Pokemon.
+        Gets the strength of the Pokémon.
         
         Returns
         -------
         int
-            The strength of the Pokemon.
+            The strength of the Pokémon.
         """
         return self._strength 
     @strength.setter
     def strength(self, value: int):
         """
-        Set the strength value of the Pokemon.
+        Set the strength value of the Pokémon.
         
         Parameters
         ----------
         value : int
-            The new strength value of the Pokemon.
+            The new strength value of the Pokémon.
         
         Raises
         ------
@@ -160,23 +159,23 @@ class Pokemon(ABC):
     @property
     def defense(self):
         """
-        Gets the defense of the Pokemon.
+        Gets the defense of the Pokémon.
         
         Returns
         -------
         int
-            The defense of the Pokemon.
+            The defense of the Pokémon.
         """
         return self._defense
     @defense.setter
     def defense(self, value: int):
         """
-        Set the defense attribute of the Pokemon.
+        Set the defense attribute of the Pokémon.
         
         Parameters
         ----------
         value : int
-            The new defense attribute of the Pokemon.
+            The new defense attribute of the Pokémon.
         
         Raises
         ------
@@ -192,23 +191,23 @@ class Pokemon(ABC):
     @property
     def hp(self):
         """
-        Gets the health points of the Pokemon.
+        Gets the health points of the Pokémon.
         
         Returns
         -------
         int
-            The health points of the Pokemon.
+            The health points of the Pokémon.
         """
         return self._hp
     @hp.setter
     def hp(self, value: int):
         """
-        Set the health points of the Pokemon.
+        Set the health points of the Pokémon.
      
         Parameters
         ----------
         value : int
-            The new health points for the Pokemon.
+            The new health points for the Pokémon.
      
         Raises
         ------
@@ -224,12 +223,12 @@ class Pokemon(ABC):
     @property
     def total_hp(self):
         """
-        Gets the total health points of the Pokemon.
+        Gets the total health points of the Pokémon.
         
         Returns
         -------
         int
-            The total health points of the Pokemon.
+            The total health points of the Pokémon.
         """
         return self._total_hp
     
@@ -237,23 +236,23 @@ class Pokemon(ABC):
     @property
     def agility(self):
         """
-        Gets the agility of the Pokemon.
+        Gets the agility of the Pokémon.
         
         Returns
         -------
         int
-            The agility of the Pokemon.
+            The agility of the Pokémon.
         """
         return self._agility
     @agility.setter
     def agility(self, value: int):
         """
-        Set the agility value of the Pokemon.
+        Set the agility value of the Pokémon.
      
         Parameters
         ----------
         value : int
-            The new agility value for the Pokemon.
+            The new agility value for the Pokémon.
      
         Raises
         ------
@@ -269,44 +268,44 @@ class Pokemon(ABC):
     @property
     def pokemon_type(self):
         """
-        Gets the pokemon type of the Pokemon.
+        Gets the Pokémon type of the Pokémon.
         
         Returns
         -------
         str
-            The pokemon type of the Pokemon.
+            The Pokémon type of the Pokémon.
         """
         return self._pokemon_type
     @pokemon_type.setter
     def pokemon_type(self, value: str):
         """
-       Set the pokemon type of the Pokemon.
+       Set the Pokémon type of the Pokémon.
     
        Parameters
        ----------
        value : str
-           The new pokemon type for the Pokemon.
+           The new Pokémon type for the Pokémon.
     
        Raises
        ------
        ValueError
            If the provided value is not a non-empty string.
        """
-        # Setter for the pokemon type
+        # Setter for the Pokémon type
         if isinstance(value, str) and len(value)>0:
             self._pokemon_type = value
         else:
-            raise ValueError("Pokemon type must be a non-empty string")
+            raise ValueError("Pokémon type must be a non-empty string")
             
     
     def  __str__(self) -> str:
         """
-        Returns a string with the Pokemon's properties.
+        Returns a string with the Pokémon's properties.
     
         Returns
         -------
         str
-            String containing the Pokemon's properties.
+            String containing the Pokémon's properties.
         """
         string = f"{self.name} ({self.pokemon_type}) Stats: Level: {self.level}, ATT: {self.strength}, DEF: {self.defense}, AGI: {self.agility}, HP: {self.hp}/{self.total_hp}"
         return string
@@ -315,13 +314,13 @@ class Pokemon(ABC):
     @abstractmethod 
     def effectiveness(self, opponent: 'Pokemon') -> int: 
         """
-        Abstract method used to determine the effectiveness of a Pokemon against its opponent,
+        Abstract method used to determine the effectiveness of a Pokémon against its opponent,
         to be implemented by subclasses.
     
        Parameters
        ----------
        opponent : Pokemon
-           The opponent Pokemon.
+           The opponent Pokémon.
     
        Returns
        -------
@@ -332,15 +331,16 @@ class Pokemon(ABC):
     
     def basic_attack(self, opponent: 'Pokemon') -> int:
         """
-        Carries out a basic attack on the opponent and calculates the damage done. Achieved through the strength 
-        of the Pokémon, subtracting the opponent's defense value, and ensuring that the result is greater than or 
-        equal to 1. It also updates the opponent's health points, subtracting the damage caused without going below 0.
+        Carries out a basic attack on the opponent and calculates the damage done. Achieved through 
+        the strength of the Pokémon, subtracting the opponent's defense value, and ensuring that the 
+        result is greater than or equal to 1. It also updates the opponent's health points, subtracting 
+        the damage caused without going below 0.
         
         Parameters
         ----------
-        opponent : Pokemon
-            The opponent Pokemon.
-        ,
+        opponent : Pokémon
+            The opponent Pokémon.
+        
         Returns
         -------
         int
@@ -355,12 +355,12 @@ class Pokemon(ABC):
     
     def is_debilitated(self) -> bool: 
         """
-        Checks that the Pokemon is not debilitated, that its HP is not 0. 
+        Checks that the Pokémon is not debilitated, that its HP is not 0. 
         
         Returns
         -------
         bool
-            True if the Pokemon is debilitated, if not False.
+            True if the Pokémon is debilitated, if not False.
         """
         return self.hp == 0
     
@@ -369,35 +369,35 @@ class Pokemon(ABC):
 
 class WaterPokemon(Pokemon):
     """
-    A subclass of Pokemon with the Water type.
+    A subclass of Pokémon with the Water type.
     
     Attributes
     ---------- 
     surge_mode : bool 
-        A boolean attribute that represents the surge mode of a Water Pokemon.
+        A boolean attribute that represents the surge mode of a Water Pokémon.
 
     Methods 
     ------- 
     check_surge_activation() -> bool:
-        Checks if the Pokemon's HP attribute is less than half of its total_hp, returning True if so.
+        Checks if the Pokémon's HP attribute is less than half of its total_hp, returning True if so.
 
     water_attack(opponent: Pokemon) -> int:
         Executes a water attack, calculating the damage dealt and decreasing the opponent's health points.
 
     effectiveness(opponent: Pokemon) -> int:
-        Establishes the effectiveness of the Water Pokemon based on the class of its opponent.
+        Establishes the effectiveness of the Water Pokémon based on the class of its opponent.
     """
 
     
     def __init__(self, name, level, strength, defense, hp, total_hp, agility, surge_mode:bool = False):
         """
-        Creates a Water Pokemon object with the given attributes, inheriting attributes
-        from the Pokemon class.
+        Creates a Water Pokémon object with the given attributes, inheriting attributes
+        from the Pokémon class.
      
         Parameters
         ----------
         surge_mode : bool 
-            A boolean attribute that represents the surge mode of a Water Pokemon
+            A boolean attribute that represents the surge mode of a Water Pokémon
      
         Returns
         -------
@@ -411,24 +411,24 @@ class WaterPokemon(Pokemon):
     @property
     def surge_mode(self):
         """
-        Gets the surge mode of the Water Pokemon.
+        Gets the surge mode of the Water Pokémon.
         
         Returns
         -------
         bool
-            The surge mode of the Pokemon.
+            The surge mode of the Pokémon.
         """
         return self._surge_mode
     
     @surge_mode.setter
     def surge_mode(self, value: bool):
         """
-       Set the surge mode of the Water Pokemon.
+       Set the surge mode of the Water Pokémon.
     
        Parameters
        ----------
        value : boll
-           The new surge mode for the Pokemon.
+           The new surge mode for the Pokémon.
     
        Raises
        ------
@@ -439,23 +439,11 @@ class WaterPokemon(Pokemon):
         if isinstance(value, bool):
             self._surge_mode = value
         else:
-            raise ValueError("Pokemon type must be a boolean")
-            
-    def  __str__(self) -> str:
-        """
-        Returns a string with the Pokemon's properties.
-    
-        Returns
-        -------
-        str
-            String containing the Pokemon's properties.
-        """
-        string = f"{self.name} ({self.pokemon_type}) Stats: Level: {self.level}, ATT: {self.strength}, DEF: {self.defense}, AGI: {self.agility}, HP: {self.hp}/{self.total_hp}, SURGE MODE: {self.surge_mode}"
-        return string
+            raise ValueError("Pokémon type must be a boolean")
 
     def check_surge_activation(self)->bool:
         """
-        Checks if the Pokemon's HP attribute is less than half of its total_hp.
+        Checks if the Pokémon's HP attribute is less than half of its total_hp.
         
         Returns
         -------
@@ -467,10 +455,11 @@ class WaterPokemon(Pokemon):
     def water_attack(self, opponent: Pokemon) -> int:
         """
         Executes a water attack, calculating the damage dealt as an integer of the maximum 
-        between 1 and the product of the factor value and the strength of the Pokemon minus its defense, obtaining the value factor 
-        beforehand based on the opponent's class. If the surge_mode attribute is True (it was activated previously with the method 
-        check_surge_activation), the factor increases by 0.1. It also updates the opponent's health points, subtracting 
-        the damage caused without going below 0.
+        between 1 and the product of the factor value and the strength of the Pokémon minus its defense,
+        obtaining the value factor beforehand based on the opponent's class. If the surge_mode attribute 
+        is True (it was activated previously with the method check_surge_activation), the factor increases 
+        by 0.1. It also updates the opponent's health points, subtracting the damage caused without going 
+        below 0.
         
         Returns
         -------
@@ -496,7 +485,7 @@ class WaterPokemon(Pokemon):
     
     def effectiveness(self, opponent: Pokemon) -> int:
         """
-        Establishes the effectiveness of the Water Pokemon based on the class of its 
+        Establishes the effectiveness of the Water Pokémon based on the class of its 
         opponent.        
         Returns
         -------
@@ -508,12 +497,12 @@ class WaterPokemon(Pokemon):
 
 class GrassPokemon(Pokemon):
     """
-    A subclass of Pokemon with the Grass type.
+    A subclass of Pokémon with the Grass type.
     
     Attributes
     ---------- 
     healing : float 
-        Attribute used to increase the health points of the Pokemon after performing a
+        Attribute used to increase the health points of the Pokémon after performing a
         grass attack.
 
     Methods 
@@ -522,21 +511,21 @@ class GrassPokemon(Pokemon):
         Executes a grass attack, calculating the damage dealt and decreasing the opponent's health points.
         
     heal() -> int:
-        Heals the Pokemon, increasing the health points depending on the value of the attribute heal.
+        Heals the Pokémon, increasing the health points depending on the value of the attribute heal.
             
     effectiveness(opponent: Pokemon) -> int:
-        Establishes the effectiveness of the Grass Pokemon based on the class of its opponent.
+        Establishes the effectiveness of the Grass Pokémon based on the class of its opponent.
     """
     
     def __init__(self, name:str, level:int, strength:int, defense:int, hp:int, total_hp:int, agility:int, healing:float):
         """
-        Creates a Grass Pokemon object with the given attributes, inheriting attributes
-        from the Pokemon class.
+        Creates a Grass Pokémon object with the given attributes, inheriting attributes
+        from the Pokémon class.
      
         Parameters
         ----------
         healing : float 
-            Attribute used to increase the health points of the Pokemon after performing a
+            Attribute used to increase the health points of the Pokémon after performing a
             specific class attack (grass_attack).
      
         Returns
@@ -550,23 +539,23 @@ class GrassPokemon(Pokemon):
     @property
     def healing(self):
         """
-        Gets the healing value of the Grass Pokemon.
+        Gets the healing value of the Grass Pokémon.
         
         Returns
         -------
         float
-            The healing value of the Pokemon.
+            The healing value of the Pokémon.
         """
         return self._healing
     @healing.setter
     def healing(self, value: float):
         """
-       Set the healing value of the Grass Pokemon.
+       Set the healing value of the Grass Pokémon.
     
        Parameters
        ----------
        value : float
-           The new healing value for the Pokemon.
+           The new healing value for the Pokémon.
     
        Raises
        ------
@@ -578,22 +567,11 @@ class GrassPokemon(Pokemon):
             self._healing = value
         else:
             raise ValueError("Healing must be a float")
-    def  __str__(self) -> str:
-        """
-        Returns a string with the Pokemon's properties.
-    
-        Returns
-        -------
-        str
-            String containing the Pokemon's properties.
-        """
-        string = f"{self.name} ({self.pokemon_type}) Stats: Level: {self.level}, ATT: {self.strength}, DEF: {self.defense}, AGI: {self.agility}, HP: {self.hp}/{self.total_hp}, HEAL: {self.healing}"
-        return string
                 
     def grass_attack(self, opponent: Pokemon) -> int:
         """
         Executes a grass attack, calculating the damage dealt as an integer of the maximum 
-        between 1 and the product of the factor value and the strength of the Pokemon minus its defense, 
+        between 1 and the product of the factor value and the strength of the Pokémon minus its defense, 
         obtaining the factor value beforehand based on the opponent's class. It also updates the opponent's 
         health points, subtracting the damage caused without going below 0.
         
@@ -614,7 +592,7 @@ class GrassPokemon(Pokemon):
         
     def heal(self) -> int:
         """
-        Heals the Pokemon, increasing the health points with the value of the product of the healing 
+        Heals the Pokémon, increasing the health points with the value of the product of the healing 
         attribute and its current health points. This value can never cause the current health points to 
         be greater than the total.
 
@@ -633,7 +611,7 @@ class GrassPokemon(Pokemon):
     
     def effectiveness(self, opponent: Pokemon) -> int:
         """
-        Establishes the effectiveness of the Grass Pokemon based on the class of its 
+        Establishes the effectiveness of the Grass Pokémon based on the class of its 
         opponent.        
         Returns
         -------
@@ -645,12 +623,12 @@ class GrassPokemon(Pokemon):
             
 class FirePokemon(Pokemon):
     """
-    A subclass of Pokemon with the Fire type.
+    A subclass of Pokémon with the Fire type.
     
     Attributes
     ---------- 
     temperature : float 
-        A float value representing the temperature of the Fire Pokemon, which will affect
+        A float value representing the temperature of the Fire Pokémon, which will affect
         its ability to execute embers attack.
 
     Methods 
@@ -659,21 +637,21 @@ class FirePokemon(Pokemon):
         Executes a fire attack, calculating the damage dealt and decreasing the opponent's health points.
         
     embers() -> int:
-        Decreases the opponent's health points depending on the temperature attribute of the Pokemon.
+        Decreases the opponent's health points depending on the temperature attribute of the Pokémon.
             
     effectiveness(opponent: Pokemon) -> int:
-        Establishes the effectiveness of the Fire Pokemon based on the class of its opponent.
+        Establishes the effectiveness of the Fire Pokémon based on the class of its opponent.
     """
         
     def __init__(self, name:str, level:int, strength:int, defense:int, hp:int, total_hp:int, agility:int, temperature:float):
         """
-        Creates a Fire Pokemon object with the given attributes, inheriting attributes
-        from the Pokemon class.
+        Creates a Fire Pokémon object with the given attributes, inheriting attributes
+        from the Pokémon class.
      
         Parameters
         ----------
         temperature : float 
-            A float value representing the temperature of the Fire Pokemon, which will affect
+            A float value representing the temperature of the Fire Pokémon, which will affect
             its ability to execute embers attack.
      
         Returns
@@ -687,23 +665,23 @@ class FirePokemon(Pokemon):
     @property
     def temperature(self):
         """
-        Gets the temperature of the Fire Pokemon.
+        Gets the temperature of the Fire Pokémon.
         
         Returns
         -------
         float
-            The teperature of the Pokemon.
+            The teperature of the Pokémon.
         """
         return self._temperature
     @temperature.setter
     def temperature(self, value: float):
         """
-       Set the temperatue of the Fire Pokemon.
+       Set the temperatue of the Fire Pokémon.
     
        Parameters
        ----------
        value : float
-           The new temperature for the Pokemon.
+           The new temperature for the Pokémon.
     
        Raises
        ------
@@ -715,23 +693,11 @@ class FirePokemon(Pokemon):
             self._temperature = value
         else:
             raise ValueError("Temperature must be a float")
-                
-    def  __str__(self) -> str:
-        """
-        Returns a string with the Pokemon's properties.
-    
-        Returns
-        -------
-        str
-            String containing the Pokemon's properties.
-        """
-        string = f"{self.name} ({self.pokemon_type}) Stats: Level: {self.level}, ATT: {self.strength}, DEF: {self.defense}, AGI: {self.agility}, HP: {self.hp}/{self.total_hp}, TEMP: {self.temperature}"
-        return string
             
     def fire_attack(self, opponent:Pokemon)-> int:
             """
             Executes a fire attack, calculating the damage dealt as an integer of the maximum 
-            between 1 and the product of the factor value and the strength of the Pokemon minus its defense, 
+            between 1 and the product of the factor value and the strength of the Pokémon minus its defense, 
             obtaining the factor value beforehand based on the opponent's class. It also updates the opponent's 
             health points, subtracting the damage caused without going below 0.
             
@@ -751,9 +717,9 @@ class FirePokemon(Pokemon):
         
     def embers(self, opponent: Pokemon) -> int: 
             """
-            Damages the opponent by decreasing its health points by the product of the strength and temperature of 
-            the Pokémon, rounding down to the lower integer. It also updates the opponent's health points, subtracting 
-            the damage caused without going below 0.
+            Damages the opponent by decreasing its health points by the product of the strength and temperature
+            of the Pokémon, rounding down to the lower integer. It also updates the opponent's health points, 
+            subtracting the damage caused without going below 0.
             
             Returns
             -------
@@ -771,7 +737,7 @@ class FirePokemon(Pokemon):
         
     def effectiveness(self, opponent: Pokemon) -> int:
             """
-            Establishes the effectiveness of the Fire Pokemon based on the class of its 
+            Establishes the effectiveness of the Fire Pokémon based on the class of its 
             opponent. 
             
             Returns
