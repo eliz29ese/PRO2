@@ -6,7 +6,7 @@ from pokemon import Pokemon, WaterPokemon, FirePokemon, GrassPokemon
 
 class Trainer():
     """
-    A class of trainer objects representing players in a battle, each equipped with multiple Pokemon 
+    A class of trainer objects representing players in a battle, each equipped with multiple Pokémon 
     that will be used in combats.
     
     Attributes 
@@ -14,18 +14,18 @@ class Trainer():
     name : str 
         The name of the trainer. 
     pokemon : list 
-        A list with Pokemon objects that belong to the Trainer. 
+        A list with Pokémon objects that belong to the Trainer. 
         
     Methods 
     ------- 
     all_debilitated(self)): 
-        Checks if all the pokemons of the list of the trainer are debilitated.
+        Checks if all the Pokémon of the list of the trainer are debilitated.
 
     select_first_pokemon(self):
-        Chooses the first pokemon of the pokemon list that is not debilitated.
+        Chooses the first Pokémon of the pokemon list that is not debilitated.
     
     select_next_pokemon(self, p:Pokemon):
-        Chooses the next pokemon in the list between the pokemons that are not debilitated, 
+        Chooses the next Pokémon in the list between the Pokémon that are not debilitated, 
         the most effective one, and among those, the one with the highest level.
     
     """ 
@@ -39,7 +39,7 @@ class Trainer():
          name : str 
              The name of the trainer. 
          pokemon : list 
-             A list that contains Pokemon objects which belong to the Trainer. 
+             A list that contains Pokémon objects which belong to the Trainer. 
           
          Returns 
          ------- 
@@ -95,19 +95,19 @@ class Trainer():
     @pokemon.setter
     def pokemon(self, value: list):
         """
-       Set the pokemon list of the Trainer, containing Pokemon objects.
+       Set the pokemon list of the Trainer, containing Pokémon objects.
     
        Parameters
        ----------
        value : list
-           The new list containing Pokemon objects for the Trainer.
+           The new list containing Pokémon objects for the Trainer.
     
        Raises
        ------
        ValueError
            If the provided value is not a list.
        TypeError
-           If the provided values inside the list are not Pokemon objects.
+           If the provided values inside the list are not Pokémon objects.
        """
         # Setter for the pokemon list
         if isinstance(value, list):
@@ -120,13 +120,13 @@ class Trainer():
             
     def all_debilitated(self) -> bool:
         """
-        Checks if all the pokemons of the list of the trainer are debilitated, 
-        it checks if HP is zero in all the pokemons.  
+        Checks if all the Pokémon of the list of the trainer are debilitated, 
+        it checks if HP is zero in all the Pokémon.  
      
         Returns 
         -------- 
         bool
-            True if all pokemons are debilitated (HP is zero), False otherwise.
+            True if all Pokémon are debilitated (HP is zero), False otherwise.
             
         """ 
         all_debilitated = True
@@ -136,17 +136,15 @@ class Trainer():
                 break
         return all_debilitated
     
-    #return all(pokemon.is_debilitated() for pokemon in self._pokemon)
-    
     
     def select_first_pokemon(self) -> Pokemon:
         """
-        Chooses the first pokemon of the pokemon list that is not debilitated (HP is not zero).
+        Chooses the first Pokémon of the pokemon list that is not debilitated (HP is not zero).
         
         Returns 
         -------- 
         Pokemon
-            The pokemon selected, or None if all the pokemons are debilitated     
+            The Pokémon selected, or None if all the Pokémon are debilitated     
             
         """ 
         
@@ -157,23 +155,23 @@ class Trainer():
     
     def select_next_pokemon(self, p:Pokemon) -> Pokemon:
         """
-        Chooses the next pokemon in the list between the pokemons that are not debilitated.
+        Chooses the next Pokémon in the list between the Pokémon that are not debilitated.
         It selects the one that has the best effectiveness against the opponent. If there exist
-        multiple pokemons with the same effectiveness, it chooses the one with the highest level.
+        multiple Pokémon with the same effectiveness, it chooses the one with the highest level.
         
         Preconditions
         -------------
-        At least one Pokemon of the Trainer is not debilitated.
+        At least one Pokémon of the Trainer is not debilitated.
 
         Parameters 
         -------- 
         p : Pokemon 
-            The opponent's Pokemon. 
+            The opponent's Pokémon. 
             
         Returns 
         -------- 
         Pokemon
-            The pokemon chosen based on its effectiveness and level.  
+            The Pokémon chosen based on its effectiveness and level.  
             
         """ 
         pokemon_selected = self.select_first_pokemon()
@@ -185,6 +183,11 @@ class Trainer():
                     if pokemon.level > pokemon_selected.level :
                         pokemon_selected = pokemon
         return pokemon_selected
+                
+        
+            
+        
+        
                 
         
             
