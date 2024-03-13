@@ -1,1 +1,72 @@
+from array_queue import ArrayQueue
+import sys
+import pandas
 
+
+class process():
+    def __init__(self, process_id:int, user_id:int, process_type:str, expected_time:str, execution_time:int):
+        self._process_id = process_id
+        self._user_id = user_id
+        self._process_type = process_type
+        self._expected_time = expected_time
+        self._execution_time = execution_time
+        
+    @property
+    def level(self):
+        """
+        Gets the level of the Pokémon.
+        
+        Returns
+        -------
+        int
+            The level of the Pokémon.
+        """
+        return self._level
+    @level.setter
+    def level(self, value: int):
+        """
+        Set the level of the Pokémon.
+        
+        Parameters
+        ----------
+        value : int
+            The new level of the Pokémon.
+        
+        Raises
+        ------
+        ValueError
+            If the provided value is not an integer between 0 and 100.
+        """
+        # Setter for the level
+        if isinstance(value, int) and (value>=0 and value<=100):
+            self._level = value
+        else:
+            raise ValueError("Level must be an integer between 0 and 100")
+    
+    
+
+def create_processes(text: str):
+    register_queue = ArrayQueue()
+    processes = text.split("\n")
+    for line in processes:
+        if line != "":
+            process_id, user_id, process_type, expected_time, execution_time = line.split()
+            register = process(process_id, user_id, process_type, expected_time, execution_time)
+            register_queue.enqueue(register)
+    return register_queue
+
+
+    
+    
+def main():
+    """
+    The main function that reads from a file and starts the simulation.
+    """
+
+    with open(sys.argv[1]) as f:
+        process_text = f.read()
+        register_queue = create_processes(process_text)
+
+
+if __name__ == '__main__':
+    main()
