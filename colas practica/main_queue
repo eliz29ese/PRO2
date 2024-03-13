@@ -49,24 +49,41 @@ def create_processes(text: str):
     register_queue = ArrayQueue()
     processes = text.split("\n")
     for line in processes:
-        if line != "":
             process_id, user_id, process_type, expected_time, execution_time = line.split()
-            register = process(process_id, user_id, process_type, expected_time, execution_time)
+            register = Process(process_id, user_id, process_type, expected_time, execution_time)
             register_queue.enqueue(register)
     return register_queue
 
+def register_managing(register_queue:ArrayQueue, cpushort_queue:ArrayQueue, cpulong_queue:ArrayQueue, gpushort_queue:ArrayQueue, gpulong_queue:ArrayQueue):
+    cnt=0
+    while not register_queue.is_empty():
+        cnt += 1
+        next_process = register_queue.dequeue()
+        start_time = cnt
+        QueueManager(cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue)
+        
 
-    
-    
+class QueueManager:
+    def __init__(self, cpushort_queue:ArrayQueue, cpulong_queue:ArrayQueue, gpushort_queue:ArrayQueue, gpulong_queue:ArrayQueue):
+        self._cpushort_queue = cpushort_queue
+        self._cpulong_queue = cpulong_queue
+        self._gpushort_queue = gpushort_queue
+        self._gpulong_queue = gpulong_queue
+
 def main():
     """
     The main function that reads from a file and starts the simulation.
     """
 
     with open(sys.argv[1]) as f:
-        process_text = f.read()
+        process_text = f.read().strip()
         register_queue = create_processes(process_text)
-
+        cpushort_queue = ArrayQueue()
+        cpulong_queue = ArrayQueue()
+        gpushort_queue = ArrayQueue()
+        gpulong_queue = ArrayQueue()
+        QueueManager(register_queue, cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue)
+        
 
 if __name__ == '__main__':
     main()
