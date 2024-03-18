@@ -11,13 +11,14 @@ import pandas
 
 
 class Process():
-    def __init__(self, process_id:str, user_id:int, process_type:str, expected_time:str, execution_time:int, start_time:int):
+    def __init__(self, process_id:str, user_id:int, process_type:str, expected_time:str, execution_time:int, start_time:int, start_execution_time:int):
         self._process_id = process_id
         self._user_id = user_id
         self._process_type = process_type
         self._expected_time = expected_time
         self._execution_time = execution_time
         self._start_time = start_time
+        self._start_execution_time = start_execution_time
     
 
 def create_processes(text: str):
@@ -70,8 +71,9 @@ class QueueManager:
             if not self._queue_list[process].is_empty():
                 if process == None:
                     self._executing_process[process] = self._queue_list[process].dequeue()
+                    self._queue_list[process].dequeue()._start_execution_time = cnt
                 else:
-                    if cnt >= self._executing_process[process]._start_time + self._executing_process[process]._execution_time:
+                    if cnt >= self._executing_process[process]._start_execution_time + self._executing_process[process]._execution_time:
                         self._executing_process[process] = None
     #PROGRAMAR PENALIZACIÓN
                 
