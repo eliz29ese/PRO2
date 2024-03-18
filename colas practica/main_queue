@@ -42,10 +42,9 @@ def register_managing(register_queue:ArrayQueue):
         queue_manager.add_process(next_process)
         queue_manager.execute_process(cnt)
  #cuando la cola de registros se vacía seguir llamando a la función execute process hasta que todas las colas esten vacías
-    while not(queue_manager._queue_list[0].is_empty and queue_manager._queue_list[1].is_empty and queue_manager._queue_list[2].is_empty and queue_manager._queue_list[3].is_empty):
+    while not(queue_manager._queue_list[0].is_empty and queue_manager._queue_list[1].is_empty and queue_manager._queue_list[2].is_empty and queue_manager._queue_list[3].is_empty) and not queue_manager._executing_process == [None, None, None, None]:
         cnt += 1
         queue_manager.execute_process(cnt)
-
         
 
 class QueueManager:
@@ -72,9 +71,10 @@ class QueueManager:
                 if process == None:
                     self._executing_process[process] = self._queue_list[process].dequeue()
                     self._queue_list[process].dequeue()._start_execution_time = cnt
-                else:
-                    if cnt >= self._executing_process[process]._start_execution_time + self._executing_process[process]._execution_time:
-                        self._executing_process[process] = None
+               
+            if cnt >= self._executing_process[process]._start_execution_time + self._executing_process[process]._execution_time:
+                self._executing_process[process] = None
+                
     #PROGRAMAR PENALIZACIÓN
                 
     
