@@ -1,48 +1,23 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Mar 13 09:07:01 2024
+
+@author: isabe
+"""
+
 from array_queue import ArrayQueue
 import sys
 import pandas
 
 
-class process():
-    def __init__(self, process_id:int, user_id:int, process_type:str, expected_time:str, execution_time:int):
+class Process():
+    def __init__(self, process_id:str, user_id:int, process_type:str, expected_time:str, execution_time:int, start_time:int):
         self._process_id = process_id
         self._user_id = user_id
         self._process_type = process_type
         self._expected_time = expected_time
         self._execution_time = execution_time
-        
-    @property
-    def level(self):
-        """
-        Gets the level of the Pokémon.
-        
-        Returns
-        -------
-        int
-            The level of the Pokémon.
-        """
-        return self._level
-    @level.setter
-    def level(self, value: int):
-        """
-        Set the level of the Pokémon.
-        
-        Parameters
-        ----------
-        value : int
-            The new level of the Pokémon.
-        
-        Raises
-        ------
-        ValueError
-            If the provided value is not an integer between 0 and 100.
-        """
-        # Setter for the level
-        if isinstance(value, int) and (value>=0 and value<=100):
-            self._level = value
-        else:
-            raise ValueError("Level must be an integer between 0 and 100")
-    
+        self._start_time = start_time
     
 
 def create_processes(text: str):
@@ -54,22 +29,59 @@ def create_processes(text: str):
             register_queue.enqueue(register)
     return register_queue
 
-def register_managing(register_queue:ArrayQueue, cpushort_queue:ArrayQueue, cpulong_queue:ArrayQueue, gpushort_queue:ArrayQueue, gpulong_queue:ArrayQueue):
+def register_managing(register_queue:ArrayQueue):
+    cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
     cnt=0
+    queue_manager = QueueManager([cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue])
+    
     while not register_queue.is_empty():
         cnt += 1
         next_process = register_queue.dequeue()
-        start_time = cnt
-        QueueManager(cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue)
+        next_process._start_time= cnt
+        queue_manager.add_process(next_process)
+        queue_manager.execute_process(cnt)
+ #cuando la cola de registros se vacía seguir llamando a la función execute process hasta que todas las colas esten vacías
+    while not(queue_manager._queue_list[0].is_empty and queue_manager._queue_list[1].is_empty and queue_manager._queue_list[2].is_empty and queue_manager._queue_list[3].is_empty):
+        cnt += 1
+        queue_manager.execute_process(cnt)
+
         
 
 class QueueManager:
-    def __init__(self, cpushort_queue:ArrayQueue, cpulong_queue:ArrayQueue, gpushort_queue:ArrayQueue, gpulong_queue:ArrayQueue):
-        self._cpushort_queue = cpushort_queue
-        self._cpulong_queue = cpulong_queue
-        self._gpushort_queue = gpushort_queue
-        self._gpulong_queue = gpulong_queue
+    #opción de meter las colas en una lista
+    def __init__(self, queue_list:list, executing_process=[None,None,None,None]):
+        self._queue_list = queue_list
+        self._executing_process = executing_process
+        
+    def add_process(self, process: Process):
+        if process._process_type == "CPU":
+            if process._expected_time == "long":
+                self._cpulong_queue.enqueue(process)
+            elif process._expected_time == "short":
+                self._cpushort_queue.enqueue(process)
+        elif process._process_type == "GPU":
+            if process._expected_time == "long":
+                self._gpulong_queue.enqueue(process)
+            elif process._expected_time == "short":
+                self._gpushort_queue.enqueue(process)
+                
+    def execute_process(self, cnt):
+        for process in range (len(self._executing_process)):
+            if not self._queue_list[process].is_empty():
+                if process == None:
+                    self._executing_process[process] = self._queue_list[process].dequeue()
+                else:
+                    if cnt >= self._executing_process[process]._start_time + self._executing_process[process]._execution_time:
+                        self._executing_process[process] = None
+    #PROGRAMAR PENALIZACIÓN
+                
+    
+    
+    
 
+
+    
+    
 def main():
     """
     The main function that reads from a file and starts the simulation.
@@ -78,11 +90,7 @@ def main():
     with open(sys.argv[1]) as f:
         process_text = f.read().strip()
         register_queue = create_processes(process_text)
-        cpushort_queue = ArrayQueue()
-        cpulong_queue = ArrayQueue()
-        gpushort_queue = ArrayQueue()
-        gpulong_queue = ArrayQueue()
-        QueueManager(register_queue, cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue)
+        
         
 
 if __name__ == '__main__':
