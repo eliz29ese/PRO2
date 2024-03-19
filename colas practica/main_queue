@@ -11,26 +11,29 @@ import pandas
 
 
 class Process():
-    def __init__(self, process_id:str, user_id:int, process_type:str, expected_time:str, execution_time:int, start_time:int, start_execution_time:int):
+    def __init__(self, process_id:str, user_id:int, process_type:str, expected_time:str, execution_time:int):
         self._process_id = process_id
         self._user_id = user_id
         self._process_type = process_type
         self._expected_time = expected_time
-        self._execution_time = execution_time
-        self._start_time = start_time
-        self._start_execution_time = start_execution_time
+        self._execution_time = int(execution_time)
+        self._start_time = 0
+        self._start_execution_time = 0
     
 
-def create_processes(text: str):
+def create_processes(text: str) -> tuple:
+    user_dic ={}
     register_queue = ArrayQueue()
     processes = text.split("\n")
     for line in processes:
-            process_id, user_id, process_type, expected_time, execution_time = line.split()
-            register = Process(process_id, user_id, process_type, expected_time, execution_time)
-            register_queue.enqueue(register)
-    return register_queue
+        process_id, user_id, process_type, expected_time, execution_time = line.split()
+        register = Process(process_id, user_id, process_type, expected_time, execution_time)
+        register_queue.enqueue(register)
+        if not user_id in user_dic.keys():
+            user_dic[user_id]=False 
+    return register_queue, user_dic
 
-def register_managing(register_queue:ArrayQueue):
+def register_managing(register_queue:ArrayQueue, user_dic:dict):
     cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
     cnt=0
     queue_manager = QueueManager([cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue])
@@ -40,11 +43,12 @@ def register_managing(register_queue:ArrayQueue):
         next_process = register_queue.dequeue()
         next_process._start_time= cnt
         queue_manager.add_process(next_process)
-        queue_manager.execute_process(cnt)
+        print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
+        queue_manager.execute_process(cnt, user_dic)
  #cuando la cola de registros se vacía seguir llamando a la función execute process hasta que todas las colas esten vacías
-    while not(queue_manager._queue_list[0].is_empty and queue_manager._queue_list[1].is_empty and queue_manager._queue_list[2].is_empty and queue_manager._queue_list[3].is_empty) and not queue_manager._executing_process == [None, None, None, None]:
+    while not(queue_manager._queue_list[0].is_empty() and queue_manager._queue_list[1].is_empty() and queue_manager._queue_list[2].is_empty() and queue_manager._queue_list[3].is_empty()) or not queue_manager._executing_process == [None, None, None, None]:
         cnt += 1
-        queue_manager.execute_process(cnt)
+        queue_manager.execute_process(cnt, user_dic)
         
 
 class QueueManager:
@@ -54,33 +58,42 @@ class QueueManager:
         self._executing_process = executing_process
         
     def add_process(self, process: Process):
-        if process._process_type == "CPU":
-            if process._expected_time == "long":
-                self._cpulong_queue.enqueue(process)
-            elif process._expected_time == "short":
-                self._cpushort_queue.enqueue(process)
-        elif process._process_type == "GPU":
-            if process._expected_time == "long":
-                self._gpulong_queue.enqueue(process)
-            elif process._expected_time == "short":
-                self._gpushort_queue.enqueue(process)
+        if process._process_type == "cpu":
+            if process._expected_time == "short":
+                self._queue_list[0].enqueue(process)
+            elif process._expected_time == "long":
+                self._queue_list[1].enqueue(process)
+        elif process._process_type == "gpu":
+            if process._expected_time == "short":
+                self._queue_list[2].enqueue(process)
+            elif process._expected_time == "long":
+                self._queue_list[3].enqueue(process)
                 
-    def execute_process(self, cnt):
+    def execute_process(self, cnt, user_dic):
         for process in range (len(self._executing_process)):
             if not self._queue_list[process].is_empty():
-                if process == None:
-                    self._executing_process[process] = self._queue_list[process].dequeue()
-                    self._queue_list[process].dequeue()._start_execution_time = cnt
-               
-            if cnt >= self._executing_process[process]._start_execution_time + self._executing_process[process]._execution_time:
-                self._executing_process[process] = None
-                
-    #PROGRAMAR PENALIZACIÓN
-                
-    
-    
-    
+                if self._executing_process[process] == None:
+                    next_process = self._queue_list[process].dequeue()
+                    if next_process._expected_time == "short" and user_dic[next_process._user_id] == True:
+                        if next_process._process_type == "cpu":
+                            self._queue_list[1].enqueue(next_process)
+                        else:
+                            self._queue_list[3].enqueue(next_process)
+                        next_process._expected_time = "long"
+                        user_dic[next_process._user_id] = False
+                        print(f"Penalización aplicada: <{cnt}><{next_process._process_id}><{next_process._user_id}>\n")
 
+                    else:
+                        self._executing_process[process] = next_process
+                        next_process._start_execution_time = cnt
+            p = self._executing_process[process]
+            if p != None and cnt >= p._execution_time + p._start_execution_time :
+                print(cnt, p._execution_time, p._start_execution_time)
+                if p._expected_time=="short" and (p._execution_time > 5):
+                    user_dic[p._user_id] = True
+                    print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
+                print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><p._start_time><p._start_execution_time><p._execution_time>\n")
+                self._executing_process[process] = None
 
     
     
@@ -91,9 +104,12 @@ def main():
 
     with open(sys.argv[1]) as f:
         process_text = f.read().strip()
-        register_queue = create_processes(process_text)
+        register_queue, user_dic = create_processes(process_text)
+        register_managing(register_queue, user_dic)
         
-        
+
+if __name__ == '__main__':
+    main()
 
 if __name__ == '__main__':
     main()
