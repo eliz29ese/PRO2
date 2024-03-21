@@ -19,7 +19,6 @@ class Process():
         self._execution_time = int(execution_time)
         self._start_time = 0
         self._start_execution_time = 0
-    
 
 def create_processes(text: str) -> tuple:
     user_dic ={}
@@ -34,6 +33,7 @@ def create_processes(text: str) -> tuple:
     return register_queue, user_dic
 
 def register_managing(register_queue:ArrayQueue, user_dic:dict):
+    stay_time = []
     cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
     cnt=0
     queue_manager = QueueManager([cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue])
@@ -44,11 +44,20 @@ def register_managing(register_queue:ArrayQueue, user_dic:dict):
         next_process._start_time= cnt
         queue_manager.add_process(next_process)
         print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
-        queue_manager.execute_process(cnt, user_dic)
+        queue_manager.execute_process(cnt, user_dic, stay_time)
  #cuando la cola de registros se vacía seguir llamando a la función execute process hasta que todas las colas esten vacías
     while not(queue_manager._queue_list[0].is_empty() and queue_manager._queue_list[1].is_empty() and queue_manager._queue_list[2].is_empty() and queue_manager._queue_list[3].is_empty()) or not queue_manager._executing_process == [None, None, None, None]:
         cnt += 1
-        queue_manager.execute_process(cnt, user_dic)
+        queue_manager.execute_process(cnt, user_dic, stay_time)
+    return stay_time
+    
+def pandas_stats (stay_time:list) -> None:
+    data = pandas.DataFrame(stay_time, columns=["Queue","Average_stay_time"])
+    group_col = "Queue"
+    target_col = "Average_stay_time" 
+    stats = data.groupby(group_col).agg({target_col :["mean"]})
+    print('\n', "*"*37, '\n', "          Average stay time      ", '\n',  "*"*37 )
+    print (stats)
         
 
 class QueueManager:
@@ -69,11 +78,15 @@ class QueueManager:
             elif process._expected_time == "long":
                 self._queue_list[3].enqueue(process)
                 
-    def execute_process(self, cnt, user_dic):
+    def execute_process(self, cnt, user_dic:dict, stay_time:list):
         for process in range (len(self._executing_process)):
             if not self._queue_list[process].is_empty():
                 if self._executing_process[process] == None:
                     next_process = self._queue_list[process].dequeue()
+                    print(cnt,next_process._start_time, f"{next_process._process_type}{next_process._expected_time}")
+                    avg_staytime = cnt - next_process._start_time
+                    stay_time.append([f"{next_process._process_type}{next_process._expected_time}", avg_staytime])
+                    
                     if next_process._expected_time == "short" and user_dic[next_process._user_id] == True:
                         if next_process._process_type == "cpu":
                             self._queue_list[1].enqueue(next_process)
@@ -92,10 +105,9 @@ class QueueManager:
                 if p._expected_time=="short" and (p._execution_time > 5):
                     user_dic[p._user_id] = True
                     print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
-                print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><p._start_time><p._start_execution_time><p._execution_time>\n")
+                print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")
                 self._executing_process[process] = None
 
-    
     
 def main():
     """
@@ -105,8 +117,8 @@ def main():
     with open(sys.argv[1]) as f:
         process_text = f.read().strip()
         register_queue, user_dic = create_processes(process_text)
-        register_managing(register_queue, user_dic)
-        
+        stay_time = register_managing(register_queue, user_dic)
+        pandas_stats(stay_time)
 
 if __name__ == '__main__':
     main()
