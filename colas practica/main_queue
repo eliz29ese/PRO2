@@ -12,6 +12,23 @@ import pandas
 
 class Process():
     def __init__(self, process_id:str, user_id:int, process_type:str, expected_time:str, execution_time:int):
+        """
+        Create a Process instance.
+
+        Parameters
+        ----------
+        process_id : str
+            The unique identifier of the process.
+        user_id : str
+            The identifier for the user who initiated the process.
+        process_type : str
+            The type of the process (gpu or cpu)
+        expected_time : str
+            The expected time for the process to complete (short or long).
+        execution_time : int
+            The actual time, in practice, taken for the process to execute.
+        """
+        
         self._process_id = process_id
         self._user_id = user_id
         self._process_type = process_type
@@ -20,6 +37,171 @@ class Process():
         self._start_time = 0
         self._start_execution_time = 0
 
+    @property
+    def process_id(self):
+        """
+        Gets the process identifier of the Process.
+        
+        Returns
+        -------
+        str
+            The process identifier of the Process.
+        """
+        return self._process_id
+    
+    @process_id.setter
+    def process_id(self, value: str):
+        """
+        Set the process identifier of the Process.
+        
+        Parameters
+        ----------
+        value : str 
+            The new process identifier of the Process.
+        
+        Raises
+        ------
+        ValueError
+            If the provided value is an empty string.
+        """
+        # Setter for the process_id
+        if isinstance(value, str) and len(value) != 0:
+            self._process_id = value
+        else:
+            raise ValueError("Process identifier must be an non empty string")
+            
+    @property
+    def user_id(self):
+        """
+        Gets the user identifier of the Process.
+        
+        Returns
+        -------
+        str
+            The user identifier of the Process.
+        """
+        return self._user_id
+    
+    @user_id.setter
+    def user_id(self, value: str):
+        """
+        Set the user identifier of the Process.
+        
+        Parameters
+        ----------
+        value : str 
+            The new user identifier of the Process.
+        
+        Raises
+        ------
+        ValueError
+            If the provided value is an empty string.
+        """
+        # Setter for the level
+        if isinstance(value, str) and len(value) != 0:
+            self._user_id = value
+        else:
+            raise ValueError("User identifier must be an non empty string")
+        
+    @property
+    def process_type(self):
+        """
+        Gets the type of the Process.
+        
+        Returns
+        -------
+        str
+            The type of the Process.
+        """
+        return self._process_type
+    
+    @process_type.setter
+    def process_type(self, value: str):
+        """
+        Set the type of the Process.
+        
+        Parameters
+        ----------
+        value : str 
+            The new type of the Process.
+        
+        Raises
+        ------
+        ValueError
+            If the provided value is an empty string or is neither 'gpu' nor 'cpu'.
+        """
+        # Setter for the level
+        if isinstance(value, str) and len(value) != 0 and (value in ('gpu', 'cpu')):
+            self._process_type = value
+        else:
+            raise ValueError("Process type must be an non empty string and must be either 'gpu' or 'cpu' ")
+    
+    @property
+    def expected_time(self):
+        """
+        Gets the expected completion time of the Process.
+        
+        Returns
+        -------
+        str
+            The expected completion time of the Process.
+        """
+        return self._expected_time
+    
+    @expected_time.setter
+    def expected_time(self, value: str):
+        """
+        Set the expected completion time of the Process.
+        
+        Parameters
+        ----------
+        value : str 
+            The new expected completion time of the Process.
+        
+        Raises
+        ------
+        ValueError
+            If the provided value is an empty string or is neither 'long' nor 'short'.
+        """
+        # Setter for the level
+        if isinstance(value, str) and len(value) != 0 and (value in ('long', 'short')):
+            self._expected_time = value
+        else:
+            raise ValueError("Process expected time must be an non empty string and must be either 'long' or 'short' ")
+
+    @property
+    def execution_time(self):
+        """
+        Gets the actual execution completion time of the Process. 
+        
+        Returns
+        -------
+        int
+            The time taken for the Process to execute.
+        """
+        return self._execution_time
+    
+    @execution_time.setter
+    def execution_time(self, value: str):
+        """
+        Set the execution completion time of the Process
+        
+        Parameters
+        ----------
+        value : int  
+            The new execution completion time of the Process.
+        
+        Raises
+        ------
+        ValueError
+            If the provided value is not a positive integer.
+        """
+        # Setter for the level
+        if isinstance(value, int) and value >= 0:
+            self._execution_time = value
+        else:
+            raise ValueError("Process execution time must be an positive integer")
+    
 def create_processes(text: str) -> tuple:
     user_dic ={}
     register_queue = ArrayQueue()
@@ -33,6 +215,7 @@ def create_processes(text: str) -> tuple:
     return register_queue, user_dic
 
 def register_managing(register_queue:ArrayQueue, user_dic:dict):
+    processes_list = []
     stay_time = []
     cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
     cnt=0
@@ -44,20 +227,15 @@ def register_managing(register_queue:ArrayQueue, user_dic:dict):
         next_process._start_time= cnt
         queue_manager.add_process(next_process)
         print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
-        queue_manager.execute_process(cnt, user_dic, stay_time)
+        queue_manager.execute_process(cnt, user_dic, stay_time, processes_list)
  #cuando la cola de registros se vacía seguir llamando a la función execute process hasta que todas las colas esten vacías
     while not(queue_manager._queue_list[0].is_empty() and queue_manager._queue_list[1].is_empty() and queue_manager._queue_list[2].is_empty() and queue_manager._queue_list[3].is_empty()) or not queue_manager._executing_process == [None, None, None, None]:
         cnt += 1
-        queue_manager.execute_process(cnt, user_dic, stay_time)
-    return stay_time
+        queue_manager.execute_process(cnt, user_dic, stay_time, processes_list)
     
-def pandas_stats (stay_time:list) -> None:
-    data = pandas.DataFrame(stay_time, columns=["Queue","Average_stay_time"])
-    group_col = "Queue"
-    target_col = "Average_stay_time" 
-    stats = data.groupby(group_col).agg({target_col :["mean"]})
-    print('\n', "*"*37, '\n', "          Average stay time      ", '\n',  "*"*37 )
-    print (stats)
+    print(stay_time)
+    print(processes_list)
+    queue_manager.pandas(processes_list, stay_time )
         
 
 class QueueManager:
@@ -78,7 +256,7 @@ class QueueManager:
             elif process._expected_time == "long":
                 self._queue_list[3].enqueue(process)
                 
-    def execute_process(self, cnt, user_dic:dict, stay_time:list):
+    def execute_process(self, cnt, user_dic:dict, stay_time:list, processes_list:list ):
         for process in range (len(self._executing_process)):
             if not self._queue_list[process].is_empty():
                 if self._executing_process[process] == None:
@@ -105,8 +283,26 @@ class QueueManager:
                 if p._expected_time=="short" and (p._execution_time > 5):
                     user_dic[p._user_id] = True
                     print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
+                    processes_list.append([p.user_id, 1])
+                else: 
+                    processes_list.append([p.user_id, 0])
                 print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")
                 self._executing_process[process] = None
+    
+    def pandas(self, process_list:list, stay_time:list): 
+        data = pandas.DataFrame(process_list, columns=["User_id","Penalties"])
+        group_col = "User_id"
+        target_col = "Penalties" 
+        single_stats = data.groupby(group_col).agg({target_col :["mean"]})
+        print('\n', "*"*37, '\n', "          Average Penalties      ", '\n',  "*"*37 )
+        print (single_stats)
+        
+        data = pandas.DataFrame(stay_time, columns=["Queue","Average_stay_time"])
+        group_col = "Queue"
+        target_col = "Average_stay_time" 
+        stats = data.groupby(group_col).agg({target_col :["mean"]})
+        print('\n', "*"*37, '\n', "          Average stay time      ", '\n',  "*"*37 )
+        print (stats)
 
     
 def main():
@@ -117,11 +313,7 @@ def main():
     with open(sys.argv[1]) as f:
         process_text = f.read().strip()
         register_queue, user_dic = create_processes(process_text)
-        stay_time = register_managing(register_queue, user_dic)
-        pandas_stats(stay_time)
-
-if __name__ == '__main__':
-    main()
+        register_managing(register_queue, user_dic)
 
 if __name__ == '__main__':
     main()
