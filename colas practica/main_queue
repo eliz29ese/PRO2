@@ -38,7 +38,7 @@ class Process():
         self._start_time = 0
         #tiempo en el que se empieza a ejecutar el proceso
         self._start_execution_time = 0
-
+        self._penalty = False
     @property
     def process_id(self):
         """
@@ -228,26 +228,32 @@ def register_managing(register_queue:ArrayQueue, user_dic:dict):
     stay_time = []
     cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
     cnt=0
-    queue_manager = QueueManager([cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue])
+    queue_manager = QueueManager({"cpushort": cpushort_queue, "cpulong": cpulong_queue, "gpushort": gpushort_queue, "gpulong": gpulong_queue})
     
-    while not register_queue.is_empty():
+    while not register_queue.is_empty() or not check_stop_executing(queue_manager):
         cnt += 1
-        next_process = register_queue.dequeue()
-        next_process._start_time= cnt
-        #se añade el proceso a su cola de ejecución correspondiente
-        queue_manager.add_process(next_process)
-        print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
-        #ejecución de los procesos de cada cola de ejecución 
+        if not register_queue.is_empty():
+            next_process = register_queue.dequeue()
+            next_process._start_time= cnt
+            #se añade el proceso a su cola de ejecución correspondiente
+            queue_manager.add_process(next_process)
+            print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
         queue_manager.execute_process(cnt, user_dic, stay_time, processes_list)
         
-    #cuando la cola de registros se vacía seguir llamando a la función execute process hasta que todas las colas esten vacías y todos los procesos se hayan ejecutado
-    while not(queue_manager._queue_list[0].is_empty() and queue_manager._queue_list[1].is_empty() and queue_manager._queue_list[2].is_empty() and queue_manager._queue_list[3].is_empty()) or not queue_manager._executing_process == [None, None, None, None]:
-        cnt += 1
-        queue_manager.execute_process(cnt, user_dic, stay_time, processes_list)
     
     print(stay_time)
     print(processes_list)
     queue_manager.pandas(processes_list, stay_time )
+    
+    
+def check_stop_executing(queue_manager: "QueueManager"):
+    for queue in queue_manager._queues.values():
+        if not queue.is_empty():
+            return False
+    for process in queue_manager._executing_process.values():
+        if process != None:
+            return False
+    return True
         
 
 class QueueManager:
@@ -269,7 +275,7 @@ class QueueManager:
     def execute_process(cnt:int, user_dic:dict, stay_time:list, processes_list:list) -> int:
         It handles the execution of processes from the managed queues, controlling penalties.
     """
-    def __init__(self, queue_list:list, executing_process=[None,None,None,None]):
+    def __init__(self, queues:dict, executing_process={"cpushort": None, "cpulong": None, "gpushort": None, "gpulong": None}):
         """
         Create a QueueManager instance.
         
@@ -280,30 +286,30 @@ class QueueManager:
         executing_process : list
             List of processes that are being executed from each of the managed queues
         """
-        self._queue_list = queue_list
+        self._queues = queues
         self._executing_process = executing_process
         
     @property
-    def executing_process(self):
+    def queues(self):
         """
-        Gets the list of managed queues
+        Gets the dictionary of queues that will be managed.
         
         Returns
         -------
-        list
-            List of managed queues.
+        dict
+            Dictionary of managed queues.
         """
-        return self._queue_list
+        return self._queues
     
-    @executing_process.setter
-    def queue_list(self, value: list):
+    @queues.setter
+    def queues(self, value: dict):
         """
-        Set the list of managed queues.
+        Set the dictionary of managed queues.
         
         Parameters
         ----------
-        value : list 
-            The new expected list of managed queues.
+        value : dict 
+            The new expected dictionary of managed queues.
         
         Raises
         ------
@@ -311,28 +317,28 @@ class QueueManager:
             If the provided value is not a list of queues.
         """
         # Setter for the level
-        if isinstance(value, list):
-            self._queue_list = value
+        if isinstance(value, dict):
+            self._queues = value
         else:
-            raise ValueError("Process expected time must be an non empty string and must be either 'long' or 'short' ")
-        for queue in self._queue_list:
+            raise ValueError("queues must be a dictionary")
+        for queue in self._queues:
             if not isinstance(queue, ArrayQueue):
-                raise TypeError("Elements of queue list must be queues")
+                raise TypeError("Elements of queues dictionary must be queues")
         
     @property
     def executing_process(self):
         """
-        Gets the list of running processes for each of the managed queues.
+        Gets the dictionary of running processes for each of the managed queues.
         
         Returns
         -------
         list
-            The list of running processes for each of the managed queues.
+            The dictionary of running processes for each of the managed queues.
         """
         return self._executing_process
     
     @executing_process.setter
-    def executing_process(self, value: list):
+    def executing_process(self, value: dict):
         """
         Set the list of running processes for each of the managed queues.
         
@@ -347,13 +353,13 @@ class QueueManager:
             If the provided value is not a list of Process.
         """
         # Setter for the level
-        if isinstance(value, list):
+        if isinstance(value, dict):
             self._executing_process = value
         else:
-            raise ValueError("Process expected time must be an non empty string and must be either 'long' or 'short' ")
+            raise ValueError("executing_process must be a dictionary")
         for process in self._executing_process:
-            if not isinstance(process, Process):
-                raise TypeError("Elements of queue list must be queues")
+            if not (isinstance(process, Process) or Process==None):
+                raise TypeError("Elements of executing_process dictionary must be Process or None")
                 
         
     def add_process(self, process: Process):
@@ -372,14 +378,14 @@ class QueueManager:
         #cambiar utilizando diccionarios
         if process._process_type == "cpu":
             if process._expected_time == "short":
-                self._queue_list[0].enqueue(process)
+                self._queues["cpushort"].enqueue(process)
             elif process._expected_time == "long":
-                self._queue_list[1].enqueue(process)
+                self._queues["cpulong"].enqueue(process)
         elif process._process_type == "gpu":
             if process._expected_time == "short":
-                self._queue_list[2].enqueue(process)
+                self._queues["gpushort"].enqueue(process)
             elif process._expected_time == "long":
-                self._queue_list[3].enqueue(process)
+                self._queues["gpulong"].enqueue(process)
                 
                 
     def execute_process(self, cnt:int, user_dic:dict, stay_time:list, processes_list:list):
@@ -402,13 +408,13 @@ class QueueManager:
         -------
         None
         """
-        for process in range (len(self._executing_process)):
+        for process_type in self.executing_process:
             #iterador para la lista de procesos en ejecución
-            if not self._queue_list[process].is_empty():
+            if not self._queues[process_type].is_empty():
                 #mientras la cola de ese proceso no este vacía
-                if self._executing_process[process] == None:
+                if self._executing_process[process_type] == None:
                     #si no hay proceso ejecutándose de esa cola, sale el primero de la cola y empieza a ejecutarse
-                    next_process = self._queue_list[process].dequeue()
+                    next_process = self._queues[process_type].dequeue()
                     print(cnt,next_process._start_time, f"{next_process._process_type}{next_process._expected_time}")
                     
                     #aplicar penalización del usuario
@@ -416,35 +422,34 @@ class QueueManager:
                         self.execute_penalty(cnt, next_process, user_dic)
                     else:
                         #si no es el caso de la penalización, se añade a la lista de procesos ejecutándose
-                        self._executing_process[process] = next_process
+                        self._executing_process[process_type] = next_process
                         next_process._start_execution_time = cnt
                         avg_staytime = cnt - next_process._start_time
                         stay_time.append([next_process._process_type, next_process._expected_time, avg_staytime, next_process._process_id])
                         
-            p = self._executing_process[process]
+            p = self._executing_process[process_type]
             if p != None and cnt >= p._execution_time + p._start_execution_time:
-                self.active_penalty(cnt, p, user_dic, processes_list)
+                print(cnt, p._execution_time, p._start_execution_time)
+                #caso de penalización si es short y t>5
+                if p._expected_time=="short" and (p._execution_time > 5) and not p._penalty:
+                    user_dic[p._user_id] = True
+                    print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
+                if p._penalty:
+                    processes_list.append([p._user_id, 1])
+                else:
+                    processes_list.append([p._user_id, 0])
+                print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")      
+                    
                 #se borra de la lista de procesos en ejecución, ya se ha ejecutado
-                self._executing_process[process] = None
-                
-                
-    def active_penalty(self, cnt:int, p:Process, user_dic:dict, processes_list:list):
-            print(cnt, p._execution_time, p._start_execution_time)
-            #caso de penalización si es short y t>5
-            if p._expected_time=="short" and (p._execution_time > 5):
-                user_dic[p._user_id] = True
-                print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
-                processes_list.append([p.user_id, 1])
-            else: 
-                processes_list.append([p.user_id, 0])
-            print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")      
-                
+                self._executing_process[process_type] = None
+      
             
     def execute_penalty(self, cnt:int, process:Process, user_dic:dict):
         if process._process_type == "cpu":
-            self._queue_list[1].enqueue(process)
+            self._queues["cpulong"].enqueue(process)
         else:
-            self._queue_list[3].enqueue(process)
+            self._queues["gpulong"].enqueue(process)
+        process._penalty = True
         user_dic[process._user_id] = False
         print(f"Penalización aplicada: <{cnt}><{process._process_id}><{process._user_id}>\n")
    
@@ -453,6 +458,7 @@ class QueueManager:
    
     def pandas(self, process_list:list, stay_time:list): 
         data = pandas.DataFrame(process_list, columns=["User_id","Penalties"])
+        print(data)
         group_col = "User_id"
         target_col = "Penalties" 
         single_stats = data.groupby(group_col).agg({target_col :["mean"]})
