@@ -203,57 +203,59 @@ class Process():
             self._execution_time = value
         else:
             raise ValueError("Process execution time must be an positive integer")
-    
-def create_processes(text: str) -> tuple:
-    #diccionario con los usuarios, indica si tienen penalización activa
-    user_dic ={}
-    #crear cola de registros
-    register_queue = ArrayQueue()
-    processes = text.split("\n")
-    
-    for line in processes:
-        process_id, user_id, process_type, expected_time, execution_time = line.split()
-        register = Process(process_id, user_id, process_type, expected_time, execution_time)
-        register_queue.enqueue(register)
-        
-        if not user_id in user_dic.keys():
-            user_dic[user_id]=False 
             
-    return register_queue, user_dic
-
-def register_managing(register_queue:ArrayQueue, user_dic:dict):
-    #lista con el número de procesos por usuario que tienen penalización
-    processes_list = []
-    #lista con el tiempo medio de estancia en las colas de ejecución
-    stay_time = []
-    cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
-    cnt=0
-    queue_manager = QueueManager({"cpushort": cpushort_queue, "cpulong": cpulong_queue, "gpushort": gpushort_queue, "gpulong": gpulong_queue})
+class ProcessExecutor:
     
-    while not register_queue.is_empty() or not check_stop_executing(queue_manager):
-        cnt += 1
-        if not register_queue.is_empty():
-            next_process = register_queue.dequeue()
-            next_process._start_time= cnt
-            #se añade el proceso a su cola de ejecución correspondiente
-            queue_manager.add_process(next_process)
-            print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
-        queue_manager.execute_process(cnt, user_dic, stay_time, processes_list)
+    def create_processes(self, text: str) -> tuple:
+        #diccionario con los usuarios, indica si tienen penalización activa
+        user_dic ={}
+        #crear cola de registros
+        register_queue = ArrayQueue()
+        processes = text.split("\n")
         
-    
-    print(stay_time)
-    print(processes_list)
-    queue_manager.pandas(processes_list, stay_time )
-    
-    
-def check_stop_executing(queue_manager: "QueueManager"):
-    for queue in queue_manager._queues.values():
-        if not queue.is_empty():
-            return False
-    for process in queue_manager._executing_process.values():
-        if process != None:
-            return False
-    return True
+        for line in processes:
+            process_id, user_id, process_type, expected_time, execution_time = line.split()
+            register = Process(process_id, user_id, process_type, expected_time, execution_time)
+            register_queue.enqueue(register)
+            
+            if not user_id in user_dic.keys():
+                user_dic[user_id]=False 
+                
+        return register_queue, user_dic
+
+    def register_managing(self, register_queue:ArrayQueue, user_dic:dict):
+        #lista con el número de procesos por usuario que tienen penalización
+        processes_list = []
+        #lista con el tiempo medio de estancia en las colas de ejecución
+        stay_time = []
+        cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
+        cnt=0
+        queue_manager = QueueManager({"cpushort": cpushort_queue, "cpulong": cpulong_queue, "gpushort": gpushort_queue, "gpulong": gpulong_queue})
+        
+        while not register_queue.is_empty() or not self.check_stop_executing(queue_manager):
+            cnt += 1
+            if not register_queue.is_empty():
+                next_process = register_queue.dequeue()
+                next_process._start_time= cnt
+                #se añade el proceso a su cola de ejecución correspondiente
+                queue_manager.add_process(next_process)
+                print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
+            queue_manager.execute_process(cnt, user_dic, stay_time, processes_list)
+            
+        
+        print(stay_time)
+        print(processes_list)
+        queue_manager.pandas(processes_list, stay_time )
+        
+        
+    def check_stop_executing(self, queue_manager: "QueueManager"):
+        for queue in queue_manager._queues.values():
+            if not queue.is_empty():
+                return False
+        for process in queue_manager._executing_process.values():
+            if process != None:
+                return False
+        return True
         
 
 class QueueManager:
@@ -453,6 +455,40 @@ class QueueManager:
         user_dic[process._user_id] = False
         print(f"Penalización aplicada: <{cnt}><{process._process_id}><{process._user_id}>\n")
    
+
+
+   
+    def pandas(self, process_list:list, stay_time:list): 
+        data = pandas.DataFrame(process_list, columns=["User_id","Penalties"])
+        print(data)
+        group_col = "User_id"
+        target_col = "Penalties" 
+        single_stats = data.groupby(group_col).agg({target_col :["mean"]})
+        print('\n', "*"*37, '\n', "          Average Penalties      ", '\n',  "*"*37 )
+        print (single_stats)
+        
+        data = pandas.DataFrame(stay_time, columns=["Type","Time", "Average stay time", "id_process"])
+        group_col = ["Type","Time"]
+        target_col = "Average stay time" 
+        stats = data.groupby(group_col).agg({target_col :["mean"]})
+        print('\n', "*"*37, '\n', "          Average stay time      ", '\n',  "*"*37 )
+        print (stats)
+
+    
+def main():
+    """
+    The main function that reads from a file and starts the simulation.
+    """
+
+    with open(sys.argv[1]) as f:
+        process_text = f.read().strip()
+        executor = ProcessExecutor()
+        register_queue, user_dic = executor.create_processes(process_text)
+        executor.register_managing(register_queue, user_dic)
+
+
+if __name__ == '__main__':
+    main()
 
 
    
