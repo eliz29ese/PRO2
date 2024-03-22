@@ -34,7 +34,9 @@ class Process():
         self._process_type = process_type
         self._expected_time = expected_time
         self._execution_time = int(execution_time)
+        #tiempo en el que el proceso pasa al gestor de colas
         self._start_time = 0
+        #tiempo en el que se empieza a ejecutar el proceso
         self._start_execution_time = 0
 
     @property
@@ -203,19 +205,26 @@ class Process():
             raise ValueError("Process execution time must be an positive integer")
     
 def create_processes(text: str) -> tuple:
+    #diccionario con los usuarios, indica si tienen penalización activa
     user_dic ={}
+    #crear cola de registros
     register_queue = ArrayQueue()
     processes = text.split("\n")
+    
     for line in processes:
         process_id, user_id, process_type, expected_time, execution_time = line.split()
         register = Process(process_id, user_id, process_type, expected_time, execution_time)
         register_queue.enqueue(register)
+        
         if not user_id in user_dic.keys():
             user_dic[user_id]=False 
+            
     return register_queue, user_dic
 
 def register_managing(register_queue:ArrayQueue, user_dic:dict):
+    #lista con el número de procesos por usuario que tienen penalización
     processes_list = []
+    #lista con el tiempo medio de estancia en las colas de ejecución
     stay_time = []
     cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
     cnt=0
@@ -225,10 +234,13 @@ def register_managing(register_queue:ArrayQueue, user_dic:dict):
         cnt += 1
         next_process = register_queue.dequeue()
         next_process._start_time= cnt
+        #se añade el proceso a su cola de ejecución correspondiente
         queue_manager.add_process(next_process)
         print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
+        #ejecución de los procesos de cada cola de ejecución 
         queue_manager.execute_process(cnt, user_dic, stay_time, processes_list)
- #cuando la cola de registros se vacía seguir llamando a la función execute process hasta que todas las colas esten vacías
+        
+    #cuando la cola de registros se vacía seguir llamando a la función execute process hasta que todas las colas esten vacías y todos los procesos se hayan ejecutado
     while not(queue_manager._queue_list[0].is_empty() and queue_manager._queue_list[1].is_empty() and queue_manager._queue_list[2].is_empty() and queue_manager._queue_list[3].is_empty()) or not queue_manager._executing_process == [None, None, None, None]:
         cnt += 1
         queue_manager.execute_process(cnt, user_dic, stay_time, processes_list)
@@ -239,12 +251,125 @@ def register_managing(register_queue:ArrayQueue, user_dic:dict):
         
 
 class QueueManager:
-    #opción de meter las colas en una lista
+    """
+    Creates managers for queues and the execution of containing processes.
+    
+    Parameters
+    ----------
+    queue_list : list
+        List with the queues that need to be managed (cpulong, cpushort, gpulong, gpushort)
+    executing_process : list
+        List of processes that are being executed from each of the managed queues
+    
+    Methods 
+    ------- 
+    add_process(process: Process) -> None:
+        Add the process to its corresponding execution queue from the list of managed queues.
+        
+    def execute_process(cnt:int, user_dic:dict, stay_time:list, processes_list:list) -> int:
+        It handles the execution of processes from the managed queues, controlling penalties.
+    """
     def __init__(self, queue_list:list, executing_process=[None,None,None,None]):
+        """
+        Create a QueueManager instance.
+        
+        Parameters
+        ----------
+        queue_list : list
+            List of the queues that need to be managed (cpulong, cpushort, gpulong, gpushort)
+        executing_process : list
+            List of processes that are being executed from each of the managed queues
+        """
         self._queue_list = queue_list
         self._executing_process = executing_process
         
+    @property
+    def executing_process(self):
+        """
+        Gets the list of managed queues
+        
+        Returns
+        -------
+        list
+            List of managed queues.
+        """
+        return self._queue_list
+    
+    @executing_process.setter
+    def queue_list(self, value: list):
+        """
+        Set the list of managed queues.
+        
+        Parameters
+        ----------
+        value : list 
+            The new expected list of managed queues.
+        
+        Raises
+        ------
+        ValueError
+            If the provided value is not a list of queues.
+        """
+        # Setter for the level
+        if isinstance(value, list):
+            self._queue_list = value
+        else:
+            raise ValueError("Process expected time must be an non empty string and must be either 'long' or 'short' ")
+        for queue in self._queue_list:
+            if not isinstance(queue, ArrayQueue):
+                raise TypeError("Elements of queue list must be queues")
+        
+    @property
+    def executing_process(self):
+        """
+        Gets the list of running processes for each of the managed queues.
+        
+        Returns
+        -------
+        list
+            The list of running processes for each of the managed queues.
+        """
+        return self._executing_process
+    
+    @executing_process.setter
+    def executing_process(self, value: list):
+        """
+        Set the list of running processes for each of the managed queues.
+        
+        Parameters
+        ----------
+        value : list 
+            The new list of running processes for each of the managed queues.
+        
+        Raises
+        ------
+        ValueError
+            If the provided value is not a list of Process.
+        """
+        # Setter for the level
+        if isinstance(value, list):
+            self._executing_process = value
+        else:
+            raise ValueError("Process expected time must be an non empty string and must be either 'long' or 'short' ")
+        for process in self._executing_process:
+            if not isinstance(process, Process):
+                raise TypeError("Elements of queue list must be queues")
+                
+        
     def add_process(self, process: Process):
+        """
+        Add the given process to the execution queue of the manager's queue list corresponding to its process type and expected time.
+        
+        Parameters
+        ----------
+        process : Process
+            Process we want to insert into its corresponding execution queue.
+        
+        Returns
+        -------
+        None
+        """
+        #cambiar utilizando diccionarios
         if process._process_type == "cpu":
             if process._expected_time == "short":
                 self._queue_list[0].enqueue(process)
@@ -256,39 +381,76 @@ class QueueManager:
             elif process._expected_time == "long":
                 self._queue_list[3].enqueue(process)
                 
-    def execute_process(self, cnt, user_dic:dict, stay_time:list, processes_list:list ):
+                
+    def execute_process(self, cnt:int, user_dic:dict, stay_time:list, processes_list:list):
+        """
+        Esta función se encarga de gestionar los procesos en ejecución en cada momento (según el contador). Emplea la lista
+        de procesos en ejecucion (executing_process) que indica para cada una de las colas que gestiona que proceso está e
+        ejecutándose en un momento en concreto (cnt). Si no hay ningún proceso ejecutándose (None) se saca el proceso que está de primero 
+        en la cola correspondiente. En este momento se calcula el tiempo medio de estancai en la cola de ejecución. Si el expected time es 
+        short se comprueba en el diccionario de usuarios que el usuario de ese proceso cuente con penalización. Si es cierto se pasa el proceso 
+        al final de la cola long de su tipo (process_type) y se desactiva la penalización. Si el proceso ejecutándose no es None y ya ha pasado su
+        execution_time si quita de la lista de procesos de ejecución cambiándolo a None. Además si su tipo es short comprueba que su execution_time
+        sea menor que 5, y si esto no se cumple se activa la penalización de su usario.
+        
+        
+        Parameters
+        ----------
+        cnt : int
+         
+        Returns
+        -------
+        None
+        """
         for process in range (len(self._executing_process)):
+            #iterador para la lista de procesos en ejecución
             if not self._queue_list[process].is_empty():
+                #mientras la cola de ese proceso no este vacía
                 if self._executing_process[process] == None:
+                    #si no hay proceso ejecutándose de esa cola, sale el primero de la cola y empieza a ejecutarse
                     next_process = self._queue_list[process].dequeue()
                     print(cnt,next_process._start_time, f"{next_process._process_type}{next_process._expected_time}")
-                    avg_staytime = cnt - next_process._start_time
-                    stay_time.append([f"{next_process._process_type}{next_process._expected_time}", avg_staytime])
                     
+                    #aplicar penalización del usuario
                     if next_process._expected_time == "short" and user_dic[next_process._user_id] == True:
-                        if next_process._process_type == "cpu":
-                            self._queue_list[1].enqueue(next_process)
-                        else:
-                            self._queue_list[3].enqueue(next_process)
-                        next_process._expected_time = "long"
-                        user_dic[next_process._user_id] = False
-                        print(f"Penalización aplicada: <{cnt}><{next_process._process_id}><{next_process._user_id}>\n")
-
+                        self.execute_penalty(cnt, next_process, user_dic)
                     else:
+                        #si no es el caso de la penalización, se añade a la lista de procesos ejecutándose
                         self._executing_process[process] = next_process
                         next_process._start_execution_time = cnt
+                        avg_staytime = cnt - next_process._start_time
+                        stay_time.append([next_process._process_type, next_process._expected_time, avg_staytime, next_process._process_id])
+                        
             p = self._executing_process[process]
-            if p != None and cnt >= p._execution_time + p._start_execution_time :
-                print(cnt, p._execution_time, p._start_execution_time)
-                if p._expected_time=="short" and (p._execution_time > 5):
-                    user_dic[p._user_id] = True
-                    print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
-                    processes_list.append([p.user_id, 1])
-                else: 
-                    processes_list.append([p.user_id, 0])
-                print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")
+            if p != None and cnt >= p._execution_time + p._start_execution_time:
+                self.active_penalty(cnt, p, user_dic, processes_list)
+                #se borra de la lista de procesos en ejecución, ya se ha ejecutado
                 self._executing_process[process] = None
-    
+                
+                
+    def active_penalty(self, cnt:int, p:Process, user_dic:dict, processes_list:list):
+            print(cnt, p._execution_time, p._start_execution_time)
+            #caso de penalización si es short y t>5
+            if p._expected_time=="short" and (p._execution_time > 5):
+                user_dic[p._user_id] = True
+                print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
+                processes_list.append([p.user_id, 1])
+            else: 
+                processes_list.append([p.user_id, 0])
+            print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")      
+                
+            
+    def execute_penalty(self, cnt:int, process:Process, user_dic:dict):
+        if process._process_type == "cpu":
+            self._queue_list[1].enqueue(process)
+        else:
+            self._queue_list[3].enqueue(process)
+        user_dic[process._user_id] = False
+        print(f"Penalización aplicada: <{cnt}><{process._process_id}><{process._user_id}>\n")
+   
+
+
+   
     def pandas(self, process_list:list, stay_time:list): 
         data = pandas.DataFrame(process_list, columns=["User_id","Penalties"])
         group_col = "User_id"
@@ -297,9 +459,9 @@ class QueueManager:
         print('\n', "*"*37, '\n', "          Average Penalties      ", '\n',  "*"*37 )
         print (single_stats)
         
-        data = pandas.DataFrame(stay_time, columns=["Queue","Average_stay_time"])
-        group_col = "Queue"
-        target_col = "Average_stay_time" 
+        data = pandas.DataFrame(stay_time, columns=["Type","Time", "Average stay time", "id_process"])
+        group_col = ["Type","Time"]
+        target_col = "Average stay time" 
         stats = data.groupby(group_col).agg({target_col :["mean"]})
         print('\n', "*"*37, '\n', "          Average stay time      ", '\n',  "*"*37 )
         print (stats)
