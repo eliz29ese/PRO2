@@ -366,7 +366,8 @@ class QueueManager:
         
     def add_process(self, process: Process):
         """
-        Add the given process to the execution queue of the manager's queue list corresponding to its process type and expected time.
+        Add the given process to the execution queue of the manager's queue dictionaty (queues) corresponding to its process type and expected time, 
+        this being the key to the corresponfing entry of the dictionary.
         
         Parameters
         ----------
@@ -377,35 +378,33 @@ class QueueManager:
         -------
         None
         """
-        #cambiar utilizando diccionarios
-        if process._process_type == "cpu":
-            if process._expected_time == "short":
-                self._queues["cpushort"].enqueue(process)
-            elif process._expected_time == "long":
-                self._queues["cpulong"].enqueue(process)
-        elif process._process_type == "gpu":
-            if process._expected_time == "short":
-                self._queues["gpushort"].enqueue(process)
-            elif process._expected_time == "long":
-                self._queues["gpulong"].enqueue(process)
+        self._queues[f"{process._process_type}{process._expected_time}"].enqueue(process)
                 
                 
-    def execute_process(self, cnt:int, user_dic:dict, stay_time:list, processes_list:list):
+    def execute_process(self, cnt:int, user_dic:dict, stay_time:list, processes_list:list)->None:
         """
-        Esta función se encarga de gestionar los procesos en ejecución en cada momento (según el contador). Emplea la lista
-        de procesos en ejecucion (executing_process) que indica para cada una de las colas que gestiona que proceso está e
-        ejecutándose en un momento en concreto (cnt). Si no hay ningún proceso ejecutándose (None) se saca el proceso que está de primero 
-        en la cola correspondiente. En este momento se calcula el tiempo medio de estancai en la cola de ejecución. Si el expected time es 
-        short se comprueba en el diccionario de usuarios que el usuario de ese proceso cuente con penalización. Si es cierto se pasa el proceso 
-        al final de la cola long de su tipo (process_type) y se desactiva la penalización. Si el proceso ejecutándose no es None y ya ha pasado su
-        execution_time si quita de la lista de procesos de ejecución cambiándolo a None. Además si su tipo es short comprueba que su execution_time
-        sea menor que 5, y si esto no se cumple se activa la penalización de su usario.
-        
-        
+        This function is responsible for managing the processes running at a given time (according to the counter, cnt). It utilizes the dictionary of 
+        executing processes (executing_process) which indicates for each of the queues it manages (in the queues dictionary) which process is running at 
+        a specific moment (cnt). For each key of the dictionaries (they are the same for queues and executing_process), if there is no process running in
+        executing_process (None), the process at the front of the corresponding queue for its key is dequeued. If the expected time is short, it checks the 
+        user dictionary (user_dic) to see if the user of that process is penalized. If true, it calls the execute_penalty() function to manage the penalty. 
+        Otherwise, the process is placed in the dictionary of executing processes in its corresponding entry, and its execution start time is set as the counter
+        (start_execution_time). Additionally, the time spent in the execution queue is calculated as the difference between the counter and the time it entered its 
+        execution queue (start_time). This is added to the avg_time list along with its process type. If the running process is not None and its execution time (execution_time)
+        has elapsed, the end_execution function is called to finalize the procedure.
+
+
         Parameters
         ----------
-        cnt : int
-         
+        cnt: int
+            Counter for the moment of the procedure.
+        user_dic: dict
+            Dictionary whose entries are the user_id and a boolean indicating the existence of penalty for that user.
+        stay_time: list
+            List where the time each process spent in its execution queue after exiting it will be inserted.
+        processes_list: list
+            List where the user of the process and whether penalty has been executed on it (1) or not (0) will be inserted.
+        
         Returns
         -------
         None
@@ -431,21 +430,49 @@ class QueueManager:
                         
             p = self._executing_process[process_type]
             if p != None and cnt >= p._execution_time + p._start_execution_time:
-                print(cnt, p._execution_time, p._start_execution_time)
-                #caso de penalización si es short y t>5
-                if p._expected_time=="short" and (p._execution_time > 5) and not p._penalty:
-                    user_dic[p._user_id] = True
-                    print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
-                if p._penalty:
-                    processes_list.append([p._user_id, 1])
-                else:
-                    processes_list.append([p._user_id, 0])
-                print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")      
-                    
-                #se borra de la lista de procesos en ejecución, ya se ha ejecutado
-                self._executing_process[process_type] = None
+                self.end_execution(cnt, p, user_dic, processes_list, process_type)
+                
       
-            
+        
+    def end_execution(self, cnt:int, p:Process, user_dic:dict, processes_list:list, process_type:str):
+        """
+        This function is called when the execution time of a process has ended and it needs to be finalized. First, it checks if it's necessary to apply a penalty to 
+        the user of the process: if its expected_time is short and its execution_time is greater than 5, then a penalty will be activated as it doesn't have a short duration.
+        To do this, we change the entry of the user dictionary (user_dic) with the key being the id_user of the process to True, thus activating its penalty. Next, we need
+        to check if the process has been executed with or without penalty: if tits attribute penalty is True, we insert its id and a 1 into the process_list, and if it's False, 
+        we insert the user_id and a 0. Finally, we remove the process from the dictionary of executed processes (executed_process) by setting its entry (with key process_type) to None.
+
+        Parameters
+        ----------
+        cnt: int
+            Counter for the moment of the procedure.
+        p: Process
+            Process wich execution has been finalized.
+        user_dic: dict
+            Dictionary whose entries are the user_id and a boolean indicating the existence of penalty for that user.
+        processes_list: list
+            List where the user of the process and whether penalty has been executed on it (1) or not (0) will be inserted.
+        process_type:
+            Key of the process given (p) in the executing_process dictionaty.
+        
+        Returns
+        -------
+        None
+        """
+        print(cnt, p._execution_time, p._start_execution_time)
+        #caso de penalización si es short y t>5
+        if p._expected_time=="short" and (p._execution_time > 5) and not p._penalty:
+            user_dic[p._user_id] = True
+            print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
+        if p._penalty:
+            processes_list.append([p._user_id, 1])
+        else:
+            processes_list.append([p._user_id, 0])
+        print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")      
+        #se borra de la lista de procesos en ejecución, ya se ha ejecutado
+        self._executing_process[process_type] = None
+        
+     
     def execute_penalty(self, cnt:int, process:Process, user_dic:dict):
         if process._process_type == "cpu":
             self._queues["cpulong"].enqueue(process)
@@ -486,38 +513,6 @@ def main():
         register_queue, user_dic = executor.create_processes(process_text)
         executor.register_managing(register_queue, user_dic)
 
-
-if __name__ == '__main__':
-    main()
-
-
-   
-    def pandas(self, process_list:list, stay_time:list): 
-        data = pandas.DataFrame(process_list, columns=["User_id","Penalties"])
-        print(data)
-        group_col = "User_id"
-        target_col = "Penalties" 
-        single_stats = data.groupby(group_col).agg({target_col :["mean"]})
-        print('\n', "*"*37, '\n', "          Average Penalties      ", '\n',  "*"*37 )
-        print (single_stats)
-        
-        data = pandas.DataFrame(stay_time, columns=["Type","Time", "Average stay time", "id_process"])
-        group_col = ["Type","Time"]
-        target_col = "Average stay time" 
-        stats = data.groupby(group_col).agg({target_col :["mean"]})
-        print('\n', "*"*37, '\n', "          Average stay time      ", '\n',  "*"*37 )
-        print (stats)
-
-    
-def main():
-    """
-    The main function that reads from a file and starts the simulation.
-    """
-
-    with open(sys.argv[1]) as f:
-        process_text = f.read().strip()
-        register_queue, user_dic = create_processes(process_text)
-        register_managing(register_queue, user_dic)
 
 if __name__ == '__main__':
     main()
