@@ -225,7 +225,7 @@ class ProcessExecutor:
 
     def register_managing(self, register_queue:ArrayQueue, user_dic:dict):
         #lista con el número de procesos por usuario que tienen penalización
-        processes_list = []
+        penalized_process = []
         #lista con el tiempo medio de estancia en las colas de ejecución
         stay_time = []
         cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
@@ -240,12 +240,12 @@ class ProcessExecutor:
                 #se añade el proceso a su cola de ejecución correspondiente
                 queue_manager.add_process(next_process)
                 print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
-            queue_manager.execute_process(cnt, user_dic, stay_time, processes_list)
+            queue_manager.execute_process(cnt, user_dic, stay_time, penalized_process )
             
         
         print(stay_time)
-        print(processes_list)
-        queue_manager.pandas(processes_list, stay_time )
+        print(penalized_process)
+        queue_manager.pandas(penalized_process , stay_time )
         
         
     def check_stop_executing(self, queue_manager: "QueueManager"):
@@ -381,7 +381,7 @@ class QueueManager:
         self._queues[f"{process._process_type}{process._expected_time}"].enqueue(process)
                 
                 
-    def execute_process(self, cnt:int, user_dic:dict, stay_time:list, processes_list:list)->None:
+    def execute_process(self, cnt:int, user_dic:dict, stay_time:list, penalized_process:list)->None:
         """
         This function is responsible for managing the processes running at a given time (according to the counter, cnt). It utilizes the dictionary of 
         executing processes (executing_process) which indicates for each of the queues it manages (in the queues dictionary) which process is running at 
@@ -410,31 +410,35 @@ class QueueManager:
         None
         """
         for process_type in self.executing_process:
-            #iterador para la lista de procesos en ejecución
+            # Iterator for entries of the executing process dictionary
             if not self._queues[process_type].is_empty():
-                #mientras la cola de ese proceso no este vacía
+                # While the corresponding execution queue of that process is not empty
                 if self._executing_process[process_type] == None:
-                    #si no hay proceso ejecutándose de esa cola, sale el primero de la cola y empieza a ejecutarse
+                    # If there are no processes currently executing from that queue, dequeue the first one
                     next_process = self._queues[process_type].dequeue()
                     print(cnt,next_process._start_time, f"{next_process._process_type}{next_process._expected_time}")
                     
-                    #aplicar penalización del usuario
+                    # Apply user penalty
                     if next_process._expected_time == "short" and user_dic[next_process._user_id] == True:
                         self.execute_penalty(cnt, next_process, user_dic)
                     else:
-                        #si no es el caso de la penalización, se añade a la lista de procesos ejecutándose
+                        # If no penalty applies, add it to the list of executing processes
                         self._executing_process[process_type] = next_process
+                        # Its execution start time will be the value of the counter
                         next_process._start_execution_time = cnt
+                        # Calculate the time spent in the execution queue
                         avg_staytime = cnt - next_process._start_time
+                        # Add it to the list to be used in pandas to calculate the average time processes stay in the execution queues
                         stay_time.append([next_process._process_type, next_process._expected_time, avg_staytime, next_process._process_id])
-                        
+                
             p = self._executing_process[process_type]
+            # Check if there is a process executing whose execution time has ended, and call the end_execution function which handles its completion
             if p != None and cnt >= p._execution_time + p._start_execution_time:
-                self.end_execution(cnt, p, user_dic, processes_list, process_type)
+                self.end_execution(cnt, p, user_dic, penalized_process, process_type)
                 
       
         
-    def end_execution(self, cnt:int, p:Process, user_dic:dict, processes_list:list, process_type:str):
+    def end_execution(self, cnt:int, p:Process, user_dic:dict, penalized_process:list, process_type:str):
         """
         This function is called when the execution time of a process has ended and it needs to be finalized. First, it checks if it's necessary to apply a penalty to 
         the user of the process: if its expected_time is short and its execution_time is greater than 5, then a penalty will be activated as it doesn't have a short duration.
@@ -460,16 +464,20 @@ class QueueManager:
         None
         """
         print(cnt, p._execution_time, p._start_execution_time)
-        #caso de penalización si es short y t>5
-        if p._expected_time=="short" and (p._execution_time > 5) and not p._penalty:
+        # Penalty case if it is short and its execution time is greater than 5.
+        if p._expected_time == "short" and (p._execution_time > 5) and not p._penalty:
+            # Change the corresponding entry of the user dictionary to True, indicating penalty is active.
             user_dic[p._user_id] = True
-            print(f"Penalización activa: <{cnt}>><{p._user_id}>\n")
+            print(f"Penalty activated: <{cnt}>><{p._user_id}>\n")
+        # Check if the process has been executed with or without penalty and add that to the list for later use in pandas.
         if p._penalty:
-            processes_list.append([p._user_id, 1])
+            # Executed with penalty
+            penalized_process.append([p._user_id, 1])
         else:
-            processes_list.append([p._user_id, 0])
-        print(f"Proceso terminado: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")      
-        #se borra de la lista de procesos en ejecución, ya se ha ejecutado
+            # Executed without penalty
+            penalized_process.append([p._user_id, 0])
+        print(f"Process completed: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")      
+        # Remove it from the list of executing processes, as it has been executed.
         self._executing_process[process_type] = None
         
      
@@ -481,7 +489,6 @@ class QueueManager:
         process._penalty = True
         user_dic[process._user_id] = False
         print(f"Penalización aplicada: <{cnt}><{process._process_id}><{process._user_id}>\n")
-   
 
 
    
