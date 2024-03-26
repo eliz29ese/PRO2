@@ -1,17 +1,56 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Mar 13 09:07:01 2024
-
-@author: isabe
+Rodríguez Polín, Isabel
+(isabel.rodriguezp@udc.es)
+Santrich Escalona, Elizabet
+(elizabet.santrich.escalona@udc.es)
 """
-
 from array_queue import ArrayQueue
 import sys
 import pandas
 
 
 class Process():
-    def __init__(self, process_id:str, user_id:int, process_type:str, expected_time:str, execution_time:int):
+
+    """Class representing different processes that will be executed in their respective queues.
+
+    This class provides attributes to store information about a process initiated by a user, which will be managed by a queue.
+
+    Attributes
+    ----------
+    _process_id : str
+        The unique identifier of the process.
+    _user_id : str
+        The identifier for the user who initiated the process.
+    _process_type : str
+        The type of the process (gpu or cpu).
+    _expected_time : str
+        The expected time for the process to complete (short or long).
+    _execution_time : int
+        The actual time, in practice, taken for the process to execute.
+
+    Attributes set to default values for all instances:
+        _start_time : int
+            The time when the process enters the queue manager.
+        _start_execution_time : int
+            The time when the process starts executing.
+        _penalty : bool
+            Indicates whether the process is executed with a penalty (this occurs when the user who owns the process has an active penalty).
+
+    Methods
+    -------
+    No additional methods beyond getters and setters.
+
+    Notes:
+    -----
+    - Attributes set to default values for each instance of the class will also have getters and setters, as their manipulation is important for internal process management.
+    - Default values are subject to modifications in the process management:
+        _start_time = 0
+        _start_execution_time = 0
+        _penalty = False
+    """
+
+    def __init__(self, process_id: str, user_id: int, process_type: str, expected_time: str, execution_time: int):
         """
         Create a Process instance.
 
@@ -27,298 +66,369 @@ class Process():
             The expected time for the process to complete (short or long).
         execution_time : int
             The actual time, in practice, taken for the process to execute.
+
+        Returns
+        -------
+        None
         """
-        
+
         self._process_id = process_id
         self._user_id = user_id
         self._process_type = process_type
         self._expected_time = expected_time
-        self._execution_time = int(execution_time)
-        #tiempo en el que el proceso pasa al gestor de colas
+        self._execution_time = execution_time
+
+        # These attributes are set to default values for all instances
+        # tiempo en el que el proceso pasa al gestor de colas
         self._start_time = 0
-        #tiempo en el que se empieza a ejecutar el proceso
+        # tiempo en el que se empieza a ejecutar el proceso
         self._start_execution_time = 0
         self._penalty = False
+
     @property
     def process_id(self):
         """
         Gets the process identifier of the Process.
-        
+
         Returns
         -------
         str
             The process identifier of the Process.
         """
         return self._process_id
-    
+
     @process_id.setter
     def process_id(self, value: str):
         """
         Set the process identifier of the Process.
-        
+
         Parameters
         ----------
         value : str 
             The new process identifier of the Process.
-        
+
         Raises
         ------
         ValueError
             If the provided value is an empty string.
         """
-        # Setter for the process_id
+        # Setter for the _process_id
         if isinstance(value, str) and len(value) != 0:
             self._process_id = value
         else:
             raise ValueError("Process identifier must be an non empty string")
-            
+
     @property
     def user_id(self):
         """
         Gets the user identifier of the Process.
-        
+
         Returns
         -------
         str
             The user identifier of the Process.
         """
         return self._user_id
-    
+
     @user_id.setter
     def user_id(self, value: str):
         """
         Set the user identifier of the Process.
-        
+
         Parameters
         ----------
         value : str 
             The new user identifier of the Process.
-        
+
         Raises
         ------
         ValueError
             If the provided value is an empty string.
         """
-        # Setter for the level
+        # Setter for the _user_id
         if isinstance(value, str) and len(value) != 0:
             self._user_id = value
         else:
             raise ValueError("User identifier must be an non empty string")
-        
+
     @property
     def process_type(self):
         """
         Gets the type of the Process.
-        
+
         Returns
         -------
         str
             The type of the Process.
         """
         return self._process_type
-    
+
     @process_type.setter
     def process_type(self, value: str):
         """
         Set the type of the Process.
-        
+
         Parameters
         ----------
         value : str 
             The new type of the Process.
-        
+
         Raises
         ------
         ValueError
             If the provided value is an empty string or is neither 'gpu' nor 'cpu'.
         """
-        # Setter for the level
+        # Setter for the _process_type
         if isinstance(value, str) and len(value) != 0 and (value in ('gpu', 'cpu')):
             self._process_type = value
         else:
-            raise ValueError("Process type must be an non empty string and must be either 'gpu' or 'cpu' ")
-    
+            raise ValueError(
+                "Process type must be an non empty string and must be either 'gpu' or 'cpu' ")
+
     @property
     def expected_time(self):
         """
         Gets the expected completion time of the Process.
-        
+
         Returns
         -------
         str
             The expected completion time of the Process.
         """
         return self._expected_time
-    
+
     @expected_time.setter
     def expected_time(self, value: str):
         """
         Set the expected completion time of the Process.
-        
+
         Parameters
         ----------
         value : str 
             The new expected completion time of the Process.
-        
+
         Raises
         ------
         ValueError
             If the provided value is an empty string or is neither 'long' nor 'short'.
         """
-        # Setter for the level
+        # Setter for the _expected_time
         if isinstance(value, str) and len(value) != 0 and (value in ('long', 'short')):
             self._expected_time = value
         else:
-            raise ValueError("Process expected time must be an non empty string and must be either 'long' or 'short' ")
+            raise ValueError(
+                "Process expected time must be an non empty string and must be either 'long' or 'short' ")
 
     @property
     def execution_time(self):
         """
         Gets the actual execution completion time of the Process. 
-        
+
         Returns
         -------
         int
             The time taken for the Process to execute.
         """
         return self._execution_time
-    
+
     @execution_time.setter
-    def execution_time(self, value: str):
+    def execution_time(self, value: int):
         """
         Set the execution completion time of the Process
-        
+
         Parameters
         ----------
         value : int  
             The new execution completion time of the Process.
-        
+
         Raises
         ------
         ValueError
             If the provided value is not a positive integer.
         """
-        # Setter for the level
+        # Setter for the _execution_time
         if isinstance(value, int) and value >= 0:
             self._execution_time = value
         else:
-            raise ValueError("Process execution time must be an positive integer")
-            
-class ProcessExecutor:
-    
-    def create_processes(self, text: str) -> tuple:
-        #diccionario con los usuarios, indica si tienen penalización activa
-        user_dic ={}
-        #crear cola de registros
-        register_queue = ArrayQueue()
-        processes = text.split("\n")
-        
-        for line in processes:
-            process_id, user_id, process_type, expected_time, execution_time = line.split()
-            register = Process(process_id, user_id, process_type, expected_time, execution_time)
-            register_queue.enqueue(register)
-            
-            if not user_id in user_dic.keys():
-                user_dic[user_id]=False 
-                
-        return register_queue, user_dic
+            raise ValueError(
+                "Process execution time must be an positive integer")
 
-    def register_managing(self, register_queue:ArrayQueue, user_dic:dict):
-        #lista con el número de procesos por usuario que tienen penalización
-        penalized_process = []
-        #lista con el tiempo medio de estancia en las colas de ejecución
-        stay_time = []
-        cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
-        cnt=0
-        queue_manager = QueueManager({"cpushort": cpushort_queue, "cpulong": cpulong_queue, "gpushort": gpushort_queue, "gpulong": gpulong_queue})
-        
-        while not register_queue.is_empty() or not self.check_stop_executing(queue_manager):
-            cnt += 1
-            if not register_queue.is_empty():
-                next_process = register_queue.dequeue()
-                next_process._start_time= cnt
-                #se añade el proceso a su cola de ejecución correspondiente
-                queue_manager.add_process(next_process)
-                print(f"Process added to execution queue: <{cnt}><{next_process._process_id}><{next_process._user_id}> <{next_process._process_type}><{next_process._expected_time}>\n")
-            queue_manager.execute_process(cnt, user_dic, stay_time, penalized_process )
-            
-        
-        print(stay_time)
-        print(penalized_process)
-        queue_manager.pandas(penalized_process , stay_time )
-        
-        
-    def check_stop_executing(self, queue_manager: "QueueManager"):
-        for queue in queue_manager._queues.values():
-            if not queue.is_empty():
-                return False
-        for process in queue_manager._executing_process.values():
-            if process != None:
-                return False
-        return True
-        
-
-class QueueManager:
-    """
-    Creates managers for queues and the execution of containing processes.
-    
-    Parameters
-    ----------
-    queue_list : list
-        List with the queues that need to be managed (cpulong, cpushort, gpulong, gpushort)
-    executing_process : list
-        List of processes that are being executed from each of the managed queues
-    
-    Methods 
-    ------- 
-    add_process(process: Process) -> None:
-        Add the process to its corresponding execution queue from the list of managed queues.
-        
-    def execute_process(cnt:int, user_dic:dict, stay_time:list, processes_list:list) -> int:
-        It handles the execution of processes from the managed queues, controlling penalties.
-    """
-    def __init__(self, queues:dict, executing_process={"cpushort": None, "cpulong": None, "gpushort": None, "gpulong": None}):
+    @property
+    def start_time(self):
         """
-        Create a QueueManager instance.
-        
+        Gets the start time of the Process. 
+
+        Returns
+        -------
+        int
+            The time when the process enters in the queue manager. 
+        """
+        return self._start_time
+
+    @start_time.setter
+    def start_time(self, value: int):
+        """
+        Set the time when the process enters in the queue manager.
+
         Parameters
         ----------
-        queue_list : list
-            List of the queues that need to be managed (cpulong, cpushort, gpulong, gpushort)
-        executing_process : list
-            List of processes that are being executed from each of the managed queues
+        value : int  
+            The new start time of the Process.
+
+        Raises
+        ------
+        ValueError
+            If the provided value is not a positive integer.
+        """
+        # Setter for the _start_time
+        if isinstance(value, int) and value >= 0:
+            self._start_time = value
+        else:
+            raise ValueError("Start time must be an positive integer")
+
+    @property
+    def start_execution_time(self):
+        """
+        Gets the start execution time of the Process. 
+
+        Returns
+        -------
+        int
+            The time when the process starts executing. 
+        """
+        return self._start_execution_time
+
+    @start_execution_time.setter
+    def start_execution_time(self, value: int):
+        """
+        Set the time when the process starts executing.
+
+        Parameters
+        ----------
+        value : int  
+            The new start execution time of the Process.
+
+        Raises
+        ------
+        ValueError
+            If the provided value is not a positive integer.
+        """
+        # Setter for the _start_execution_time
+        if isinstance(value, int) and value >= 0:
+            self._start_execution_time = value
+        else:
+            raise ValueError(
+                "Start execution time must be an positive integer")
+
+    @property
+    def penalty(self):
+        """
+        Gets the boolean that indicates if the process is executed with penalty.
+
+        Returns
+        -------
+        bool
+            The penalty of the Process.
+        """
+        return self._penalty
+
+    @penalty.setter
+    def penalty(self, value: bool):
+        """
+        Set the penalty of the Process.
+
+        Parameters
+        ----------
+        value : bool  
+            The new value indicating whether the process is executed with a penalty.
+
+        Raises
+        ------
+        ValueError
+            If the provided value is not a boolean.
+        """
+        # Setter for the _penalty
+        if isinstance(value, bool):
+            self._penalty = value
+        else:
+            raise ValueError("Penalty must be a boolean")
+
+class QueueManager:
+    
+    """
+    Creates managers for queues and the execution of containing processes.
+
+    Parameters
+    ----------
+    _queues: dict
+        Dictionary of queues that need to be managed (cpulong, cpushort, gpulong, gpushort)
+    _executing_process : dict
+        Dictionary of processes that are being executed from each of the managed queues
+
+    Methods 
+    ------- 
+    Public Methods: 
+        
+        add_process(process: Process) -> None:
+            Add the process to its corresponding execution queue from the list of managed queues.
+    
+        execute_process(cnt:int, user_dic:dict, stay_time:list, penalized_process:list) -> int:
+            It handles the execution of processes from the managed queues, controlling penalties.
+        
+        pandas(penalized_process: list, stay_time: list) -> None:
+            Calculates and prints statistics based on stay times in execution queues and penalized processes of an user.
+    
+    Private Methods: 
+        _end_execution(self, cnt: int, process: Process, user_dic: dict, penalized_process: list, process_type: str) -> None:
+            Finalizes the execution of a process and activates penalties for a user if necessary.
+        
+        _execute_penalty(self, cnt: int, process: Process, user_dic: dict) -> None:
+            Executes penalty for a short type process of a user with active penalty.
+        
+    
+   
+    """
+
+    def __init__(self, queues: dict):
+        """
+        Create a QueueManager instance.
+
+        Parameters
+        ----------
+        queue_list : dict
+            dictionary of queues that need to be managed (cpulong, cpushort, gpulong, gpushort)
         """
         self._queues = queues
-        self._executing_process = executing_process
-        
+        self._executing_process = {"cpushort": None, "cpulong": None, "gpushort": None, "gpulong": None}
+
     @property
     def queues(self):
         """
         Gets the dictionary of queues that will be managed.
-        
+
         Returns
         -------
         dict
             Dictionary of managed queues.
         """
         return self._queues
-    
+
     @queues.setter
     def queues(self, value: dict):
         """
         Set the dictionary of managed queues.
-        
+
         Parameters
         ----------
         value : dict 
             The new expected dictionary of managed queues.
-        
+
         Raises
         ------
         ValueError
-            If the provided value is not a list of queues.
+            If the provided value is not a dictionary of queues.
         """
-        # Setter for the level
+        # Setter for the queues dictionary
         if isinstance(value, dict):
             self._queues = value
         else:
@@ -326,72 +436,71 @@ class QueueManager:
         for queue in self._queues:
             if not isinstance(queue, ArrayQueue):
                 raise TypeError("Elements of queues dictionary must be queues")
-        
+
     @property
     def executing_process(self):
         """
         Gets the dictionary of running processes for each of the managed queues.
-        
+
         Returns
         -------
         list
             The dictionary of running processes for each of the managed queues.
         """
         return self._executing_process
-    
+
     @executing_process.setter
     def executing_process(self, value: dict):
         """
-        Set the list of running processes for each of the managed queues.
-        
+        Set the dictionary of running processes for each of the managed queues.
+
         Parameters
         ----------
         value : list 
-            The new list of running processes for each of the managed queues.
-        
+            The new dictionary of running processes for each of the managed queues.
+
         Raises
         ------
         ValueError
-            If the provided value is not a list of Process.
+            If the provided value is not a dictionary of Process.
         """
-        # Setter for the level
+        # Setter for the executing_process
         if isinstance(value, dict):
             self._executing_process = value
         else:
             raise ValueError("executing_process must be a dictionary")
         for process in self._executing_process:
-            if not (isinstance(process, Process) or Process==None):
-                raise TypeError("Elements of executing_process dictionary must be Process or None")
-                
-        
-    def add_process(self, process: Process):
+            if not (isinstance(process, Process) or Process == None):
+                raise TypeError(
+                    "Elements of executing_process dictionary must be Process or None")
+
+    def add_process(self, process: Process) -> None:
         """
         Add the given process to the execution queue of the manager's queue dictionaty (queues) corresponding to its process type and expected time, 
         this being the key to the corresponfing entry of the dictionary.
-        
+
         Parameters
         ----------
         process : Process
             Process we want to insert into its corresponding execution queue.
-        
+
         Returns
         -------
         None
         """
-        self._queues[f"{process._process_type}{process._expected_time}"].enqueue(process)
-                
-                
-    def execute_process(self, cnt:int, user_dic:dict, stay_time:list, penalized_process:list)->None:
+        self.queues[f"{process.process_type}{process.expected_time}"].enqueue(process)
+
+    def execute_process(self, cnt: int, user_dic: dict, stay_time: list, penalized_process: list) -> None:
         """
         This function is responsible for managing the processes running at a given time (according to the counter, cnt). It utilizes the dictionary of 
         executing processes (executing_process) which indicates for each of the queues it manages (in the queues dictionary) which process is running at 
         a specific moment (cnt). For each key of the dictionaries (they are the same for queues and executing_process), if there is no process running in
         executing_process (None), the process at the front of the corresponding queue for its key is dequeued. If the expected time is short, it checks the 
-        user dictionary (user_dic) to see if the user of that process is penalized. If true, it calls the execute_penalty() function to manage the penalty. 
+        user dictionary (user_dic) to see if the user of that process is penalized. If true, it calls the _execute_penalty() function to manage the penalty. 
         Otherwise, the process is placed in the dictionary of executing processes in its corresponding entry, and its execution start time is set as the counter
         (start_execution_time). Additionally, the time spent in the execution queue is calculated as the difference between the counter and the time it entered its 
         execution queue (start_time). This is added to the avg_time list along with its process type. If the running process is not None and its execution time (execution_time)
-        has elapsed, the end_execution function is called to finalize the procedure.
+        has elapsed, the _end_execution function is called to finalize the procedure.
 
 
         Parameters
@@ -402,123 +511,326 @@ class QueueManager:
             Dictionary whose entries are the user_id and a boolean indicating the existence of penalty for that user.
         stay_time: list
             List where the time each process spent in its execution queue after exiting it will be inserted.
-        processes_list: list
+        penalized_process: list
             List where the user of the process and whether penalty has been executed on it (1) or not (0) will be inserted.
-        
+
         Returns
         -------
         None
         """
         for process_type in self.executing_process:
             # Iterator for entries of the executing process dictionary
-            if not self._queues[process_type].is_empty():
+            if not self.queues[process_type].is_empty():
                 # While the corresponding execution queue of that process is not empty
-                if self._executing_process[process_type] == None:
+                if self.executing_process[process_type] == None:
                     # If there are no processes currently executing from that queue, dequeue the first one
-                    next_process = self._queues[process_type].dequeue()
-                    print(cnt,next_process._start_time, f"{next_process._process_type}{next_process._expected_time}")
-                    
+                    next_process = self.queues[process_type].dequeue()
+
                     # Apply user penalty
-                    if next_process._expected_time == "short" and user_dic[next_process._user_id] == True:
-                        self.execute_penalty(cnt, next_process, user_dic)
+                    if next_process.expected_time == "short" and user_dic[next_process.user_id]:
+                        self._execute_penalty(cnt, next_process, user_dic)
                     else:
                         # If no penalty applies, add it to the list of executing processes
-                        self._executing_process[process_type] = next_process
+                        self.executing_process[process_type] = next_process
                         # Its execution start time will be the value of the counter
-                        next_process._start_execution_time = cnt
+                        next_process.start_execution_time = cnt
                         # Calculate the time spent in the execution queue
-                        avg_staytime = cnt - next_process._start_time
+                        avg_staytime = cnt - next_process.start_time
                         # Add it to the list to be used in pandas to calculate the average time processes stay in the execution queues
-                        stay_time.append([next_process._process_type, next_process._expected_time, avg_staytime, next_process._process_id])
-                
-            p = self._executing_process[process_type]
+                        stay_time.append([next_process.process_type, next_process.expected_time, avg_staytime, next_process.process_id])
+
+            process = self.executing_process[process_type]
             # Check if there is a process executing whose execution time has ended, and call the end_execution function which handles its completion
-            if p != None and cnt >= p._execution_time + p._start_execution_time:
-                self.end_execution(cnt, p, user_dic, penalized_process, process_type)
-                
-      
-        
-    def end_execution(self, cnt:int, p:Process, user_dic:dict, penalized_process:list, process_type:str):
+            if process != None and cnt >= process.execution_time + process.start_execution_time:
+                self._end_execution(cnt, process, user_dic, penalized_process, process_type)
+
+    def _end_execution(self, cnt: int, process: Process, user_dic: dict, penalized_process: list, process_type: str) -> None:
         """
         This function is called when the execution time of a process has ended and it needs to be finalized. First, it checks if it's necessary to apply a penalty to 
         the user of the process: if its expected_time is short and its execution_time is greater than 5, then a penalty will be activated as it doesn't have a short duration.
         To do this, we change the entry of the user dictionary (user_dic) with the key being the id_user of the process to True, thus activating its penalty. Next, we need
-        to check if the process has been executed with or without penalty: if tits attribute penalty is True, we insert its id and a 1 into the process_list, and if it's False, 
+        to check if the process has been executed with or without penalty: if tits attribute penalty is True, we insert its id and a 1 into the penalized_process, and if it's False, 
         we insert the user_id and a 0. Finally, we remove the process from the dictionary of executed processes (executed_process) by setting its entry (with key process_type) to None.
 
         Parameters
         ----------
         cnt: int
             Counter for the moment of the procedure.
-        p: Process
+        process: Process
             Process wich execution has been finalized.
         user_dic: dict
             Dictionary whose entries are the user_id and a boolean indicating the existence of penalty for that user.
-        processes_list: list
+        penalized_process: list
             List where the user of the process and whether penalty has been executed on it (1) or not (0) will be inserted.
         process_type:
             Key of the process given (p) in the executing_process dictionaty.
-        
+
         Returns
         -------
         None
         """
-        print(cnt, p._execution_time, p._start_execution_time)
         # Penalty case if it is short and its execution time is greater than 5.
-        if p._expected_time == "short" and (p._execution_time > 5) and not p._penalty:
+        if process.expected_time == "short" and (process.execution_time > 5) and not process.penalty:
             # Change the corresponding entry of the user dictionary to True, indicating penalty is active.
-            user_dic[p._user_id] = True
-            print(f"Penalty activated: <{cnt}>><{p._user_id}>\n")
+            user_dic[process.user_id] = True
+            print(f" + Penalización activa: <Tiempo Actual:{cnt}>><{process.user_id}>\n")
         # Check if the process has been executed with or without penalty and add that to the list for later use in pandas.
-        if p._penalty:
+        if process.penalty:
             # Executed with penalty
-            penalized_process.append([p._user_id, 1])
+            penalized_process.append([process.user_id, 1])
         else:
             # Executed without penalty
-            penalized_process.append([p._user_id, 0])
-        print(f"Process completed: <{cnt}><{p._process_id}><{p._user_id}> <{p._process_type}><{p._expected_time}><{p._start_time}><{p._start_execution_time}><{p._execution_time}>\n")      
+            penalized_process.append([process.user_id, 0])
+        print('_'*66)
+        print(f"Proceso terminado: <{cnt}><{process.process_id}><{process.user_id}> <{process.process_type}><{process.expected_time}><{process.start_time}><{process.start_execution_time}><{process.execution_time}>\n")
         # Remove it from the list of executing processes, as it has been executed.
-        self._executing_process[process_type] = None
+        self.executing_process[process_type] = None
+
+    def _execute_penalty(self, cnt: int, process: Process, user_dic: dict) -> None:
+        """
+        Executes penalty for a short type process of a user with active penalty.
         
-     
-    def execute_penalty(self, cnt:int, process:Process, user_dic:dict):
-        if process._process_type == "cpu":
-            self._queues["cpulong"].enqueue(process)
+        This method enqueues the penaltized process to the 'cpulong' or 'gpulong' queue based on its type.
+        It sets the penalty atributte for the process to indicate that it has been executed with a penalty.
+        Additionally, it updates the user dictionary to indicate that the associated user no longer has an active penalty.
+        
+        Parameters
+        ----------
+        cnt : int
+            Counter for the moment of the procedure.
+        process : Process
+            The process for which penalty is being executed.
+        user_dic : dict
+            A dictionary containing user ids as keys and boolean values indicating penalty status.
+        
+        Returns
+        -------
+        None.
+        """
+        # Enqueue the process to the appropriate queue based on its type
+        if process.process_type == "cpu":
+            self.queues["cpulong"].enqueue(process)
         else:
-            self._queues["gpulong"].enqueue(process)
-        process._penalty = True
-        user_dic[process._user_id] = False
-        print(f"Penalización aplicada: <{cnt}><{process._process_id}><{process._user_id}>\n")
-
-
-   
-    def pandas(self, process_list:list, stay_time:list): 
-        data = pandas.DataFrame(process_list, columns=["User_id","Penalties"])
-        print(data)
-        group_col = "User_id"
-        target_col = "Penalties" 
-        single_stats = data.groupby(group_col).agg({target_col :["mean"]})
-        print('\n', "*"*37, '\n', "          Average Penalties      ", '\n',  "*"*37 )
-        print (single_stats)
+            self.queues["gpulong"].enqueue(process)
+        # Set the new penalty atributte for the process
+        process.penalty = True
+        # Update the user dictionary to indicate that the associated user no longer has an active penalty
+        user_dic[process.user_id] = False
         
-        data = pandas.DataFrame(stay_time, columns=["Type","Time", "Average stay time", "id_process"])
-        group_col = ["Type","Time"]
-        target_col = "Average stay time" 
-        stats = data.groupby(group_col).agg({target_col :["mean"]})
-        print('\n', "*"*37, '\n', "          Average stay time      ", '\n',  "*"*37 )
-        print (stats)
+        print(f" - Penalización aplicada: <Tiempo Actual:{cnt}><{process.process_id}><{process.user_id}>\n")
 
+    def pandas(self, penalized_process: list, stay_time: list) -> None:
+        """
+        Calculates and prints statistics based on stay times in execution queues and penalized processes of an user.
+        
+         This method generates two types of statistics:
+            1. A table showing the average number of penalties applied to processes per user.
+            2. A table displaying the average stay time of processes in the execution queues, grouped by each execution queue. 
+        Parameters
+        ----------
+        penalized_process : list
+            A list containing information about penalized processes.
+            Each element in the list represents a process, includes user id and if the process was executed with penalties has a 1, otherwise a 0.
+        stay_time : list
+            A list containing information about the stay time of processes in execution queues.
+            Each element in the list represents the type of process, time, stay time, and process ID.
+        
+        Returns
+        -------
+        None.
+        
+        Notes
+        ------
+        - This method uses pandas library 
+        - The average number of penalties per user is calculated as follows:
+            (Number of processes executed with penalties / Total number of processes of the user)
+        - For processes executed with penalties, the stay time calculation includes the time spent in the short and long queues.
+        """
+        # Calculate average penalties per user
+        data = pandas.DataFrame(penalized_process, columns=["User_id", "Penalties"])
+        group_col = "User_id"
+        target_col = "Penalties"
+        single_stats = data.groupby(group_col).agg({target_col: ["mean"]})
+        print('\n', "*"*37, '\n', "          Average Penalties      ", '\n',  "*"*37)
+        print(single_stats)
+        
+        # Calculate average stay time of processes in execution queues
+        data = pandas.DataFrame(stay_time, columns=["Type", "Time", "stay time", "id_process"])
+        group_col = ["Type", "Time"]
+        target_col = "stay time"
+        stats = data.groupby(group_col).agg({target_col: ["mean"]})
+        print('\n', "*"*37, '\n', "          Average stay time      ", '\n',  "*"*37)
+        print(stats)
+        
+class ProcessExecutor:
+
+    """Class responsible for managing the execution of processes.
+
+    This class provides methods for creating and managing processes, as well as methods for handling the register queue. 
+    To begin the simulation of process management, an instance of this class must be created, and the 'create_processes' method must be called. 
+    This method reads and creates processes from a text file, returning the queue with all the processes. 
+    Then, using this queue as a parameter, the 'register_managing' method should be called, which is responsible for passing all processes to the queue manager. 
+    All other methods and classes necessary for carrying out the management are called internally by these two methods.
+
+    Usage Example:
+        process_executor_instance = ProcessExecutor() \n
+        register_queue = process_executor_instance.create_processes(process_text)
+        process_executor_instance.register_managing(register_queue)
+
+    Attributes
+    ----------
+    Class Attributes: 
+        user_dic:dict
+            A dictionary mapping user ids to boolean values indicating whether the user has an active penalty.
+    Instance Attributes: 
+        None. 
+
+    Methods
+    -------
+    Public Methods:
+        create_processes(self, text: str) -> ArrayQueue:
+            Creates processes from the given text input and creates a register queue of processes.
+
+        register_managing(self, register_queue: ArrayQueue) -> None:
+            Manages the registration and execution of processes in the register queue.
+
+    Private Methods:
+        _check_stop_executing(self, queue_manager: QueueManager) -> bool:
+            Checks whether all queues are empty and there are no active processes in execution.
+    Note
+    -----
+    Instances of ArrayQueue and QueueManager are used to manage the queues and processes.
+    """
+
+    user_dic = {}
+
+    def create_processes(self, text: str) -> ArrayQueue:
+        """Creates processes (instances of the Process class) from the given text input and generates a register queue of processes.
+
+        Characteristics:
+            - Divides the text string into lines representing different processes.
+            - Creates Process objects for each process and adds them to the register queue.
+            - Adds users initiating the process to the 'user_dic' dictionary if they are not already present. In adition, adds them with a value of False (indicating that they are not penalized at the beginning, which may change to True during management if the user activates a penalty).
+        
+        Parameters
+        ----------
+        text : str
+            Text input containing information about processes. 
+            Each process and its information should be on different lines.
+            Example:
+                text = "process_id1 user_id1 process_type1 expected_time1 execution_time1\nprocess_id2 user_id2 process_type2 expected_time2 execution_time2"
+        Returns
+        -------
+        ArrayQueue
+            The register queue. A queue for the input registration of user processes.
+
+        """
+        # Create a register queue.
+        register_queue = ArrayQueue()
+        # Split the text into lines.
+        processes = text.split("\n")
+        # Read and create an instance for each process and its attributes.
+        for line in processes:
+            process_id, user_id, process_type, expected_time, execution_time = line.split()
+            register = Process(process_id, user_id, process_type,
+                               expected_time, int(execution_time))
+            # Add to the register queue.
+            register_queue.enqueue(register)
+            
+            # Create the key in the dictionary for the user who initiated that process.
+            if not user_id in self.user_dic:
+                self.user_dic[user_id] = False
+
+        return register_queue
+
+    def register_managing(self, register_queue: ArrayQueue) -> None:
+        """
+        Manages the registration and execution of processes in the register queue.
     
+        Steps:
+            1. Create four different process queues (cpu short, cpu long, gpu short, gpu long).
+            2. Create a dictionary containing these queues and instantiate a QueueManager using it.
+            3. Iterate through the register queue and execute processes:
+                - If the register queue is not empty, add the next process to the appropriate queue in the queue manager.
+                - If there are active processes in the queues, execute them.
+            4. Initialize two lists, 'penalized_process' and 'stay_time', to store information about executed processes with penalties and their stay time in execution queues.
+            5. After all processes have been executed, call the '_pandas()' method to calculate management statistics.
+        
+        Parameters
+        ----------
+        register_queue : ArrayQueue
+            Queue containing all the processes to be executed.
+        Returns
+        -------
+        None.
+        """
+                    
+        penalized_process = []  # List storing information about processes executed with penalties
+        stay_time = []          # List storing the average stay time in execution queues
+        # Create queues for different types of processes
+        cpushort_queue, cpulong_queue, gpushort_queue, gpulong_queue = ArrayQueue(), ArrayQueue(), ArrayQueue(), ArrayQueue()
+        # Initialize a QueueManager instance with the queues previusly created
+        queue_manager = QueueManager({"cpushort": cpushort_queue, "cpulong": cpulong_queue, "gpushort": gpushort_queue, "gpulong": gpulong_queue})
+        cnt = 0
+        # Loop for managing process execution
+        while not register_queue.is_empty() or not self._check_stop_executing(queue_manager):
+            cnt += 1
+            # If there are processes in the register queue, add them to the appropriate execution queue
+            if not register_queue.is_empty():
+                next_process = register_queue.dequeue()
+                next_process.start_time = cnt
+                # Add the process to its corresponding execution queue
+                queue_manager.add_process(next_process)
+                print(f"Proceso añadido a cola de ejecución: <{cnt}><{next_process.process_id}><{next_process.user_id}> <{next_process.process_type}><{next_process.expected_time}>")
+                print('·'*76)
+            queue_manager.execute_process(cnt, self.user_dic, stay_time, penalized_process)
+        
+        
+        print('End of execution')
+        print('-'*33)
+        print('Management statistics:')
+        queue_manager.pandas(penalized_process, stay_time)
+
+    def _check_stop_executing(self, queue_manager: QueueManager) -> bool:
+        """
+        Checks whether all queues are empty and there are no active processes in execution.
+        
+        Characteristics:
+        - Iterates through all process queues and verifies if they are empty.
+        - Verifies if all executing processes have been completed or if there are none active.
+        - This method is crucial for determining when the system has completed all executions and can stop.
+        - Provides an exit condition for the main execution loop.
+        
+        Parameters
+        ----------
+        queue_manager : QueueManager
+            Instance of the QueueManager class containing the queues and their executing processes.
+        
+        Returns
+        -------
+        bool
+            True if all queues and executing processes are empty, False otherwise.
+        """
+
+        for queue in queue_manager._queues.values():
+            if not queue.is_empty():
+                return False
+        for process in queue_manager._executing_process.values():
+            if process != None:
+                return False
+        return True
+
 def main():
     """
     The main function that reads from a file and starts the simulation.
     """
 
     with open(sys.argv[1]) as f:
+        # With strip(), we ensure that there are no additional spaces, tabs, or newline characters present in the file.
         process_text = f.read().strip()
         executor = ProcessExecutor()
-        register_queue, user_dic = executor.create_processes(process_text)
-        executor.register_managing(register_queue, user_dic)
+        register_queue = executor.create_processes(process_text)
+        executor.register_managing(register_queue)
 
 
 if __name__ == '__main__':
