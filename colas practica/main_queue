@@ -79,10 +79,11 @@ class Process():
         self._execution_time = execution_time
 
         # These attributes are set to default values for all instances
-        # tiempo en el que el proceso pasa al gestor de colas
+        # Time when the process moves to the queue manage
         self._start_time = 0
-        # tiempo en el que se empieza a ejecutar el proceso
+        # Time when the process starts executing
         self._start_execution_time = 0
+        # Penalty has been executed in the process
         self._penalty = False
 
     @property
@@ -573,7 +574,7 @@ class QueueManager:
         if process.expected_time == "short" and (process.execution_time > 5) and not process.penalty:
             # Change the corresponding entry of the user dictionary to True, indicating penalty is active.
             user_dic[process.user_id] = True
-            print(f" + Penalización activa: <Tiempo Actual:{cnt}>><{process.user_id}>\n")
+            print(f" + Active penalty: <actual time: {cnt}>><user id: {process.user_id}>\n")
         # Check if the process has been executed with or without penalty and add that to the list for later use in pandas.
         if process.penalty:
             # Executed with penalty
@@ -581,8 +582,8 @@ class QueueManager:
         else:
             # Executed without penalty
             penalized_process.append([process.user_id, 0])
-        print('_'*66)
-        print(f"Proceso terminado: <{cnt}><{process.process_id}><{process.user_id}> <{process.process_type}><{process.expected_time}><{process.start_time}><{process.start_execution_time}><{process.execution_time}>\n")
+        print('_'*78)
+        print(f"Process finalized: <actual time: {cnt}><process id: {process.process_id}><user id: {process.user_id}>\n <type: {process.process_type}><expected time: {process.expected_time}>\n <start time: {process.start_time}><start execution: {process.start_execution_time}><execution time: {process.execution_time}>\n")
         # Remove it from the list of executing processes, as it has been executed.
         self.executing_process[process_type] = None
 
@@ -607,17 +608,14 @@ class QueueManager:
         -------
         None.
         """
-        # Enqueue the process to the appropriate queue based on its type
-        if process.process_type == "cpu":
-            self.queues["cpulong"].enqueue(process)
-        else:
-            self.queues["gpulong"].enqueue(process)
+        # Enqueue the process to the appropriate long queue based on its type:
+        self.queues[f"{process.process_type}long"].enqueue(process)
         # Set the new penalty atributte for the process
         process.penalty = True
         # Update the user dictionary to indicate that the associated user no longer has an active penalty
         user_dic[process.user_id] = False
         
-        print(f" - Penalización aplicada: <Tiempo Actual:{cnt}><{process.process_id}><{process.user_id}>\n")
+        print(f" - Penalty applied: <actual time: {cnt}><process id: {process.process_id}><user id: {process.user_id}>\n")
 
     def pandas(self, penalized_process: list, stay_time: list) -> None:
         """
@@ -655,9 +653,9 @@ class QueueManager:
         print(single_stats)
         
         # Calculate average stay time of processes in execution queues
-        data = pandas.DataFrame(stay_time, columns=["Type", "Time", "stay time", "id_process"])
+        data = pandas.DataFrame(stay_time, columns=["Type", "Time", "Stay time", "id_process"])
         group_col = ["Type", "Time"]
-        target_col = "stay time"
+        target_col = "Stay time"
         stats = data.groupby(group_col).agg({target_col: ["mean"]})
         print('\n', "*"*37, '\n', "          Average stay time      ", '\n',  "*"*37)
         print(stats)
@@ -781,8 +779,8 @@ class ProcessExecutor:
                 next_process.start_time = cnt
                 # Add the process to its corresponding execution queue
                 queue_manager.add_process(next_process)
-                print(f"Proceso añadido a cola de ejecución: <{cnt}><{next_process.process_id}><{next_process.user_id}> <{next_process.process_type}><{next_process.expected_time}>")
-                print('·'*76)
+                print(f"Process added to execution queue: <actual time: {cnt}><process id: {next_process.process_id}><user id: {next_process.user_id}>\n   <type: {next_process.process_type}><expected time: {next_process.expected_time}>")
+                print('·'*92)
             queue_manager.execute_process(cnt, self.user_dic, stay_time, penalized_process)
         
         
@@ -835,3 +833,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
