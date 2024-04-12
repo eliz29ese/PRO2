@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Apr 12 11:46:56 2024
+
+@author: elisa
+"""
+
+import sys
 from array_ordered_positional_list import ArrayOrderedPositionalList
 from linked_ordered_positional_list import LinkedOrderedPositionalList 
 
@@ -140,11 +148,54 @@ class Film():
             
     def __ge__(self, other: "Film"):
         
-        if self.author == other.author:
+        if self.director == other.director:
             if self.release_year == other.release_year:
                 return self.title >= other.title
             else:
                 return self.release_year >= other.release_year
         else:
-            return self.author >= other.author
+            return self.director >= other.director
+        
+    def __gt__(self, other: "Film"):
+        
+        if self.director == other.director:
+            if self.release_year == other.release_year:
+                return self.title > other.title
+            else:
+                return self.release_year > other.release_year
+        else:
+            return self.director > other.director
     
+
+def create_film(films_text):
+    
+    film_list = LinkedOrderedPositionalList()
+    films = films_text.split("\n")
+    for line in films:
+        film_info = line.split(';')
+        print(film_info)
+        director, title, release_year, score = film_info
+        print(director, title, release_year, score)
+        film = Film(director, title, release_year, score)
+        film_list.add(film)
+    print("[", end=" ")
+    for x in film_list:
+        print(x.title, end=", ")
+    print("]")
+        
+
+def main():
+    """
+    The main function that reads from a file and starts the simulation.
+    """
+
+    with open(sys.argv[1]) as f:
+        # With strip(), we ensure that there are no additional spaces, tabs, or newline characters present in the file.
+        
+        films_text = f.read().strip()
+        print(films_text)
+        create_film(films_text)
+
+
+if __name__ == '__main__':
+    main()
