@@ -15,7 +15,7 @@ class Film():
         self._title = title
         self._release_year = release_year
         self._score = score
-
+    
     
     @property
     def director(self):
@@ -145,6 +145,8 @@ class Film():
         else:
             raise ValueError("The score must be a positive float")
             
+    def __str__(self):
+        return(f"{self.director}; {self.title}; {self.release_year}; {self.score}")
             
     def __ge__(self, other: "Film"):
         
@@ -165,11 +167,11 @@ class Film():
                 return self.release_year > other.release_year
         else:
             return self.director > other.director
-    
-
+        
+        
 class Film_Manager():
     
-    def __init__():
+    def __init__(self):
         self.film_list = LinkedOrderedPositionalList()
         
     @property
@@ -198,7 +200,7 @@ class Film_Manager():
         ValueError
             If the provided value is an empty string.
         """
-        if isinstance(value, list) and len(value) != 0:
+        if isinstance(value, LinkedOrderedPositionalList):
             self._film_list = value
         else:
             raise ValueError("The name of the director must be a non empty string")
@@ -216,22 +218,28 @@ class Film_Manager():
             self.film_list.add(film)
         print("[", end=" ")
         for x in self.film_list:
-            print(x.title, end=", ")
+            print(x.__str__(), end="\n")
         print("]")
         
-
+    def user_menu(self):
+       option = input("Choose one of the following options: \n 1) All platform movies \n 2) Movies directed by a director \n 3) Movies released in a year\n")
+        #if option == 1:
+           
+           
+       
 def main():
     """
     The main function that reads from a file and starts the simulation.
     """
 
-    with open(sys.argv[1]) as f:
+    with open(sys.argv[1], encoding="utf-8") as f:
         # With strip(), we ensure that there are no additional spaces, tabs, or newline characters present in the file.
         
         films_text = f.read().strip()
         print(films_text)
-        create_film(films_text)
-
+        manager = Film_Manager()
+        manager.create_film(films_text)
+        manager.user_menu()
 
 if __name__ == '__main__':
     main()
