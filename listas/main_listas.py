@@ -167,21 +167,57 @@ class Film():
             return self.director > other.director
     
 
-def create_film(films_text):
+class Film_Manager():
     
-    film_list = LinkedOrderedPositionalList()
-    films = films_text.split("\n")
-    for line in films:
-        film_info = line.split(';')
-        print(film_info)
-        director, title, release_year, score = film_info
-        print(director, title, release_year, score)
-        film = Film(director, title, release_year, score)
-        film_list.add(film)
-    print("[", end=" ")
-    for x in film_list:
-        print(x.title, end=", ")
-    print("]")
+    def __init__():
+        self.film_list = LinkedOrderedPositionalList()
+        
+    @property
+    def film_list(self):
+        """
+        Gets the director of the film.
+        Returns
+        -------
+        str
+            El nombre (apellido y nombre) del director de la película.
+        """
+        return self._film_list
+
+    @film_list.setter
+    def film_list(self, value: list):
+        """
+        Set the name of the director.
+
+        Parameters
+        ----------
+        value : str 
+            The new name of the director of the film.
+
+        Raises
+        ------
+        ValueError
+            If the provided value is an empty string.
+        """
+        if isinstance(value, list) and len(value) != 0:
+            self._film_list = value
+        else:
+            raise ValueError("The name of the director must be a non empty string")
+            
+
+    def create_film(self, films_text):
+        
+        films = films_text.split("\n")
+        for line in films:
+            film_info = line.split(';')
+            print(film_info)
+            director, title, release_year, score = film_info
+            print(director, title, release_year, score)
+            film = Film(director, title, release_year, score)
+            self.film_list.add(film)
+        print("[", end=" ")
+        for x in self.film_list:
+            print(x.title, end=", ")
+        print("]")
         
 
 def main():
