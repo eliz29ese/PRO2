@@ -12,6 +12,7 @@ import pandas
 
 
 class Film():
+    
     def __init__(self, director: str, title: str, release_year: int, score: float):
         self._director = director
         self._title = title
@@ -26,7 +27,7 @@ class Film():
         Returns
         -------
         str
-            El nombre (apellido y nombre) del director de la película.
+            The director's name (last name and first name) of the movie.
         """
         return self._director
 
@@ -43,7 +44,7 @@ class Film():
         Raises
         ------
         ValueError
-            If the provided value is an empty string.
+            If the provided value is not a non  empty string.
         """
         if isinstance(value, str) and len(value) != 0:
             self._director = value
@@ -75,7 +76,7 @@ class Film():
         Raises
         ------
         ValueError
-            If the provided value is an empty string.
+            If the provided value is not a non empty string.
         """
         if isinstance(value, str) and len(value) != 0:
             self._title = value
@@ -140,17 +141,42 @@ class Film():
         Raises
         ------
         ValueError
-            If the provided value is not a positive float.
+            If the provided value is not a positive float between 0 and 10.
         """
-        if isinstance(value, float) and value >= 0:
+        if isinstance(value, float) and 0<=value<=10:
             self._score = value
         else:
-            raise ValueError("The score must be a positive float")
+            raise ValueError("The score must be a positive float between 0 and 10")
             
     def print_film(self):
+        """
+        Function that returns a string with the information of the Film, which is used to examine the data of a movie 
+        outside the class.
+    
+        Returns
+        -------
+        str
+            String containing the data of the Film (director, title, release year and score).
+        """
         return(f"{self.director}; {self.title}; {self.release_year}; {self.score}")
             
     def __ge__(self, other: "Film"):
+        """
+        This method is used to check if a Film is greater than or equal to (>=) another Film provided as a parameter (other). 
+        To do this, it starts by comparing the directors based on lexicographical ordering. If there is a tie, it compares by the release year. 
+        Finally, if there is another tie, it compares by the title of the Film, as it did with the director. This function returns a boolean value 
+        depending on whether the Film calling the function (self) is greater than or equal to the other Film (returning True in this case and False otherwise).
+        
+        Parameters
+        ----------
+        other : "Film"
+            The Film being compared to the Film used to call the function, wanting to know if the latter is greater than or equal to other.
+        
+        Returns
+        -------
+        boolean
+            True if Film >= other, and False otherwise.
+        """
         
         if self.director == other.director:
             if self.release_year == other.release_year:
@@ -161,6 +187,22 @@ class Film():
             return self.director >= other.director
         
     def __gt__(self, other: "Film"):
+        """
+        This method is used to check if a Film is greater than (>) another Film provided as a parameter (other). 
+        To do this, it starts by comparing the directors based on lexicographical ordering. If there is a tie, it compares by the release year. 
+        Finally, if there is another tie, it compares by the title of the Film, as it did with the director. This function returns a boolean value 
+        depending on whether the Film calling the function (self) is greater than the other Film (returning True in this case and False otherwise).
+        
+        Parameters
+        ----------
+        other : "Film"
+            The Film being compared to the Film used to call the function, wanting to know if the latter is greater than other.
+        
+        Returns
+        -------
+        boolean
+            True if Film > other, and False otherwise.
+        """
         
         if self.director == other.director:
             if self.release_year == other.release_year:
@@ -172,6 +214,46 @@ class Film():
         
         
 class Film_Manager():
+    """
+    Class responsible for managing Films to use their information.
+    This class contains an ordered list of films, which will make up its catalog and will be used for various purposes.
+    With them, the Film_Manager will be able to create a file with the non-repeated films and an interactive menu can be used
+    through which the user can make personalized queries within the catalog.
+    
+    Usage Example:
+        manager = Film_Manager() 
+        data_film_list = manager.create_film(films_text)
+        manager.pandas_stats(data_film_list)
+        manager.user_menu()
+    
+    Attributes
+    ----------
+    Class Attributes: 
+        film_list: list
+            Ordered list containing a series of movies, Film objects, that will be handled by it and used in a catalog.
+    
+    Methods
+    -------
+    Public Methods:
+        create_film(self, films_text) -> list
+            This function creates Film objects from a given text document with the necessary information and is responsible for creating
+            its attribute film_list, an ordered list of the movies in its catalog. Returns a list with the data of the movies, used subsequently
+            for statistical purposes.
+    
+        user_menu(self) -> None:
+            This function allows the user to make personalized queries through an interactive menu with three options: 1) to consult all the movies
+            from the catalog, 2) to consult the movies of a specific director, and 3) to show the movies released in a year given by the user.
+        
+        pandas_stats(self, data_film_list: list) -> None:
+            Calculates and prints statistics based on the movie data in the catalog: number of movies per director, average score per director, and per
+            release year.
+    
+    Private Methods:
+        
+    Note
+    -----
+    """
+
     
     def __init__(self):
         self.film_list = LinkedOrderedPositionalList()
@@ -179,38 +261,39 @@ class Film_Manager():
     @property
     def film_list(self):
         """
-        Gets the director of the film.
+        Gets the ordered list of the Films.
         Returns
         -------
         str
-            El nombre (apellido y nombre) del director de la película.
+            The Film ordered list of the catalog.
         """
         return self._film_list
 
     @film_list.setter
     def film_list(self, value: list):
         """
-        Set the ordered list of films.
+        Set the ordered list of the Films.
 
         Parameters
         ----------
         value : str 
-            The new ordered list of films.
+            The new ordered list of Films.
 
         Raises
         ------
         ValueError
-            If the provided value is an empty string.
+            If the provided value is not an ordered list (LinkedOrderedPositionalList or ArrayOrderedPositionalList) of Film objects.
         """
-        if isinstance(value, LinkedOrderedPositionalList):
+        #or Array??????????????
+        if isinstance(value, LinkedOrderedPositionalList) or isinstance(value, ArrayOrderedPositionalList):
             self._film_list = value
         else:
-            raise ValueError("The name of the director must be a non empty string")
+            raise ValueError("The film list must be a LinkedOrderedPositionalList or a ArrayOrderedPositionalList")
         for film in self._film_list:
             if not isinstance(film, "Film"):
                 raise TypeError("Elements of film_list must be Films")
 
-    def create_film(self, films_text):
+    def create_film(self, films_text)->list:
         data_film_list = []
         films = films_text.split("\n")
         for line in films:
@@ -227,26 +310,49 @@ class Film_Manager():
         print("]")
         return(data_film_list)
         
-    def user_menu(self):
+    def user_menu(self)->None:
+        """
+        This function prints an interface with three options that the user can choose from:
+            - 1) Print the data of all the Films in the catalog, from film_list
+            - 2) Print the data of the Films by a certain author introduced by the user
+            - 3) Print the data of the Films released in a year introduced by the user
+        If the option value is other, the function ends and "Exiting..." is printed. If the author entered is not a string, the user is prompted
+        to enter a valid name. If the author returns no movies, it is indicated that none are found in the catalog or it's also possible that the format is not met: Last Name, First Name.
+        On the other hand, if the year entered in option 3 is not a number and cannot be converted to an integer, it goes from the try block to the except block, where it indicates that a valid year should be entered.
+        If the counter, which starts at 0, doesn't change when iterating through film_list and searching for that year, it means that no movies in the catalog were released in that year.
+        If film_list is empty, it exits the menu and ends the function execution.
+        In each of the options, to print the movies, the ordered list film_list is traversed and if the condition is met (except for the first case, where all are printed), the print_film() function of the Film is called to display its data.
+        
+        Parameters
+        ----------
+                
+        Returns
+        -------
+        None
+        """
+
         try:
            option = int(input("Choose one of the following options: \n 1) All platform movies \n 2) Movies directed by a director \n 3) Movies released in a year\n - Press any other key to exit\n"))
-           while option != 0 and option in (1,2,3):
+           while option in (1,2,3) and len(self.film_list)>0:
                if option == 1:
                    for film in self.film_list:
                        print(film.print_film())
                        
                elif option == 2:
-                    author = input("Autor de las películas que desea consultar (Apellidos, Nombre): \n")
+                    author = input("Enter the director's name for the movies you want to consult (Format: Last Name, First Name) \n")
                     cnt = 0
-                    for film in self.film_list:
-                        if film.director == author:
-                            print(film.print_film())
-                            cnt+=1
-                    if cnt == 0:
-                        print("Ninguna película de ese director se encuentra en el catálogo o formato erróneo (Apellido, Nombre")
+                    if author.isalpha():
+                        for film in self.film_list:
+                            if film.director == author:
+                                print(film.print_film())
+                                cnt+=1
+                        if cnt == 0:
+                            print(f"No movies directed by {author} are found in the catalog, or incorrect format: (Last Name, First Name)")
+                    else:
+                        print("Please enter a valid name")
                         
                elif option == 3:
-                   year = input("Año de estreno de las películas que desea consultar: \n")             
+                   year = input("Enter the release year of the movies you want to consult: \n")             
                    try:
                         cnt = 0
                         for film in self.film_list:
@@ -254,18 +360,22 @@ class Film_Manager():
                                 print(film.print_film())
                                 cnt+=1
                         if cnt == 0:
-                            print("Ninguna película se publicó en ese año")
+                            print(f"No movie in the catalog was released in the year {year}")
                    except:
                         print("Please enter a valid year")
 
                option = int(input("\nChoose one of the following options: \n 1) All platform movies \n 2) Movies directed by a director \n 3) Movies released in a year\n - Press any other key to exit\n"))
              
-           print("Exiting..")
+           if len(self.film_list) == 0:
+               print("The film catalog is empty")
+           else:
+               print("Exiting...")
+
            
         except:
-            print("Exiting..")
+            print("Exiting...")
       
-    def pandas_stats(self, data_film_list:list):
+    def pandas_stats(self, data_film_list:list)->None:
         data = pandas.DataFrame(data_film_list, columns=["Director", "Films", "Release year", "Score"])
         group_col = "Director"
         target_col = "Films"
@@ -293,7 +403,6 @@ def main():
 
     with open(sys.argv[1], encoding="utf-8") as f:
         # With strip(), we ensure that there are no additional spaces, tabs, or newline characters present in the file.
-        
         films_text = f.read().strip()
         print(films_text)
         manager = Film_Manager()
