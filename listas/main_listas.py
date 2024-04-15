@@ -200,7 +200,7 @@ class Film_Manager():
         Raises
         ------
         ValueError
-            If the provided value is not a list of Film elements.
+            If the provided value is an empty string.
         """
         if isinstance(value, LinkedOrderedPositionalList):
             self._film_list = value
@@ -236,21 +236,29 @@ class Film_Manager():
                        print(film.print_film())
                        
                elif option == 2:
-                    author = input("Autor de las películas que desea consultar: \n")
+                    author = input("Autor de las películas que desea consultar (Apellidos, Nombre): \n")
+                    cnt = 0
                     for film in self.film_list:
                         if film.director == author:
                             print(film.print_film())
+                            cnt+=1
+                    if cnt == 0:
+                        print("Ninguna película de ese director se encuentra en el catálogo o formato erróneo (Apellido, Nombre")
+                        
                elif option == 3:
-                   year = input("Año de estreno de las películas que desea consultar: \n")
-                   
-                   if isinstance(year, int):
+                   year = input("Año de estreno de las películas que desea consultar: \n")             
+                   try:
+                        cnt = 0
                         for film in self.film_list:
                             if film.release_year == int(year):
                                 print(film.print_film())
-                   else:
+                                cnt+=1
+                        if cnt == 0:
+                            print("Ninguna película se publicó en ese año")
+                   except:
                         print("Please enter a valid year")
 
-               option = int(input("\nChoose one of the following options: \n 1) All platform movies \n 2) Movies directed by a director \n 3) Movies released in a year\n - Pulse 0 to exit\n"))
+               option = int(input("\nChoose one of the following options: \n 1) All platform movies \n 2) Movies directed by a director \n 3) Movies released in a year\n - Press any other key to exit\n"))
              
            print("Exiting..")
            
