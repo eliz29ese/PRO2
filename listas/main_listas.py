@@ -8,6 +8,8 @@ Created on Fri Apr 12 11:46:56 2024
 import sys
 from array_ordered_positional_list import ArrayOrderedPositionalList
 from linked_ordered_positional_list import LinkedOrderedPositionalList 
+import pandas
+
 
 class Film():
     def __init__(self, director: str, title: str, release_year: int, score: float):
@@ -145,7 +147,7 @@ class Film():
         else:
             raise ValueError("The score must be a positive float")
             
-    def __str__(self):
+    def print_film(self):
         return(f"{self.director}; {self.title}; {self.release_year}; {self.score}")
             
     def __ge__(self, other: "Film"):
@@ -188,45 +190,94 @@ class Film_Manager():
     @film_list.setter
     def film_list(self, value: list):
         """
-        Set the name of the director.
+        Set the ordered list of films.
 
         Parameters
         ----------
         value : str 
-            The new name of the director of the film.
+            The new ordered list of films.
 
         Raises
         ------
         ValueError
-            If the provided value is an empty string.
+            If the provided value is not a list of Film elements.
         """
         if isinstance(value, LinkedOrderedPositionalList):
             self._film_list = value
         else:
             raise ValueError("The name of the director must be a non empty string")
-            
+        for film in self._film_list:
+            if not isinstance(film, "Film"):
+                raise TypeError("Elements of film_list must be Films")
 
     def create_film(self, films_text):
-        
+        data_film_list = []
         films = films_text.split("\n")
         for line in films:
-            film_info = line.split(';')
+            film_info = line.split('; ')
             print(film_info)
             director, title, release_year, score = film_info
             print(director, title, release_year, score)
-            film = Film(director, title, release_year, score)
+            film = Film(director, title, int(release_year), float(score))
+            data_film_list.append([film.director, film.title, film.release_year, film.score])
             self.film_list.add(film)
         print("[", end=" ")
         for x in self.film_list:
-            print(x.__str__(), end="\n")
+            print(x.print_film(), end="\n")
         print("]")
+        return(data_film_list)
         
     def user_menu(self):
-       option = input("Choose one of the following options: \n 1) All platform movies \n 2) Movies directed by a director \n 3) Movies released in a year\n")
-        #if option == 1:
+        try:
+           option = int(input("Choose one of the following options: \n 1) All platform movies \n 2) Movies directed by a director \n 3) Movies released in a year\n - Press any other key to exit\n"))
+           while option != 0 and option in (1,2,3):
+               if option == 1:
+                   for film in self.film_list:
+                       print(film.print_film())
+                       
+               elif option == 2:
+                    author = input("Autor de las películas que desea consultar: \n")
+                    for film in self.film_list:
+                        if film.director == author:
+                            print(film.print_film())
+               elif option == 3:
+                   year = input("Año de estreno de las películas que desea consultar: \n")
+                   
+                   if isinstance(year, int):
+                        for film in self.film_list:
+                            if film.release_year == int(year):
+                                print(film.print_film())
+                   else:
+                        print("Please enter a valid year")
+
+               option = int(input("\nChoose one of the following options: \n 1) All platform movies \n 2) Movies directed by a director \n 3) Movies released in a year\n - Pulse 0 to exit\n"))
+             
+           print("Exiting..")
            
+        except:
+            print("Exiting..")
+      
+    def pandas_stats(self, data_film_list:list):
+        data = pandas.DataFrame(data_film_list, columns=["Director", "Films", "Release year", "Score"])
+        group_col = "Director"
+        target_col = "Films"
+        single_stats = data.groupby(group_col).agg({target_col: ["count"]})
+        print('\n', "*"*37, '\n', "          Number of films     ", '\n',  "*"*37)
+        print(single_stats, "\n")
+        
+        group_col = "Director"
+        target_col = "Score"
+        single_stats = data.groupby(group_col).agg({target_col: ["mean"]})
+        print('\n', "*"*37, '\n', "      Mean score for director   ", '\n',  "*"*37)
+        print(single_stats, "\n")
+        
+        group_col = "Release year"
+        target_col = "Score"
+        single_stats = data.groupby(group_col).agg({target_col: ["mean"]})
+        print('\n', "*"*37, '\n', "    Mean score for release year ", '\n',  "*"*37)
+        print(single_stats, "\n")
            
-       
+      
 def main():
     """
     The main function that reads from a file and starts the simulation.
@@ -238,7 +289,8 @@ def main():
         films_text = f.read().strip()
         print(films_text)
         manager = Film_Manager()
-        manager.create_film(films_text)
+        data_film_list = manager.create_film(films_text)
+        manager.pandas_stats(data_film_list)
         manager.user_menu()
 
 if __name__ == '__main__':
