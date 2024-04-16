@@ -317,9 +317,9 @@ class Film_Manager():
             - 2) Print the data of the Films by a certain author introduced by the user
             - 3) Print the data of the Films released in a year introduced by the user
         If the option value is other, the function ends and "Exiting..." is printed. If the author entered is not a string, the user is prompted
-        to enter a valid name. If the author returns no movies, it is indicated that none are found in the catalog or it's also possible that the format is not met: Last Name, First Name.
+        to enter a valid name. If the author returns no movies, it is indicated that none are found in the catalog or it's also possible that the format is not met: first a valid last name, then a valid first name.
         On the other hand, if the year entered in option 3 is not a number and cannot be converted to an integer, it goes from the try block to the except block, where it indicates that a valid year should be entered.
-        If the counter, which starts at 0, doesn't change when iterating through film_list and searching for that year, it means that no movies in the catalog were released in that year.
+        If the counter, which starts at 0, doesn't change when iterating through film_list and searching for that year or author, it means that no movies in the catalog were released in that year or was filmmed by that author.
         If film_list is empty, it exits the menu and ends the function execution.
         In each of the options, to print the movies, the ordered list film_list is traversed by the film_list iterator and if the condition is met (except for the first case, where all are printed), the print_film() 
         function of the Film is called to display its data.
@@ -416,6 +416,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 if __name__ == '__main__':
     main()
