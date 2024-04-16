@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Fri Apr 12 11:46:56 2024
@@ -212,6 +213,29 @@ class Film():
         else:
             return self.director > other.director
         
+    def __eq__(self, other: "Film"):
+        """
+        This method is used to check if a Film is greater than or equal to (>=) another Film provided as a parameter (other). 
+        To do this, it starts by comparing the directors based on lexicographical ordering. If there is a tie, it compares by the release year. 
+        Finally, if there is another tie, it compares by the title of the Film, as it did with the director. This function returns a boolean value 
+        depending on whether the Film calling the function (self) is greater than or equal to the other Film (returning True in this case and False otherwise).
+        
+        Parameters
+        ----------
+        other : "Film"
+            The Film being compared to the Film used to call the function, wanting to know if the latter is greater than or equal to other.
+        
+        Returns
+        -------
+        boolean
+            True if Film >= other, and False otherwise.
+        """
+        
+        if self.director == other.director:
+            return self.title == other.title
+        else:
+            return self.director == other.director
+        
         
 class Film_Manager():
     """
@@ -257,6 +281,7 @@ class Film_Manager():
     
     def __init__(self):
         self.film_list = LinkedOrderedPositionalList()
+        self.film_unique_list = ArrayOrderedPositionalList()
         
     @property
     def film_list(self):
@@ -292,6 +317,40 @@ class Film_Manager():
         for film in self._film_list:
             if not isinstance(film, "Film"):
                 raise TypeError("Elements of film_list must be Films")
+    @property
+    def film_unique_list(self):
+        """
+        Gets the ordered list of the Films.
+        Returns
+        -------
+        str
+            The Film ordered list of the catalog.
+        """
+        return self._film_unique_list
+    
+    @film_unique_list.setter
+    def film_unique_list(self, value: list):
+        """
+        Set the ordered list of the Films.
+    
+        Parameters
+        ----------
+        value : str 
+            The new ordered list of Films.
+    
+        Raises
+        ------
+        ValueError
+            If the provided value is not an ordered list (LinkedOrderedPositionalList or ArrayOrderedPositionalList) of Film objects.
+        """
+        #or Array??????????????
+        if isinstance(value, LinkedOrderedPositionalList) or isinstance(value, ArrayOrderedPositionalList):
+            self._film_unique_list = value
+        else:
+            raise ValueError("The film list must be a LinkedOrderedPositionalList or a ArrayOrderedPositionalList")
+        for film in self._film_unique_list:
+            if not isinstance(film, "Film"):
+                raise TypeError("Elements of film_list must be Films")
 
     def create_film(self, films_text)->list:
         data_film_list = []
@@ -304,6 +363,7 @@ class Film_Manager():
             film = Film(director, title, int(release_year), float(score))
             data_film_list.append([film.director, film.title, film.release_year, film.score])
             self.film_list.add(film)
+            self.film_unique_list.add(film)
         print("[", end=" ")
         for x in self.film_list:
             print(x.print_film(), end="\n")
@@ -377,6 +437,51 @@ class Film_Manager():
            
         except:
             print("Exiting...")
+    
+    def file_writer(self):
+        
+        print("[", end=" ")
+        for x in self.film_unique_list:
+            print(x.print_film(), end="\n")
+        print("]")
+        marker = self.film_unique_list.first()
+        
+        cnt=0
+        while cnt <= len(self.film_list) and marker != self.film_unique_list.last(): 
+            
+            marker_after = self.film_unique_list.after(marker)
+            film_1 = self.film_unique_list.get_element(marker)
+            film_2 = self.film_unique_list.get_element(marker_after)
+            print(film_1.print_film())
+            print(film_2.print_film())
+            print('\n')
+            if film_1 == film_2:
+                print('film_1 igual a film_2')
+                if film_1.release_year <= film_2.release_year: 
+                    self.film_unique_list.delete(marker)
+                else: 
+                    self.film_unique_list.delete(marker_after)
+                    marker_after = marker
+            else: 
+                marker = marker_after
+            cnt += 1
+                        
+                        
+        print("[", end=" ")
+        for x in self.film_unique_list:
+            print(x.print_film(), end="\n")
+        print("]")
+        
+
+        # Nombre del archivo
+        nombre_archivo = "unique_films_file.txt"
+
+        with open(nombre_archivo, "w") as archivo:
+            # Escribe el contenido en el archivo 
+            for film in self.film_unique_list:
+                archivo.write(film.print_film())
+                archivo.write('\n')
+      
       
     def pandas_stats(self, data_film_list:list)->None:
         data = pandas.DataFrame(data_film_list, columns=["Director", "Films", "Release year", "Score"])
@@ -410,11 +515,10 @@ def main():
         print(films_text)
         manager = Film_Manager()
         data_film_list = manager.create_film(films_text)
+        manager.file_writer()
         manager.pandas_stats(data_film_list)
         manager.user_menu()
 
 
-if __name__ == '__main__':
-    main()
 if __name__ == '__main__':
     main()
