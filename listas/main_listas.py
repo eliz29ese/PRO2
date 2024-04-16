@@ -321,10 +321,8 @@ class Film_Manager():
         On the other hand, if the year entered in option 3 is not a number and cannot be converted to an integer, it goes from the try block to the except block, where it indicates that a valid year should be entered.
         If the counter, which starts at 0, doesn't change when iterating through film_list and searching for that year, it means that no movies in the catalog were released in that year.
         If film_list is empty, it exits the menu and ends the function execution.
-        In each of the options, to print the movies, the ordered list film_list is traversed and if the condition is met (except for the first case, where all are printed), the print_film() function of the Film is called to display its data.
-        
-        Parameters
-        ----------
+        In each of the options, to print the movies, the ordered list film_list is traversed by the film_list iterator and if the condition is met (except for the first case, where all are printed), the print_film() 
+        function of the Film is called to display its data.
                 
         Returns
         -------
@@ -334,20 +332,23 @@ class Film_Manager():
         try:
            option = int(input("Choose one of the following options: \n 1) All platform movies \n 2) Movies directed by a director \n 3) Movies released in a year\n - Press any other key to exit\n"))
            while option in (1,2,3) and len(self.film_list)>0:
+               iterador = self.film_list.__iter__()
                if option == 1:
-                   for film in self.film_list:
-                       print(film.print_film())
-                       
+                   for i in range(len(self.film_list)):
+                       print(next(iterador).print_film())
+
                elif option == 2:
-                    author = input("Enter the director's name for the movies you want to consult (Format: Last Name, First Name) \n")
+                    author_ln = input("Enter the director's last name for the movies you want to consult\n")
+                    author_fn = input("Enter the director's first name for the movies you want to consult\n")
                     cnt = 0
-                    if author.isalpha():
-                        for film in self.film_list:
-                            if film.director == author:
-                                print(film.print_film())
+                    if author_ln.isalpha() and author_fn.isalpha():
+                        for i in range(len(self.film_list)):
+                            f = next(iterador)
+                            if f.director == f"{author_ln}, {author_fn}":
+                                print(f.print_film())
                                 cnt+=1
                         if cnt == 0:
-                            print(f"No movies directed by {author} are found in the catalog, or incorrect format: (Last Name, First Name)")
+                            print(f"No movies directed by {author_ln}, {author_fn} are found in the catalog, or incorrect format: (Last Name, First Name)")
                     else:
                         print("Please enter a valid name")
                         
@@ -355,10 +356,12 @@ class Film_Manager():
                    year = input("Enter the release year of the movies you want to consult: \n")             
                    try:
                         cnt = 0
-                        for film in self.film_list:
-                            if film.release_year == int(year):
-                                print(film.print_film())
+                        for i in range(len(self.film_list)):
+                            f = next(iterador)
+                            if f.release_year == int(year):
+                                print(f.print_film())
                                 cnt+=1
+                            
                         if cnt == 0:
                             print(f"No movie in the catalog was released in the year {year}")
                    except:
@@ -409,6 +412,10 @@ def main():
         data_film_list = manager.create_film(films_text)
         manager.pandas_stats(data_film_list)
         manager.user_menu()
+
+
+if __name__ == '__main__':
+    main()
 
 if __name__ == '__main__':
     main()
