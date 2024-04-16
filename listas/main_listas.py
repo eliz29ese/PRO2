@@ -446,8 +446,7 @@ class Film_Manager():
         print("]")
         marker = self.film_unique_list.first()
         
-        cnt=0
-        while cnt <= len(self.film_list) and marker != self.film_unique_list.last(): 
+        while marker != self.film_unique_list.last(): 
             
             marker_after = self.film_unique_list.after(marker)
             film_1 = self.film_unique_list.get_element(marker)
@@ -464,7 +463,6 @@ class Film_Manager():
                     marker_after = marker
             else: 
                 marker = marker_after
-            cnt += 1
                         
                         
         print("[", end=" ")
