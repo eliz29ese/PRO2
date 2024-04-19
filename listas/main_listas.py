@@ -472,17 +472,26 @@ class Film_Manager:
     
     def user_menu(self)->None:
         """
-        This function prints an interface with three options that the user can choose from:
-            - 1) Print the data of all the Films in the catalog, from film_list
-            - 2) Print the data of the Films by a certain author introduced by the user
-            - 3) Print the data of the Films released in a year introduced by the user
-        If the option value is other, the function ends and "Exiting..." is printed. If the author entered is not a string, the user is prompted
-        to enter a valid name. If the author returns no movies, it is indicated that none are found in the catalog or it's also possible that the format is not met: first a valid last name, then a valid first name.
-        On the other hand, if the year entered in option 3 is not a number and cannot be converted to an integer, it goes from the try block to the except block, where it indicates that a valid year should be entered.
-        If the counter, which starts at 0, doesn't change when iterating through film_list and searching for that year or author, it means that no movies in the catalog were released in that year or was filmmed by that author.
-        If film_list is empty, it exits the menu and ends the function execution.
-        In each of the options, to print the movies, the ordered list film_list is traversed by the film_list iterator and if the condition is met (except for the first case, where all are printed), the print_film() 
-        function of the Film is called to display its data.
+        This function prints an interface with six options that the user can choose from:
+            - 1) Enter the name of a file with a catalog of films to be read 
+            - 2) Print the data of all the Films in the catalog, from film_list
+            - 3) Print the data of the Films by a certain author introduced by the user
+            - 4) Print the data of the Films released in a year introduced by the user
+            - 5) Create a file that containes the non duplicated movies 
+            - 6) Print some stats of the catalog
+
+        El menú aparecerá continuamente hasta que se introduzca un caracter distinto de (1,2,3,4,5,6).Si se introduce otro número se saldrá del while, y si es otro caracter se maneja una excepción, ya que se pasa a entero la opción introducida por el usuario, en estos casos the function ends and "Exiting..." is printed. 
+        To choose an option different to 1, a warning will appear: it is necesario introducir datos para poder trabajar con ellos, y hasta que no se intoduzcan o se salga del menú, seguirá apareciendo.
+        Al pulsar la opción 1 (neceszaria para comenzar) se creará el catálogo de las películas mediante el nombre del fichero que introducirá el usuario, este fichero se abrirá y se llamará a la función
+        del create_film() para que llene el atributo de la lista de películas (film_list) del Film_Manager y devuelve la lista data_film_list con datos sobre las mismas, usada en la opció 6. Si no es posible acceder al fichero o el fichero no existe se pasa de la parte try anterior a la
+        excepcion, indicando que el fichero debe ser válido en el directorio. A partir de este momento podemos utilizar las otras opciones. Las opciones 2,3 y 4 recorren film_list, la primera imprimiendo todas
+        las peliculas del catálogo. La opción 3 pide un apellido y nombre del autor para buscarlo en el catálogo y devolver las películas que les corresponde (ninguna si no se encuentra el autor en el catálogo
+        o el formato no es  válido), también comprueba que sean carácteres válidos. La opción 4 pide un año, pasándolo a un entero (esto hace que si el usuario no introduce el carácter de un número de una excepción,
+        usando un try-except para que cuando esto suceda aparezca un warning que indique que un número debe de ser introducido), si el contador es 0 quiere decir que ninguna película se estrenó en ese año. Esas tres
+        últimas opciones utilizan el iterador (__iter__) de la lista para recorrerla.
+        La opción 5 llama al metódo privado  _file_writer() para que cree el archivo correspondiente sin duplicados.
+        Por último, la opción 6 permite imprimir datos estadísticos del catálogo llamando a la función pandas_stats(), y pasándole como parámetro la lista data_film_list.
+        
         Returns
         -------
         None
