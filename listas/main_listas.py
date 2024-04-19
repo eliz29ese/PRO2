@@ -8,7 +8,6 @@ Rodríguez Polín, Isabel
  
 from array_ordered_positional_list import ArrayOrderedPositionalList
 from linked_ordered_positional_list import LinkedOrderedPositionalList 
-from typing import Union 
 import pandas
  
  
@@ -32,10 +31,6 @@ class Film:
 
     Methods
     -------
-    Public methods: 
-        __str__(self) -> str:
-            Returns a string containing the concatenated information of the film (each attribute separated by ';').
-    
     Dunder methods:
         __ge__(self, other: Film) -> bool:
             Compares if the current film is greater than or equal to another film starting by comparing the director, then the release year, and finally the title.
@@ -45,6 +40,10 @@ class Film:
         
         __eq__(self, other: Film) -> bool:
             Compares if the current film is equal to another film based on the director and the title.
+        
+        __str__(self) -> str:
+            Returns a string containing the concatenated information of the film (each attribute separated by ';').
+
     """
 
 
@@ -380,6 +379,7 @@ class Film_Manager:
         
         Returns
         -------
+        LinkedOrderedPositionalList() #or ArrayOrderedPositionalList(): 
             The Film ordered list of the catalog without duplicates.
             
         """
@@ -394,7 +394,7 @@ class Film_Manager:
         
         Method Characteristics:
             - Instances of the Film class are created using the attributes provided in the films_text.
-            - These instances are added to each of the lists.
+            - These instances are added to film_list.
             - film_unique_list starts being empty, but then the _delete_duplicated() method is called to remove duplicate movies from it.
     
         Parameters
@@ -449,13 +449,15 @@ class Film_Manager:
         -------
         None
         """
-
+        
         try:
-           option = int(input("\n***   FILM CATALOG MENU   ***\nChoose one of the following options: \n 1) Introducir un catálogo \n   2) Consult all platform movies \n   3) Consult movies directed by an author \n   4) Consult movies released in a year\n 5) Create a file with the movies containing no duplicates \n 6) Show stats of the catalog \n  - Press any other key to exit\n"))
-           while option in (1,2,3,4,5,6): #len(self.film_list)>0
+        # option must be an integer, else: except
+           option = int(input("\n***   FILM CATALOG MENU   ***\nChoose one of the following options: \n 1) Introduce a catalog \n   2) Consult all platform movies \n   3) Consult movies directed by an author \n   4) Consult movies released in a year\n 5) Create a file with the movies containing no duplicates \n 6) Show stats of the catalog \n  - Press any other key to exit\n"))
+           while option in (1,2,3,4,5,6):
+               # If there is no data, it should be providen before options (2,3,4,5,6)
                if len(self.film_list) == 0 and option in (2,3,4,5,6):
                    print("\nPlease, enter the catalog data")
-                   option = int(input("\n***   FILM CATALOG MENU   ***\nChoose one of the following options: \n 1) Introducir un catálogo \n   2) Consult all platform movies \n   3) Consult movies directed by an author \n   4) Consult movies released in a year\n 5) Create a file with the movies containing no duplicates \n 6) Show stats of the catalog \n  - Press any other key to exit\n"))
+                   option = int(input("\n***   FILM CATALOG MENU   ***\nChoose one of the following options: \n 1) Introduce a catalog \n   2) Consult all platform movies \n   3) Consult movies directed by an author \n   4) Consult movies released in a year\n 5) Create a file with the movies containing no duplicates \n 6) Show stats of the catalog \n  - Press any other key to exit\n"))
                    continue
                if option == 1:
                    try: 
@@ -490,6 +492,7 @@ class Film_Manager:
                     try:
                          cnt = 0
                          for film in self.film_list:
+                             # If year is not an integer, it raises an exception (except)
                              if film.release_year == int(year):
                                  print(film)
                                  cnt+=1
@@ -504,8 +507,8 @@ class Film_Manager:
  
                elif option == 6:
                    self._pandas_stats(data_film_list)
-               option = int(input("\n***   FILM CATALOG MENU   ***\nChoose one of the following options: \n 1) Introducir un catálogo \n   2) Consult all platform movies \n   3) Consult movies directed by an author \n   4) Consukt movies released in a year\n 5) Create a file with the movies containing no duplicates \n 6) Show stats of the catalog \n  - Press any other key to exit\n"))
- 
+               option = int(input("\n***   FILM CATALOG MENU   ***\nChoose one of the following options: \n 1) Introduce a catalog \n   2) Consult all platform movies \n   3) Consult movies directed by an author \n   4) Consult movies released in a year\n 5) Create a file with the movies containing no duplicates \n 6) Show stats of the catalog \n  - Press any other key to exit\n"))
+
            print("Exiting...")
         except:
             print("Exiting...")
@@ -530,18 +533,21 @@ class Film_Manager:
         """
         # The marker starts as the position of the first element
         data_film_list = []  
+        # Iterate through the film_list
         for film in self.film_list:
+            # If film_unique_list is empty film is added
             if self.film_unique_list.is_empty():
                 self.film_unique_list.add(film)
             else: 
-                marker = self.film_unique_list.first()
+                marker = self.film_unique_list.first() #it represents the position on other_film
                 duplicated = False
                 for other_film in self.film_unique_list:
                     if other_film == film:
                         duplicated = True
+                        # The film_unique_list must contain the version of the film with the newest release year
                         if other_film.release_year < film.release_year:
                             self.film_unique_list.replace(marker, film)
-                    marker = self.film_unique_list.after(marker)
+                    marker = self.film_unique_list.after(marker) # Next position (of next other_film)
                     
                 if not duplicated:
                      self.film_unique_list.add(film)
@@ -622,6 +628,11 @@ def main():
     """
     manager = Film_Manager()
     manager.user_menu()
+ 
+ 
+if __name__ == '__main__':
+    main()
+
  
  
 if __name__ == '__main__':
