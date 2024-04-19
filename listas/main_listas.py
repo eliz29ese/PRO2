@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Wed Apr 17 23:42:43 2024
@@ -304,7 +303,7 @@ class Film_Manager:
         film_list: LinkedOrderedPositionalList or ArrayOrderedPositionalList
             Ordered list containing a series of movies, Film objects, that will be handled by it and used in a catalog.
         film_unique_list: LinkedOrderedPositionalList or ArrayOrderedPositionalList
-            Ordered list that starts out equal to film_list but then becomes an ordered list without duplicates through the _delete_duplicated function.
+            Ordered list that becomes an ordered list without duplicates through the _delete_duplicated function.
             
     Both implementations (array_ordered_positional_list and linked_ordered_positional_list) can be used for both lists, obtaining equivalent results. 
     
@@ -323,8 +322,8 @@ class Film_Manager:
 
     Private Methods: 
         _create_film(self, films_text:str )-> list:
-            This function creates Film objects from a given text document with the necessary information and is responsible for adding the read movies to each of the lists 
-            film_list, an ordered list of the movies in its catalog, and film_unique_list. Returns a list with the data of the unique movies, used subsequently
+            This function creates Film objects from a given text document with the necessary information and is responsible for adding the read movies to the list
+            film_list, an ordered list of the movies in its catalog. Returns a list with the data of the unique movies, used subsequently
             for statistical purposes.
             
         _delete_duplicated(self) -> list :
@@ -352,7 +351,7 @@ class Film_Manager:
             film_list: LinkedOrderedPositionalList or ArrayOrderedPositionalList
                 An ordered list containing a series of movies, Film objects, that will be handled by the class and used in a catalog.
             film_unique_list: LinkedOrderedPositionalList or ArrayOrderedPositionalList
-                An ordered list that starts out identical to film_list but later, through the _delete_duplicated function, becomes an ordered list without duplicates.
+                An ordered list that starts being empty and through the _delete_duplicated function, becomes an ordered list without duplicates.
     
         Returns
         -------
@@ -372,29 +371,7 @@ class Film_Manager:
             The Film ordered list of the catalog.
         """
         return self._film_list
- 
-    @film_list.setter
-    def film_list(self, value: Union[LinkedOrderedPositionalList, ArrayOrderedPositionalList]):
-        """
-        Set the ordered list of the Films.
- 
-        Parameters
-        ----------
-        value : Union[LinkedOrderedPositionalList, ArrayOrderedPositionalList]
-            The new ordered list of Films.
- 
-        Raises
-        ------
-        ValueError
-            If the provided value is not an ordered list (LinkedOrderedPositionalList or ArrayOrderedPositionalList) of Film objects.
-        """
-        if isinstance(value, LinkedOrderedPositionalList) or isinstance(value, ArrayOrderedPositionalList):
-            self._film_list = value
-        else:
-            raise ValueError("The film list must be a LinkedOrderedPositionalList or a ArrayOrderedPositionalList")
-        for film in self._film_list:
-            if not isinstance(film, Film):
-                raise TypeError("Elements of film_list must be Films")
+
     @property
     def film_unique_list(self):
         """
@@ -407,40 +384,17 @@ class Film_Manager:
         """
         return self._film_unique_list
     
-    @film_unique_list.setter
-    def film_unique_list(self, value: Union[LinkedOrderedPositionalList, ArrayOrderedPositionalList]):
-        """
-        Set the ordered list of the unique Films.
-        
-        Parameters
-        ----------
-        value : Union[LinkedOrderedPositionalList, ArrayOrderedPositionalList]
-        
-            The new ordered list of unique Films.
-            
-        Raises
-        ------
-        ValueError
-            If the provided value is not an ordered list (LinkedOrderedPositionalList or ArrayOrderedPositionalList) of Film objects.
-        """
 
-        if isinstance(value, LinkedOrderedPositionalList) or isinstance(value, ArrayOrderedPositionalList):
-            self._film_unique_list = value
-        else:
-            raise ValueError("The film list must be a LinkedOrderedPositionalList or a ArrayOrderedPositionalList")
-        for film in self._film_unique_list:
-            if not isinstance(film, Film):
-                raise TypeError("Elements of film_list must be Films")
  
     def _create_film(self, films_text:str )-> list:
         """
-        This function creates Film objects from a given text document with the necessary information and is responsible for adding the read movies to each of the lists: film_list and film_unique_list. 
+        This function creates Film objects from a given text document with the necessary information and is responsible for adding the read movies to the list film_list. 
         Returns a list with the data of the movies, used subsequently for statistical purposes.
         
         Method Characteristics:
             - Instances of the Film class are created using the attributes provided in the films_text.
             - These instances are added to each of the lists.
-            - film_unique_list starts with the same content as film_list, but then the _delete_duplicated() method is called to remove duplicate movies from it.
+            - film_unique_list starts being empty, but then the _delete_duplicated() method is called to remove duplicate movies from it.
     
         Parameters
         ----------
@@ -469,33 +423,32 @@ class Film_Manager:
         data_film_list = self._delete_duplicated()
         return(data_film_list)
     
-    def user_menu(self)->None:
+    def user_menu(self) -> None:
         """
         This function prints an interface with six options that the user can choose from:
             - 1) Enter the name of a file with a catalog of films to be read 
             - 2) Print the data of all the Films in the catalog, from film_list
             - 3) Print the data of the Films by a certain author introduced by the user
             - 4) Print the data of the Films released in a year introduced by the user
-            - 5) Create a file that containes the non duplicated movies 
+            - 5) Create a file that contains the non-duplicated movies 
             - 6) Print some stats of the catalog
 
-        El menú aparecerá continuamente hasta que se introduzca un caracter distinto de (1,2,3,4,5,6).Si se introduce otro número se saldrá del while, y si es otro caracter se maneja una excepción, ya que se pasa a entero la opción introducida por el usuario, en estos casos the function ends and "Exiting..." is printed. 
-        To choose an option different to 1, a warning will appear: it is necesario introducir datos para poder trabajar con ellos, y hasta que no se intoduzcan o se salga del menú, seguirá apareciendo.
-        Al pulsar la opción 1 (neceszaria para comenzar) se creará el catálogo de las películas mediante el nombre del fichero que introducirá el usuario, este fichero se abrirá y se llamará a la función
-        del create_film() para que llene el atributo de la lista de películas (film_list) del Film_Manager y devuelve la lista data_film_list con datos sobre las mismas, usada en la opció 6. Si no es posible acceder al fichero o el fichero no existe se pasa de la parte try anterior a la
-        excepcion, indicando que el fichero debe ser válido en el directorio. A partir de este momento podemos utilizar las otras opciones. Las opciones 2,3 y 4 recorren film_list, la primera imprimiendo todas
-        las peliculas del catálogo. La opción 3 pide un apellido y nombre del autor para buscarlo en el catálogo y devolver las películas que les corresponde (ninguna si no se encuentra el autor en el catálogo
-        o el formato no es  válido), también comprueba que sean carácteres válidos. La opción 4 pide un año, pasándolo a un entero (esto hace que si el usuario no introduce el carácter de un número de una excepción,
-        usando un try-except para que cuando esto suceda aparezca un warning que indique que un número debe de ser introducido), si el contador es 0 quiere decir que ninguna película se estrenó en ese año. Esas tres
-        últimas opciones utilizan el iterador (__iter__) de la lista para recorrerla.
-        La opción 5 llama al metódo privado  _file_writer() para que cree el archivo correspondiente sin duplicados.
-        Por último, la opción 6 permite imprimir datos estadísticos del catálogo llamando a la función pandas_stats(), y pasándole como parámetro la lista data_film_list.
+        The menu will continuously appear until a character other than (1,2,3,4,5,6) is entered. If another number is entered, the while loop will exit, and if it's another character, an exception is handled 
+        because the user input is converted to an integer, in these cases the function ends and "Exiting..." is printed. To choose an option different than 1, a warning will appear: it is necessary to enter 
+        data in order to work with them, and until data is entered or the menu is exited, it will continue appearing. When option 1 is selected (necessary to start), the catalog of movies will be created using 
+        the filename entered by the user, this file will be opened and the create_film() function will be called to fill the film_list attribute of the Film_Manager and return the data_film_list with information 
+        about them, used in option 6. If it is not possible to access the file or the file does not exist, it goes from the previous try part to the exception, indicating that the file must be valid in the directory.
+        From this point on, we can use the other options. Options 2, 3, and 4 iterate through film_list, the first printing all the movies in the catalog. Option 3 asks for a last name and first name of the author to 
+        search for them in the catalog and return the movies that correspond to them (none if the author is not found in the catalog or the format is not valid), it also checks that they are valid characters. Option 4 asks 
+        for a year, converting it to an integer (this makes if the user does not enter the character of a number an exception occurs, using a try-except so that when this happens a warning appears indicating that a number must 
+        be entered), if the counter is 0 it means that no movie was released in that year. These last three options use the iterator (__iter__) of the list to iterate through it. Option 5 calls the private method _file_writer() 
+        to create the corresponding file without duplicates. Finally, option 6 allows printing statistical data from the catalog by calling the pandas_stats() function, and passing data_film_list as a parameter.
         
         Returns
         -------
         None
         """
- 
+
         try:
            option = int(input("\n***   FILM CATALOG MENU   ***\nChoose one of the following options: \n 1) Introducir un catálogo \n   2) Consult all platform movies \n   3) Consult movies directed by an author \n   4) Consult movies released in a year\n 5) Create a file with the movies containing no duplicates \n 6) Show stats of the catalog \n  - Press any other key to exit\n"))
            while option in (1,2,3,4,5,6): #len(self.film_list)>0
@@ -503,7 +456,6 @@ class Film_Manager:
                    print("\nPlease, enter the catalog data")
                    option = int(input("\n***   FILM CATALOG MENU   ***\nChoose one of the following options: \n 1) Introducir un catálogo \n   2) Consult all platform movies \n   3) Consult movies directed by an author \n   4) Consult movies released in a year\n 5) Create a file with the movies containing no duplicates \n 6) Show stats of the catalog \n  - Press any other key to exit\n"))
                    continue
-               iterador = self.film_list.__iter__()
                if option == 1:
                    try: 
                        film_catalog = input("Enter the name of the file containing the film catalog: \n")
@@ -514,18 +466,17 @@ class Film_Manager:
                    except:
                        print("\nPlease enter the name of 6a valid file in your directory")
                elif option == 2:
-                    for i in range(len(self.film_list)):
-                        print(next(iterador))
+                    for film in self.film_list:
+                        print(film)
  
                elif option == 3:
                     author_ln = input("Enter the director's last name for the movies you want to consult\n")
                     author_fn = input("Enter the director's first name for the movies you want to consult\n")
                     cnt = 0
                     if author_ln.isalpha() and author_fn.isalpha():
-                        for i in range(len(self.film_list)):
-                            f = next(iterador)
-                            if f.director == f"{author_ln}, {author_fn}":
-                                print(f)
+                        for film in self.film_list:
+                            if film.director == f"{author_ln}, {author_fn}":
+                                print(film)
                                 cnt+=1
                         if cnt == 0:
                             print(f"\nNo movies directed by {author_ln}, {author_fn} are found in the catalog, or incorrect format: (Last Name, First Name)")
@@ -537,10 +488,9 @@ class Film_Manager:
                     year = input("Enter the release year of the movies you want to consult: \n\n")             
                     try:
                          cnt = 0
-                         for i in range(len(self.film_list)):
-                             f = next(iterador)
-                             if f.release_year == int(year):
-                                 print(f)
+                         for film in self.film_list:
+                             if film.release_year == int(year):
+                                 print(film)
                                  cnt+=1
                          if cnt == 0:
                              print(f"No movie in the catalog was released in the year {year}")
@@ -561,31 +511,13 @@ class Film_Manager:
 
     def _delete_duplicated(self) -> list :
         """
-        Elimina de la lista ordenada film_unique_list las peliculas repetidas. 
-                
-        Method Characteristics:
-            - De la film_unique_list que inicialmente es una lista ordenada con todas las peliculas (como una copia de la film_list) eliminamos los duplicados
-            - Se considera que dos peliculas SON IGUALES cuando sus directores y titulos son los mismos (Esto se define en el metodo __eq__() de Film). Con respecto a el año de lanzamiento, no tienen que ser los mismos. Se escogera la de año mas reciente y el resto se eliminara. 
-            - Para llevar a cabo esta comparacion de peliculas utilizamos un marker (que hace referencia al nodo en la lista) y comienza siendo la posicion del primer elemento, asi cada elemento de la lista se compara con el siguiente (marker_after) y si son iguales se procede eliminando uno de los dos con el metodo delete(). Esto se ejecuta hasta llegar al antepenultimo elemento.
-                   
-        Returns:
-        --------
-        list 
-            Lista con las peliculas del catalogo ordenadas y sin repetidos, usando esta lista se calcularan las estadisticas. 
-            
-        Note:
-        -----
-        - Cuando se elimina un elemento de la lista, el nodo correspondiente se borra de la memoria, por lo tanto es necesario que El marcador (marker), se actualize para apuntar al siguiente nodo después de la eliminación.
-        - Cuando los elementos comparados (film_1 y film_2) son iguales, el marker permanece en su posición actual si se elimina marker_after, o avanza al siguiente nodo si se elimina marker. Cuando los elementos comparados son distintos, el marker debe es actualizadp para avanzar al siguiente nodo en la lista. 
-        """
-        """
-        Removes duplicate movies from the ordered list film_unique_list. 
-                    
-        Method Characteristics:
-            - From film_unique_list, which initially is an ordered list with all the movies (as a copy of film_list), we remove the duplicates.
-            - Two movies are considered EQUAL when their directors and titles are the same (This is defined in the __eq__() method of Film). Regarding the release year, they do not have to be the same. The most recent year will be chosen, and the rest will be deleted. 
-            - To carry out this comparison of movies, we use a marker (which refers to the node in the list) and starts being the position of the first element, so each element of the list is compared with the next one (marker_after), and if they are equal, one of the two is deleted using the delete() method. This is executed until reaching the penultimate element.
-                       
+        This function adds the movies from film_list to the ordered list film_unique_list, ensuring there are no duplicates. To do this, it iterates through the movies in film_list. At the beginning, 
+        film_unique_list is empty, so it adds the first Film from film_list to it. In the following iterations, the function stores a marker with the positions of film_unique_list, traversing it and changing 
+        the position to the next one to match other_film (the Film from film_unique_list), aiming to ensure that the Film from the iteration (from film_list) doesn't have duplicates in film_unique_list. The 
+        duplicated value starts as False, and if any movie in film_unique_list is found to be equal to the Film, it becomes True. If this happens, it checks the release years of the movies, and if the release year 
+        is greater in the Film from film_list, it replaces the other film (other_film) in film_unique_list with Film at the marker position stored by the function. If there are no duplicates, the Film is added to 
+        film_unique_list. Finally, it traverses film_unique_list to store the movie data in the data_film_list, which will be used later for statistical data. It returns this list.
+             
         Returns:
         --------
         list 
@@ -593,8 +525,7 @@ class Film_Manager:
                 
         Note:
         -----
-        - When an element of the list is deleted, the corresponding node is removed from memory, therefore it is necessary for the marker to be updated to point to the next node after deletion.
-        - When the compared elements (film_1 and film_2) are equal, the marker remains in its current position if marker_after is deleted, or it moves to the next node if marker is deleted. When the compared elements are different, the marker must be updated to move to the next node in the list. 
+
         """
         # The marker starts as the position of the first element
         data_film_list = []  
