@@ -589,34 +589,23 @@ class Film_Manager:
         - When the compared elements (film_1 and film_2) are equal, the marker remains in its current position if marker_after is deleted, or it moves to the next node if marker is deleted. When the compared elements are different, the marker must be updated to move to the next node in the list. 
         """
         # The marker starts as the position of the first element
-        data_film_list = []
-        marker = self.film_unique_list.first()
-        while marker != self.film_unique_list.last(): # The element at the last position will not have a next. And it will never be repeated (being marker) since it's an ordered list.
-            marker_before = marker # We define marker_before as marker, used to preserve the initial marker when deleting it.
-            marker_after = self.film_unique_list.after(marker) # Marker used for comparison, it's the position of the next element.
-            # We obtain the film elements at the marker position and the next one
-            film_1 = self.film_unique_list.get_element(marker)
-            film_2 = self.film_unique_list.get_element(marker_after)
-            # The __eq__ method in Film returns True if the DIRECTOR AND TITLE of the movie are the same.
-            if film_1 == film_2:
-                # We keep the movie with the most recent release year
-                if film_1.release_year <= film_2.release_year: 
-                    self.film_unique_list.delete(marker_before) # We delete marker_before, which is a copy of the original, as we can't delete it directly because it would invalidate the following iterations on it.
-                    marker = self.film_unique_list.before(marker_after) # The original marker changes (the one deleted through its copy) and becomes the marker before marker_after.
-                else: 
-                    self.film_unique_list.delete(marker_after)
-                    marker = self.film_unique_list.after(marker) # Now the marker will be the next one (after the one that has been deleted).
-            # If film_1 and film_2 are equal, we continue with the same marker (if marker_after is deleted, it would become the next (marker_after_after)), or with the next one (if marker is deleted). (For a more detailed explanation, see the documentation note) 
-            # Note that the change must also be made when film_1 and film_2 are different.  
+        data_film_list = []  
+        for film in self.film_list:
+            if self.film_unique_list.is_empty():
+                self.film_unique_list.add(film)
             else: 
-                marker = marker_after
-                
-        # iterator = self.film_unique_list.__iter__()
-        # for i in range(len(self.film_unique_list)):
-        #     film = next(iterator)
-        #     data_film_list.append([film.director, film.title, film.release_year, film.score])
-        # return data_film_list
-        
+                marker = self.film_unique_list.first()
+                duplicated = False
+                for other_film in self.film_unique_list:
+                    if other_film == film:
+                        duplicated = True
+                        if other_film.release_year < film.release_year:
+                            self.film_unique_list.replace(marker, film)
+                    marker = self.film_unique_list.after(marker)
+                    
+                if not duplicated:
+                     self.film_unique_list.add(film)
+                            
         for film in self.film_unique_list:
             data_film_list.append([film.director, film.title, film.release_year, film.score])
         return data_film_list
