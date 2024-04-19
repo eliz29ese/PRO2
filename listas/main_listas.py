@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Apr 17 23:42:43 2024
- 
-@author: isabe
+Santrich Escalona, Elizabet
+(elizabet.santrich.escalona@udc.es)
+Rodríguez Polín, Isabel
+(isabel.rodriguezp@udc.es)
 """
  
 from array_ordered_positional_list import ArrayOrderedPositionalList
@@ -464,7 +465,7 @@ class Film_Manager:
                            films_text = f.read().strip()
                            data_film_list = self._create_film(films_text)
                    except:
-                       print("\nPlease enter the name of 6a valid file in your directory")
+                       print("\nPlease enter the name of a valid file in your directory")
                elif option == 2:
                     for film in self.film_list:
                         print(film)
@@ -505,7 +506,7 @@ class Film_Manager:
                    self._pandas_stats(data_film_list)
                option = int(input("\n***   FILM CATALOG MENU   ***\nChoose one of the following options: \n 1) Introducir un catálogo \n   2) Consult all platform movies \n   3) Consult movies directed by an author \n   4) Consukt movies released in a year\n 5) Create a file with the movies containing no duplicates \n 6) Show stats of the catalog \n  - Press any other key to exit\n"))
  
-           
+           print("Exiting...")
         except:
             print("Exiting...")
 
