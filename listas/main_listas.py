@@ -465,7 +465,6 @@ class Film_Manager:
             director, title, release_year, score = film_info
             film = Film(director, title, int(release_year), float(score))
             self.film_list.add(film)
-            self.film_unique_list.add(film)
 
         data_film_list = self._delete_duplicated()
         return(data_film_list)
@@ -643,7 +642,7 @@ class Film_Manager:
     
         with open(nombre_archivo, "w") as archivo: 
             for film in self.film_unique_list:
-                archivo.write(print(film))
+                archivo.write(str(film))
                 archivo.write('\n')
 
     def _pandas_stats(self, data_film_list:list) -> None:
