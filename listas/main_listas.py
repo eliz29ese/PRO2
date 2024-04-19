@@ -516,7 +516,7 @@ class Film_Manager:
                        print("\nPlease enter the name of 6a valid file in your directory")
                elif option == 2:
                     for i in range(len(self.film_list)):
-                        print(next(iterador).print_film())
+                        print(next(iterador))
  
                elif option == 3:
                     author_ln = input("Enter the director's last name for the movies you want to consult\n")
@@ -526,7 +526,7 @@ class Film_Manager:
                         for i in range(len(self.film_list)):
                             f = next(iterador)
                             if f.director == f"{author_ln}, {author_fn}":
-                                print(f.print_film())
+                                print(f)
                                 cnt+=1
                         if cnt == 0:
                             print(f"\nNo movies directed by {author_ln}, {author_fn} are found in the catalog, or incorrect format: (Last Name, First Name)")
@@ -541,7 +541,7 @@ class Film_Manager:
                          for i in range(len(self.film_list)):
                              f = next(iterador)
                              if f.release_year == int(year):
-                                 print(f.print_film())
+                                 print(f)
                                  cnt+=1
                          if cnt == 0:
                              print(f"No movie in the catalog was released in the year {year}")
