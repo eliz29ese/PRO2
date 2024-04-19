@@ -33,7 +33,7 @@ class Film:
     Methods
     -------
     Public methods: 
-        print_film(self) -> str:
+        __str__(self) -> str:
             Returns a string containing the concatenated information of the film (each attribute separated by ';').
     
     Dunder methods:
@@ -200,7 +200,7 @@ class Film:
         else:
             raise ValueError("The score must be a positive float between 0 and 10")
             
-    def print_film(self):
+    def __str__(self):
         """
         Function that returns a string with the information of the Film, which is used to examine the data of a movie 
         outside the class.
@@ -643,7 +643,7 @@ class Film_Manager:
     
         with open(nombre_archivo, "w") as archivo: 
             for film in self.film_unique_list:
-                archivo.write(film.print_film())
+                archivo.write(print(film))
                 archivo.write('\n')
 
     def _pandas_stats(self, data_film_list:list) -> None:
