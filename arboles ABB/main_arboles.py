@@ -255,28 +255,25 @@ def create_course(cursos_text:str, academy:str )-> None:
                 tree_A[curso.name, curso.level, curso.language] = curso
             else: 
                 tree_B[curso.name, curso.level, curso.language] = curso
+    preorder_indent_BST(tree_A,tree_A.root(),0)
+    preorder_indent_BST(tree_B,tree_B.root(),0)
+
+def preorder_indent_BST(T, p, d):
+    """Print preorder representation of a binary subtree of T rooted at p at depth d.
+       To print aTree completely call preorder_indent_BST(aTree, aTree.root(), 0)"""
+    if p is not None:
+        # use depth for indentation
+        print(2*d*' ' + "(" + str(p.key()) + "," +  str(p.value()) + ")") 
+        preorder_indent_BST(T, T.left(p), d+1) # left child depth is d+1
+        preorder_indent_BST(T, T.right(p), d+1) # right child depth is d+1
     
 cursos_A = input('Ingrese el nombre del archivo donde se encuentran los cursos de la academia A:')  
 cursos_B = input('Ingrese el nombre del archivo donde se encuentran los cursos de la academia B:')     
 with open(cursos_A, encoding="ISO-8859-1") as f:
      # With strip(), we ensure that there are no additional spaces, tabs, or newline characters present in the file.
     cursos_text = f.read().strip()
-    data_film_list = create_course(cursos_text, 'A') 
+    create_course(cursos_text, 'A') 
 with open(cursos_B, encoding="ISO-8859-1") as f:
      # With strip(), we ensure that there are no additional spaces, tabs, or newline characters present in the file.
     cursos_text = f.read().strip()
-    data_film_list = create_course(cursos_text, 'B')    
-     
-arbol_1 = AVL()
-arbol_2 = AVL()
-curso_2 = Course('Rust',60,10,'A','Cas',15.00)
-curso_1 = Course('C',120,30,'A','Cas',8.00)
-arbol_1[curso_2.name, curso_2._level, curso_2._language] = curso_2
-arbol_1[curso_1.name, curso_1._level, curso_1._language] = curso_1
-clave_valor = arbol_1.find_max()
-print("La clave menor del árbol es "+ str(clave_valor[0]) + " con valor " + str(clave_valor[1]))
-clave_valor = arbol_1.find_min()
-print("La clave menor del árbol es "+ str(clave_valor[0]) + " con valor " + str(clave_valor[1]))
-del arbol_1[curso_2.name, curso_2._level, curso_2._language]
-clave_valor = arbol_1.find_max()
-print("La clave menor del árbol es "+ str(clave_valor[0]) + " con valor " + str(clave_valor[1]))
+    create_course(cursos_text, 'B')    
