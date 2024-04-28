@@ -36,6 +36,8 @@ class Course:
         self._level = level
         self._language = language
         self._price = price
+        self._benefice = self.price/self.duration * self.students
+    
 
     @property
     def name(self):
@@ -228,6 +230,18 @@ class Course:
             self._price = value
         else:
             raise ValueError("Price must be a non-negative float")
+            
+    @property
+    def benefice(self):
+        """
+        Gets the benefice of the course.
+
+        Returns
+        -------
+        float
+            The benefice of the course
+        """
+        return self._benefice
 
     def __str__(self):
         """
@@ -247,3 +261,4 @@ class Course:
                 return self.level == other.level
         else:
             return self.name == other.name
+
