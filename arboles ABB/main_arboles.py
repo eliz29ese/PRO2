@@ -20,46 +20,50 @@ class CursesManager():
     
     def user_menu(self) -> None:
         # option must be an integer, else: except
-        try:
-            option = int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogos de los cursos \n   2) Mostrar oferta sumada de los cursos \n   3) Mostrar oferta conjunta de los cursos \n   4) Mostrar estadísticas \n - Press any other key to exit\n"))
-            while option in (1,2,3,4):
-                if (len(self.tree_A) == 0 or len(self.tree_B) == 0) and option in (2,3,4):
-                    print("\nPlease, introduzca los datos de ambos cursos")
-                    option = int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogo de los cursos \n   2)  \n   3)  \n   4) \n - Press any other key to exit\n"))
-                    continue
-                if option == 1:
-                    try:
-                         cursos_A = input("Ingrese el nombre del archivo donde se encuentran los cursos de la academia A:  ")
-                         cursos_B = input('Ingrese el nombre del archivo donde se encuentran los cursos de la academia B:  ')     
-                         self.read_courses(cursos_A, cursos_B)
-                         print("\nFicheros leídos correctamente")
-                    except:
-                        print("\nIntroduzca nombres de archivos válidos en su directorio")
-      
-                if option == 2:
-                    print("\nOfertas disponibles en los cursos A o B: \n")
+        option = int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogos de los cursos \n   2) Mostrar oferta sumada de los cursos \n   3) Mostrar oferta conjunta de los cursos \n   4) Mostrar estadísticas \n - Press any other key to exit\n"))
+        while option in (1,2,3,4):
+            if (len(self.tree_A) == 0 or len(self.tree_B) == 0) and option in (2,3,4):
+                print("\nPlease, introduzca los datos de ambos cursos")
+                option = int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogo de los cursos \n   2)  \n   3)  \n   4) \n - Press any other key to exit\n"))
+                continue
+            if option == 1:
+                try:
+                     cursos_A = input("Ingrese el nombre del archivo donde se encuentran los cursos de la academia A:  ")
+                     cursos_B = input('Ingrese el nombre del archivo donde se encuentran los cursos de la academia B:  ')     
+                     self.read_courses(cursos_A, cursos_B)
+                     print("\nFicheros leídos correctamente")
+                except:
+                    print("\nIntroduzca nombres de archivos válidos en su directorio")
+  
+            if option == 2:
+                print("\nOfertas disponibles en los cursos A o B: \n")
+                if self.tree_add.is_empty():
                     self.union_and_display()
-                    
-                if option == 3:
-                    print("\nOfertas disponibles en ambos cursos: \n")
+                # Visualizar el resultado
+                print("Árbol fusionado:")
+                self.preorder_indent_BST(self.tree_add, self.tree_add.root(), 0)
+                
+            if option == 3:
+                print("\nOfertas disponibles en ambos cursos: \n")
+                if self.tree_common.is_empty():
                     self.common_offer()
-                    
-                if option == 4:
-                    try:
-                        option2 = int(input("\n-- Catálogos disponibles para las estadísticas --\n 1) Oferta curso A \n 2) Oferta curso B \n 3) Oferta sumada de los cursos \n 4) Oferta común de los cursos \n"))
-                        if option2 in (1,2,3,4,5,6): 
-                            option_dict = {1:self.tree_A, 2:self.tree_B, 3:self.tree_add, 4:self.tree_common}
-                            self.pandas_stats(option_dict[option2])
-                        else:
-                            print("\nIntroduzca una opción válida")
-                    except:
+                print("Árbol común:")
+                self.preorder_indent_BST(self.tree_common, self.tree_common.root(), 0)
+                
+            if option == 4:
+                try:
+                    option2 = int(input("\n-- Catálogos disponibles para las estadísticas --\n 1) Oferta curso A \n 2) Oferta curso B \n 3) Oferta sumada de los cursos \n 4) Oferta común de los cursos \n"))
+                    if option2 in (1,2,3,4,5,6): 
+                        option_dict = {1:self.tree_A, 2:self.tree_B, 3:self.tree_add, 4:self.tree_common}
+                        self.pandas_stats(option_dict[option2])
+                    else:
                         print("\nIntroduzca una opción válida")
-                    
-                option = int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogos de los cursos \n   2) Mostrar oferta sumada de los cursos \n   3) Mostrar oferta conjunta de los cursos \n   4) Mostrar estadísticas \n - Press any other key to exit\n"))
-    
-            print("Exiting...")
-        except:
-            print("Exiting...")
+                except:
+                    print("\nIntroduzca una opción válida")
+                
+            option = int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogos de los cursos \n   2) Mostrar oferta sumada de los cursos \n   3) Mostrar oferta conjunta de los cursos \n   4) Mostrar estadísticas \n - Press any other key to exit\n"))
+
+        print("Exiting...")
 
     def read_courses(self, cursos_A, cursos_B):
         with open(cursos_A, encoding="ISO-8859-1") as f:
@@ -82,13 +86,12 @@ class CursesManager():
     
     
     def union_courses(self, course_A, course_B):
-        if course_A == course_B:
-            if course_A.benefice > course_B.benefice:
-                result_course = course_A
-                result_course.students += course_B.students
-            else:
-                result_course = course_B
-                result_course.students += course_A.students
+        if course_A.benefice > course_B.benefice:
+            result_course = course_A
+            result_course.students += course_B.students
+        else:
+            result_course = course_B
+            result_course.students += course_A.students
         return result_course
  
  
@@ -107,10 +110,7 @@ class CursesManager():
                 if cnt != 0:
                     self.tree_add[key_B].name += " B"
 
-                    
-        # Visualizar el resultado
-        print("Árbol fusionado:")
-        self.preorder_indent_BST(self.tree_add, self.tree_add.root(), 0)
+       
             
     def common_offer(self) -> None:
         for key_A, course_A in self.tree_A.items():
@@ -118,15 +118,14 @@ class CursesManager():
                 course_B = self.tree_B[key_A]
                 union_course = self.union_courses(course_A, course_B)
                 self.tree_common[key_A] = union_course
-        print("Árbol común:")
-        self.preorder_indent_BST(self.tree_common, self.tree_common.root(), 0)
+        
                     
     def pandas_stats(self, tree: "AVL") -> None:
         course_data = []
         for course in tree.values():
-            course_data.append([course.students, course.level, course.language, course.price])
+            course_data.append([course.students, course.level, course.language, course.benefice])
             
-        data = pandas.DataFrame(course_data, columns=["Students", "Level", "Language", "Price"])
+        data = pandas.DataFrame(course_data, columns=["Students", "Level", "Language", "Income"])
         
         group_col = "Level"
         target_col = "Students"
@@ -138,6 +137,11 @@ class CursesManager():
         target_col = "Students"
         single_stats = data.groupby(group_col).agg({target_col: ["mean"]})
         print('\n', "*"*37, '\n', "   Number of students per language   ", '\n',  "*"*37)
+        print(single_stats, "\n")
+        
+        target_col = "Income"
+        single_stats = data.agg({target_col: ["sum"]})
+        print('\n', "*"*20, '\n', "    Total income    ", '\n',  "*"*20)
         print(single_stats, "\n")
     
     
@@ -166,3 +170,4 @@ class CursesManager():
 if __name__ == "__main__":
     m = CursesManager()
     m.user_menu()
+
