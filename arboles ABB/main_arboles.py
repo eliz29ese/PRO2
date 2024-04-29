@@ -42,6 +42,10 @@ class CursesManager():
                 # Visualizar el resultado
                 print("Árbol fusionado:")
                 self.preorder_indent_BST(self.tree_add, self.tree_add.root(), 0)
+                print("\n\n\nÁrbol A:")
+                self.preorder_indent_BST(self.tree_A, self.tree_A.root(), 0)
+                print("\n\n\nÁrbol B:")
+                self.preorder_indent_BST(self.tree_B, self.tree_B.root(), 0)
                 
             if option == 3:
                 print("\nOfertas disponibles en ambos cursos: \n")
@@ -87,11 +91,9 @@ class CursesManager():
     
     def union_courses(self, course_A, course_B):
         if course_A.benefice > course_B.benefice:
-            result_course = course_A
-            result_course.students += course_B.students
+            result_course = Course(course_A.name, course_A.duration, course_A.students+course_B.students, course_A.level, course_A.language, course_A.price)
         else:
-            result_course = course_B
-            result_course.students += course_A.students
+            result_course = Course(course_B.name, course_B.duration, course_B.students+course_A.students, course_B.level, course_B.language, course_B.price)
         return result_course
  
  
@@ -102,11 +104,13 @@ class CursesManager():
                 union_course = self.union_courses(course_A, course_B)
                 self.tree_add[key_A] = union_course
             else:
-                self.tree_add[key_A] = course_A
+                new_course = Course(course_A.name, course_A.duration, course_A.students, course_A.level, course_A.language, course_A.price)
+                self.tree_add[key_A] = new_course
         for key_B, course_B in self.tree_B.items():
             if key_B not in self.tree_A and key_B not in self.tree_add:
                 cnt = self.find_name(self.tree_A.root(), course_B.name, 0)
-                self.tree_add[key_B] = course_B
+                new_course = Course(course_B.name, course_B.duration, course_B.students, course_B.level, course_B.language, course_B.price)
+                self.tree_add[key_B] = new_course
                 if cnt != 0:
                     self.tree_add[key_B].name += " B"
 
@@ -170,4 +174,3 @@ class CursesManager():
 if __name__ == "__main__":
     m = CursesManager()
     m.user_menu()
-
