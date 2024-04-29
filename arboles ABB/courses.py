@@ -36,7 +36,7 @@ class Course:
         self._level = level
         self._language = language
         self._price = price
-        self._benefice = self.price/self.duration * self.students
+        self._benefice = self.price*self.duration * self.students
     
 
     @property
@@ -253,6 +253,7 @@ class Course:
             A string representing the Course object.
         """
         return f"Name: {self.name}, Duration: {self.duration} hours, Students: {self.students}, Level: {self.level}, Language: {self.language}, Price: {self.price}€"
+   
     def __eq__(self, other: "Course"):
         if self.name == other.name:
             if self.level == other.level: 
@@ -261,4 +262,3 @@ class Course:
                 return self.level == other.level
         else:
             return self.name == other.name
-
