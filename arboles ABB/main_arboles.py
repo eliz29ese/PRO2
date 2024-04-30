@@ -12,6 +12,7 @@ import pandas
 class CursesManager():
     
     def __init__(self):
+        
         self.tree_A = AVL()
         self.tree_B= AVL()
         self.tree_add = AVL()
@@ -20,25 +21,25 @@ class CursesManager():
     
     def user_menu(self) -> None:
         # option must be an integer, else: except
-        option = int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogos de los cursos \n   2) Mostrar oferta sumada de los cursos \n   3) Mostrar oferta conjunta de los cursos \n   4) Mostrar estadísticas \n - Press any other key to exit\n"))
+        option = self.get_menu_option()
         while option in (1,2,3,4):
             if (len(self.tree_A) == 0 or len(self.tree_B) == 0) and option in (2,3,4):
                 print("\nPlease, introduzca los datos de ambos cursos")
-                option = int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogo de los cursos \n   2)  \n   3)  \n   4) \n - Press any other key to exit\n"))
+                option = self.get_menu_option()
                 continue
             if option == 1:
                 try:
-                     cursos_A = input("Ingrese el nombre del archivo donde se encuentran los cursos de la academia A:  ")
-                     cursos_B = input('Ingrese el nombre del archivo donde se encuentran los cursos de la academia B:  ')     
-                     self.read_courses(cursos_A, cursos_B)
+                     self.read_courses()
                      print("\nFicheros leídos correctamente")
+                     if self.tree_common.is_empty():
+                         self.common_offer()
+                     if self.tree_add.is_empty():
+                         self.union_and_display()
                 except:
                     print("\nIntroduzca nombres de archivos válidos en su directorio")
-  
+
             if option == 2:
                 print("\nOfertas disponibles en los cursos A o B: \n")
-                if self.tree_add.is_empty():
-                    self.union_and_display()
                 # Visualizar el resultado
                 print("Árbol fusionado:")
                 self.preorder_indent_BST(self.tree_add, self.tree_add.root(), 0)
@@ -49,35 +50,47 @@ class CursesManager():
                 
             if option == 3:
                 print("\nOfertas disponibles en ambos cursos: \n")
-                if self.tree_common.is_empty():
-                    self.common_offer()
                 print("Árbol común:")
                 self.preorder_indent_BST(self.tree_common, self.tree_common.root(), 0)
                 
             if option == 4:
-                try:
-                    option2 = int(input("\n-- Catálogos disponibles para las estadísticas --\n 1) Oferta curso A \n 2) Oferta curso B \n 3) Oferta sumada de los cursos \n 4) Oferta común de los cursos \n"))
-                    if option2 in (1,2,3,4,5,6): 
-                        option_dict = {1:self.tree_A, 2:self.tree_B, 3:self.tree_add, 4:self.tree_common}
-                        self.pandas_stats(option_dict[option2])
-                    else:
-                        print("\nIntroduzca una opción válida")
-                except:
-                    print("\nIntroduzca una opción válida")
+                self.show_stadistics()
                 
-            option = int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogos de los cursos \n   2) Mostrar oferta sumada de los cursos \n   3) Mostrar oferta conjunta de los cursos \n   4) Mostrar estadísticas \n - Press any other key to exit\n"))
+            option = self.get_menu_option()
+    
+    def read_courses(self) -> None:
+        cursos_A = input("Enter the name of the file containing the courses for academy A: ")
+        cursos_B = input("Enter the name of the file containing the courses for academy B: ")
+        self.create_course_catalog(cursos_A, self.tree_A)
+        self.create_course_catalog(cursos_B, self.tree_B)
 
-        print("Exiting...")
+    def create_course_catalog(self, cursos_file: str, tree: AVL) -> None:
+        with open(cursos_file, encoding="ISO-8859-1") as f:
+            cursos_text = f.read().strip()
+        cursos = cursos_text.split("\n")
+        for line in cursos:
+            if not line.startswith('#'):
+                curso_info = line.split(',')
+                name, duration, students, level, language, price = curso_info 
+                curso = Course(name, float(duration), int(students), level, language, float(price))
+                tree[curso.name, curso.level, curso.language] = curso
+                
+    def get_menu_option(self) -> int:
+        try: 
+            return int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogos de los cursos \n   2) Mostrar oferta sumada de los cursos \n   3) Mostrar oferta conjunta de los cursos \n   4) Mostrar estadísticas \n - Press any other key to exit\n"))
+        except: 
+            print("Exiting...")
+    def show_stadistics(self) -> None:
+        try:
+            option2 = int(input("\n-- Catálogos disponibles para las estadísticas --\n 1) Oferta curso A \n 2) Oferta curso B \n 3) Oferta sumada de los cursos \n 4) Oferta común de los cursos \n"))
+            if option2 in (1,2,3,4,5,6): 
+                option_dict = {1:self.tree_A, 2:self.tree_B, 3:self.tree_add, 4:self.tree_common}
+                self.pandas_stats(option_dict[option2])
+            else:
+                print("\nIntroduzca una opción válida")
+        except:
+            print("\nIntroduzca una opción válida")
 
-    def read_courses(self, cursos_A, cursos_B):
-        with open(cursos_A, encoding="ISO-8859-1") as f:
-             # With strip(), we ensure that there are no additional spaces, tabs, or newline characters present in the file.
-            cursos_text = f.read().strip()
-            self.create_course(cursos_text, self.tree_A)
-        with open(cursos_B, encoding="ISO-8859-1") as f:
-             # With strip(), we ensure that there are no additional spaces, tabs, or newline characters present in the file.
-            cursos_text = f.read().strip()
-            self.create_course(cursos_text, self.tree_B)
                              
     def create_course(self, cursos_text:str, tree:"AVL" )->None:
         cursos = cursos_text.split("\n")
@@ -113,8 +126,6 @@ class CursesManager():
                 self.tree_add[key_B] = new_course
                 if cnt != 0:
                     self.tree_add[key_B].name += " B"
-
-       
             
     def common_offer(self) -> None:
         for key_A, course_A in self.tree_A.items():
