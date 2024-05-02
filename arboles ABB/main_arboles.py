@@ -11,16 +11,16 @@ import pandas
     
 class CursesManager():
     """
-    La función de esta clase es manejar un catálogo de cursos haciedno uso de los árboles AVL para almacearlos y poder acceder a ellos de forma eficiente. Cuenta 
-    con 4 árboles AVL: tree_A, tree_B, tree_add y tree_common que guardan respectivamente los cursos de la academia A, los de la academia B, la unión de ambas ofertas
-    y la oferta común. Mediante esta clase el usuario puede acceder a la información disponible mediante un menú, que mostrará las siguientes opciones:
-        - 1) Añadir los cursos de las dos academias
-        - 2) Mostrar la unión de las ofertas
-        - 3) Mostrar la oferta común
-         -4) Mostrar las estadísticas del árbol deseado
+    This class manages a catalog of courses using AVL trees to store them and access them efficiently. 
+    It consists of four AVL trees: tree_A, tree_B, tree_add, and tree_common, which respectively store the courses from academy A, academy B, the union of both offers, and the common offer. 
+    Through this class, the user can access the available information via a menu, which will display the following options:
+        - 1) Add the course catalogs from both academies (required for the following options)
+        - 2) Show the aggregated offer
+        - 3) Show the common offer
+        - 4) Show statistics for the desired tree
     
     Usage Example:
-        manager = Course_Manager()
+        manager = CursesManager()
         manager.user_menu()
         
     Attributes
@@ -28,82 +28,83 @@ class CursesManager():
     Class Attributes: 
         
         tree_A: AVL
-            AVL que almacena los cursos de la academia A, que serán introducidos por el usuario.
+            AVL tree that stores the courses from academy A, which will be entered by the user.
         tree_B: AVL
-            AVL que almacena los cursos de la academia B, que serán introducidos por el usuario.
+            AVL tree that stores the courses from academy B, which will be entered by the user.
         tree_add: AVL
-            AVL que almacena la unión de los cursos de ambas academias, quedándose con los de mayor beneficio en caso de que tengan el mismo nombre, idioma y nivel en ambas academias.
+            AVL tree that stores the union of the courses from both academies, keeping the ones with the highest benefit in case they have the same name, language, and level in both academies.
         tree_common: AVL
-            AVL que almacena los cursos comunes de ambas academias (mismo nombre, nivel e idioma) quedándose con el de mayor beneficio.
+            AVL tree that stores the common courses from both academies (same name, level, and language), keeping the one with the highest benefit.
         
             
     Methods
     -------
     Public Methods:
         user_menu(self) -> None:
-            Esta función permite al usuario elegir la acción que quiere realizar entre las siguientes:
-                - 1) Añadir el catálogo de los cursos de ambas academias (necesario para las siguientes opciones)              
-                - 2) Oferta agregada
-                - 3) Oferta común
-                - 4) Mostrar estadísticas, eligiendo el árbol del que el usuario quiere consultar información         
+            This function allows the user to choose the action to perform among the following:
+                - 1) Add the course catalogs from both academies (required for the following options)              
+                - 2) Aggregated offer
+                - 3) Common offer
+                - 4) Show statistics, choosing the tree from which the user wants to retrieve information         
 
     Private Methods: 
          _get_menu_option(self) -> int:
-             Muestra las opciones del menú y devuelve la opción elegida por el usuario.
+             Displays the menu options and returns the option chosen by the user.
              
-        __read_courses(self)-> None:
-            Se encarga de pedirle al usuario que introduzca el nombre del fichero de texto que incluye el catálogo de los cursos primero de la academia A y después de la B. Después llama al
-            método create_course_catalog() para cear el catálogo de cada academia, pasándole el nombre del fichero y el árbol correspondiente (tree_A y tree_B respectivamente).
+         _read_courses(self)-> None:
+            Prompts the user to enter the name of the text file that includes the course catalog first from academy A and then from academy B. Then calls the
+            create_course_catalog() method to create the catalog for each academy, passing the filename and the corresponding tree (tree_A and tree_B respectively).
                                
-        _create_course_catalog(self, cursos_file: str, tree: AVL) -> None:
-            Lee el fichero del nombre dado y lo divide en líneas. Cada línea es un curso, y cada curso tiene sus atributos separados por "," : name, duration, students, level, language y price.
-            Introduce cada curso en el árbol correspondienet del CourseMananager.
+         _create_course_catalog(self, courses_file: str, tree: AVL) -> None:
+            Reads the file with the given name and splits it into lines. Each line represents a course, and each course has its attributes separated by "," : name, duration, students, level, language, and price.
+            Inserts each course into the corresponding tree of the CourseManager.
             
-       _union_courses(self, course_A:Course, course_B:Course) -> Course:
-            Dados dos cursos iguales (con la misma clave: nombre, idioma, nivel) de ambas academias devuelve aquek que tenga un mayor beneficio.
+         _union_courses(self, course_A:Course, course_B:Course) -> Course:
+            Given two identical courses (with the same key: name, language, level) from both academies, returns the one with higher benefit.
             
          _find_name(self, p, name:str, cnt:int) -> int:
-             Dado un nombre de un curso, recorre el árbol de la academia A (tree_A) empezando por la posición p buscando si existe algún curso de esta que se encuentre en tree_add y que tenga ese 
-             mismo nombre. El motivo de esto es añadirle al nombre de este curso que está en tree_add el string " A" al final para poder distinguirlo del del curso B.
+             Given a course name, traverses the academy A tree (tree_A) starting from position p to find if there is any course in it that is also in tree_add and has that 
+             same name. The reason for this is to add the string " A" to the name of this course in tree_add to distinguish it from the one in academy B.
        
-        _added_offer(self) -> None:
-            Recorre tree_A añadiendo sus cursos a tree_add para conseguir la oferta agregada, comprobando que no exista otro curso con la misma clave [nombre, nivel, idioma] en tree_B.
-            Si esto ocurre se llama al método union_course(). Después se recorre tree_B para añadir sus cursos, distinguiéndolos de los de la academia B si tiene su mismo nombre añadiendole
-            un distintivo en el nombre.
+         _added_offer(self) -> None:
+            Traverses tree_A adding its courses to tree_add to obtain the aggregated offer, checking that there is no other course with the same key [name, level, language] in tree_B.
+            If this occurs, the union_course() method is called. Then, tree_B is traversed to add its courses, distinguishing them from those of academy B if they have the same name by adding
+            a distinctive identifier in the name.
             
-        _common_offer(self) -> None:
-           Encuentra los cursos que tienen en común ambos cursos quedándose con el de mayor beneficio y añadiéndolos a tree_common para conseguir la oferta común.
+         _common_offer(self) -> None:
+           Finds the courses that are common to both academies, keeping the one with the highest benefit, and adds them to tree_common to obtain the common offer.
             
-         _show_stadistics(self) -> None:
-             Muestra un menú para elegir el árbol del que queremos mostrar las estadísticas con pandas_stats()
+         _show_statistics(self) -> None:
+             Displays a menu to choose the tree from which we want to show statistics using pandas_stats()
              
-          _pandas_stats(self, tree:AVL) -> None:
-            Se encarga de mostar la información estadística (media de estudiantes por idioma y por nivel e ingresos totales) del árbol introducido.
-             
-                   
-            
+         _pandas_stats(self, tree:AVL) -> None:
+            Displays statistical information (average students per language and per level and total income) of the introduced tree.
+        
+         _preorder_indent_BST(self, T: AVL, p: AVL.Position, d:int) -> None:
+            Prints the preorder representation of a binary subtree of T rooted at p at depth d.
+            To print aTree completely call preorder_indent_BST(aTree, aTree.root(), 0)
     """
     
     def __init__(self):
         """
-        Defines the class attributes, which are cuatro árboles que almacenan cursos.
+        Defines the class attributes, which are four trees that store courses.
         
         Class Attributes: 
         -----------------
             tree_A: AVL
-                Árbol con los cursos de la academia A (comienza siendo vacío)
+                Tree with courses from academy A (starts as empty)
             tree_B: AVL
-                Árbol con los cursos de la academia B (comienza siendo vacío)
+                Tree with courses from academy B (starts as empty)
             tree_add: AVL
-                Árbol con los cursos de la unión de las academias A y B (comienza siendo vacío)
+                Tree with courses from the union of academies A and B (starts as empty)
             tree_common: AVL
-                Árbol con los cursos de los cursos comunes de las academias A y B (comienza siendo vacío)
-           
+                Tree with courses that are common to academies A and B (starts as empty)
+               
         Returns
         -------
         None.
         """
-        
+
         self._tree_A = AVL()
         self._tree_B= AVL()
         self._tree_add = AVL()
@@ -112,138 +113,137 @@ class CursesManager():
     @property
     def tree_A(self):
         """
-        Gets the AVL tree_A con los cursos de la academia A.
+        Gets the AVL tree_A with the courses from academy A.
         
         Returns
         -------
         AVL
-            El árbol de la academia A.
+            The tree of academy A.
         """
         return self._tree_A
+    
     @property
     def tree_B(self):
         """
-        Gets the AVL tree_B con los cursos de la academia B.
+        Gets the AVL tree_B with the courses from academy B.
         
         Returns
         -------
         AVL
-            El árbol de la academia B.
+            The tree of academy B.
         """
         return self._tree_B
+    
     @property
     def tree_add(self):
         """
-        Gets the AVL tree_add con los cursos de la unión de las academias A y B.
+        Gets the AVL tree_add with the courses from the union of academies A and B.
         
         Returns
         -------
         AVL
-            El árbol de la unión de las academias A y B.
+            The tree of the union of academies A and B.
         """
         return self._tree_add
+    
     @property
     def tree_common(self):
         """
-        Gets the AVL tree_add con los cursos comunes de las academias A y B.
+        Gets the AVL tree_common with the courses that are common to academies A and B.
         
         Returns
         -------
         AVL
-            El árbol de los cursos comunes de las academias A y B.
+            The tree of the courses that are common to academies A and B.
         """
         return self._tree_common
 
-    
     def user_menu(self) -> None:
         """
-        Menú interactivo que permite al usuario elegir la información que quiere añadir/consultar sobre el catálogo de cursos de la academia. Presenta una interfaz con 4 opciones posibles (1,2,3,4),
-        si el usuario introduce una opción diferente se saldrá del menú y aparecerá en pantalla "Exiting.." (si se introduce un número, se saldrá del while al no cumplir la condición y si se añade 
-        cualquier otro caracter aparecerá una excepción al intentar pasarlo a entero y se entrará en el bloque except del try-except). En otro caso, el menú aparecerá continuamente, llamando a la función 
-        get_menu_option() para conocer la acción que quiere realizar el usuario. Al llamar a la función user_menu() será necesario introducir los catálogos de las academias, es decir, elegir la opción 1 
-        para llenar los árboles, si no se le pedirá al usuario que elija esta opción para continuar.
-        Las opciones son las siguientes:
-        1- Introducir los catálogos de las academias A y B. Cuenta con un bloque try-except para controlar la excepción causada al pedir al usuario que introduzca el nombre de los ficheros donde se encuentran
-           los catálogos y que estos no estén en el drectorio o no se pueda acceder a ellos. En otro caso  se llama al método privado read_courses() para obtener los cursos y llenar los árboles de la academia A
-           (tree_A) y B (tree_B) y si están vación tambien el de la oferta agregada (tree_add) y la común (tree_common).
-        2- Mostrar oferta agregada. Solo disponible si se ha elegido previamente la opción 1. LLama a la función preorder_indent_BST() para imprimir por pantalla el contenido de tree_add con la unión de los cursos
-           de las academias, pasándole como parámetro este árbol y su primera posición.
-        3- Mostrar la oferta común. Solo disponible si se ha elegido previamente la opción 1. LLama a la función preorder_indent_BST() para imprimir por pantalla el contenido de tree_common con los cursos comunes
-           de las academias, pasándole como parámetro este árbol y su primera posición.
-        4- Mostrar estadísticas sobre un árbol determinado. Solo disponible si se ha elegido previamente la opción 1. Es a su vez otro menú con 4 opciones, que se manejan mediante el método privado show_stadistics()
-
+        Interactive menu allowing the user to choose the information they want to add/consult about the course catalog of the academy. 
+        It presents an interface with 4 possible options (1, 2, 3, 4). If the user enters a different option, the menu will exit and "Exiting.." will be displayed on the screen 
+        (if a number is entered, the while loop will exit due to the condition not being met, and if any other character is added, an exception will occur when trying to cast it to an integer and 
+        the try-except block will be entered). Otherwise, the menu will continue to appear, calling the get_menu_option() function to determine the action the user wants to perform. 
+        When calling the user_menu() function, it will be necessary to enter the catalogs of the academies, this means, at first, the user should choose option 1 to fill the trees, otherwise the user will be prompted 
+        to choose this option to continue.
+        
+        Menu Options:
+            
+        1- Enter the catalogs of academies A and B. It has a try-except block to handle the exception caused when asking the user to enter the file names where the catalogs are located and 
+           they are not in the directory or cannot be accessed. Otherwise, it calls the private method read_courses() to obtain the courses and fill the trees of academy A (tree_A) and B (tree_B), 
+           and if they are empty also the one for the added offer (tree_add) and the common one (tree_common).
+        2- Show added offer. Only available if option 1 has been previously chosen. Calls the preorder_indent_BST() function to print the contents of tree_add with the union of the courses from the academies, 
+           passing this tree and its root position as parameters.
+        3- Show common offer. Only available if option 1 has been previously chosen. Calls the preorder_indent_BST() function to print the contents of tree_common with the common courses of the academies, 
+           passing this tree and its root position as parameters.
+        4- Show statistics about a specific tree. Only available if option 1 has been previously chosen. It is also another menu with 4 options, which are handled by the private method show_statistics().
+        
         Returns
         -------
         None
-
         """
         # option must be an integer, else: except
         option = self._get_menu_option()
         while option in (1,2,3,4):
             if (len(self.tree_A) == 0 or len(self.tree_B) == 0) and option in (2,3,4):
-                print("\nPlease, introduzca los datos de ambos cursos")
+                print("\nPlease, enter data for both courses")
                 option = self._get_menu_option()
                 continue
             if option == 1:
                 try:
                      self._read_courses()
-                     print("\nFicheros leídos correctamente")
-
+                     print("\nFiles read successfully")
+    
                      if self.tree_common.is_empty():
                          self._common_offer()
                      if self.tree_add.is_empty():
                          self._added_offer()
                 except:
-                    print("\nIntroduzca nombres de archivos válidos en su directorio")
-
+                    print("\nEnter valid file names in your directory")
+    
             if option == 2:
-                print("\nOfertas disponibles en los cursos A o B: \n")
-                # Visualizar el resultado
-                print("Árbol fusionado:")
+                print("\nOffers available in courses A or B (added offer): \n")
+                print("Merged Tree:")
                 self._preorder_indent_BST(self.tree_add, self.tree_add.root(), 0)
                 
-                
             if option == 3:
-                print("\nOfertas disponibles en ambos cursos: \n")
-                print("Árbol común:")
+                print("\nOffers available in both courses (common offer): \n")
+                print("Common Tree:")
                 self._preorder_indent_BST(self.tree_common, self.tree_common.root(), 0)
                 
             if option == 4:
-                self._show_stadistics()
+                self._show_statistics()
                 
             option = self._get_menu_option()
         print("Exiting...")
-        
-            
+
     def _get_menu_option(self) -> int:
         """
-        Muestra las opciones del menú y devuelve la opción elegida por el usuario.
+        Displays the menu options and returns the option chosen by the user.
     
-        Esta función se utiliza para obtener la opción elegida por el usuario en el menú interactivo. 
-        Muestra las opciones disponibles en el menú del programa y solicita al usuario que ingrese una opción. 
-        Si el usuario ingresa un número entero válido, devuelve esa opción. 
-        Si se ingresa cualquier otro carácter, se maneja la excepción imprimiendo una linea en blanco, para luego salir de la iteracion en el menu.
+        This function is used to obtain the option chosen by the user in the interactive menu. 
+        It displays the available options in the program menu and prompts the user to enter an option. 
+        If the user enters a valid integer, it returns that option. 
+        If any other character is entered, the exception is handled by printing a blank line, and then exiting the menu iteration.
     
         Returns
         -------
         int
-            La opción elegida por el usuario.
+            The option chosen by the user.
     
         Notes
         -----
-        Esta función es llamada dentro del método user_menu() para obtener la opción seleccionada por el usuario en el menú principal del programa.
-
+        This function is called within the user_menu() method to get the option selected by the user in the main program menu.
         """
         try: 
-            return int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Añadir catálogos de los cursos \n   2) Mostrar oferta sumada de los cursos \n   3) Mostrar oferta conjunta de los cursos \n   4) Mostrar estadísticas \n - Press any other key to exit\n"))
+            return int(input("\n***   CURSES MENU   ***\nChoose one of the following options: \n 1) Add course catalogs \n   2) Show added course offer \n   3) Show common course offer \n   4) Show statistics \n - Press any other key to exit\n"))
         except: 
             print()
-            
-    
+
     def _read_courses(self) -> None:
         """
-        Solicita al usuario que introduzca los nombres de los archivos de texto que contienen los cursos asociados a las academias A y B. 
-        Llama al método create_course_catalog() para crear el catálogo de cada academia, pasándole el nombre del archivo y el arbol asociado para cada curso (tree_A y tree_B respectivamente)
+        Prompts the user to enter the names of the text files containing the courses associated with academies A and B. 
+        Calls the create_course_catalog() method to create the catalog for each academy, passing the filename and the associated tree for each course (tree_A and tree_B respectively).
        
         Returns
         -------
@@ -251,26 +251,24 @@ class CursesManager():
     
         Notes
         -----
-        Esta función es llamada dentro del método user_menu() cuando el usuario elige la opción 1 para añadir los catálogos de cursos de ambas academias.
-    
+        This function is called within the user_menu() method when the user chooses option 1 to add the course catalogs of both academies.
         """
-        cursos_A = input("Enter the name of the file containing the courses for academy A: ")
-        cursos_B = input("Enter the name of the file containing the courses for academy B: ")
-        self._create_course_catalog(cursos_A, self.tree_A)
-        self._create_course_catalog(cursos_B, self.tree_B)
-        
-
+        courses_A = input("Enter the name of the file containing the courses for academy A: ")
+        courses_B = input("Enter the name of the file containing the courses for academy B: ")
+        self._create_course_catalog(courses_A, self.tree_A)
+        self._create_course_catalog(courses_B, self.tree_B)
+                
     def _create_course_catalog(self, courses_file: str, tree: AVL) -> None:
         """
-        Lee el fichero con el nombre dado por el usuario (courses_file) el cual contiene a los cursos de la academia, lo divide en líneas ya que cada línea (sin tener en cuenta las que son comentarios) es un curso, luego crea una instancia de Courses para representar cada curso los cuales tienen sus atributos separados por ",".
-        Finalmente, Introduce cada curso en su árbol correspondiente (tree).
+        Reads the file with the name provided by the user (courses_file), which contains the courses of the academy. It divides the file into lines, where each line (excluding comments) represents a course. Then it creates an instance of Course to represent each course, where the attributes are separated by commas.
+        Finally, it inserts each course into the corresponding tree (tree).
         
         Parameters
         ----------
         courses_file : str
-            El nombre del archivo que contiene la información de los cursos.
+            The name of the file containing the course information.
         tree : AVL
-            El árbol AVL en el que se almacenarán los cursos.
+            The AVL tree in which the courses will be stored.
         
         Returns
         -------
@@ -278,26 +276,26 @@ class CursesManager():
         
         Notes
         -----
-        Esta función es llamada desde el método _read_courses() para crear el catálogo de cursos para cada academia.
-        El formato del archivo de texto debe ser el siguiente para cada línea: nombre, duración, estudiantes, nivel, idioma y precio, separados por comas.
-        Por ejemplo: "C#,133,18,D,Chi,70.08".
+        This function is called from the _read_courses() method to create the course catalog for each academy.
+        The format of the text file should be as follows for each line: name, duration, students, level, language, and price, separated by commas.
+        For example: "C#,133,18,D,Chi,70.08".
         
         """
         with open(courses_file, encoding="ISO-8859-1") as f:
-            cursos_text = f.read().strip()
-        cursos = cursos_text.split("\n")
-        for line in cursos:
-            if not line.startswith('#'): #no tenemos en cuenta comentarios del archivo.
-                curso_info = line.split(',')
-                name, duration, students, level, language, price = curso_info 
-                curso = Course(name, float(duration), int(students), level, language, float(price))
-                tree[curso.name, curso.level, curso.language] = curso
-            
+            courses_text = f.read().strip()
+        courses = courses_text.split("\n")
+        for line in courses:
+            if not line.startswith('#'): # Ignore comments in the file.
+                course_info = line.split(',')
+                name, duration, students, level, language, price = course_info 
+                course = Course(name, float(duration), int(students), level, language, float(price))
+                tree[course.name, course.level, course.language] = course
+
                              
     def _union_courses(self, course_A:Course, course_B:Course) -> Course:
         """
-        Returns a new course which is a union of two identical courses (con la misma clave: nombre, idioma, nivel) from different academies,
-        keeping the one with higher benefit(income). The attributes of the merged course remain the same as the course with higher benefit except for the number of students, which is the sum of students from both academies.
+        Returns a new course which is a union of two identical courses (with the same key: name, language, level) from different academies,
+        keeping the one with higher benefit (income). The attributes of the merged course remain the same as the course with higher benefit except for the number of students, which is the sum of students from both academies.
         
         Parameters
         ----------
@@ -333,29 +331,29 @@ class CursesManager():
         """
         Combines the course catalogs of both academies into one.
         This method iterates over the courses in academy A and checks if there's a corresponding course
-        with the same key in academy B (las claves de los arboles A y B son lo mismo por lo que se define la igualdad de cursos(nombre, nivel e idioma)). 
-        If found, it merges the courses using the _union_courses method and adds the merged course to the arbol de la oferta agregada(tree_add). 
-        If not found, it adds the course from academy A a el tree_add. Then, it iterates over the courses in academy B and adds any course that is
+        with the same key in academy B (the keys of trees A and B are the same so the equality of courses is defined by course attributes (name, level, and language)). 
+        If found, it merges the courses using the _union_courses method and adds the merged course to the combined catalog tree (tree_add). 
+        If not found, it adds the course from academy A to the combined catalog. Then, it iterates over the courses in academy B and adds any course that is
         not already in the combined catalog. 
-        Para esto usa a la funcion _find_name() que comprueba si un curso de la academia B tiene el mismo nombre que uno de la academia A (no contando los cursos que son iguales en ambas). 
-        Si la funcion devuelve un numero distinto a 0 (indicando que hay iguales) se añade " B" a el numbre del curso B. 
-
+        For this, it uses the _find_name() function that checks if a course from academy B has the same name as one from academy A (excluding courses that are identical in both). 
+        If the function returns a number other than 0 (indicating duplicates), " B" is appended to the name of course B. 
+    
         Returns
         -------
         None
-
+    
         """
         # Iterate over courses in academy A
         for key_A, course_A in self.tree_A.items():
-            #la clave de los arboles es por lo que se define la igualdad de cursos (nombre, nivel e idioma)
+            # The keys of the trees define the equality of courses (name, level, and language)
             if key_A in self.tree_B: # Check if the course exists in academy B
-                #obtenemos el curso en el arbol B con esa clave que es igual
+                # Get the course in tree B with the same key
                 course_B = self.tree_B[key_A]
-                #obtenemos y añadimos el curso de la union a el arbol de la oferta agregada 
+                # Merge and add the course to the combined catalog tree
                 union_course = self._union_courses(course_A, course_B)
                 self.tree_add[key_A] = union_course
             else:
-                #de otro modo, si los cursos no son iguales, de todas formas añade el curso en A en el arbol de la oferta agregada 
+                # Otherwise, if the courses are not identical, add the course from A to the combined catalog tree 
                 new_course = Course(course_A.name, course_A.duration, course_A.students, course_A.level, course_A.language, course_A.price)
                 self.tree_add[key_A] = new_course
         
@@ -365,20 +363,20 @@ class CursesManager():
             if key_B not in self.tree_A and key_B not in self.tree_add:
                 # Check if a course with the same name exists in academy A
                 cnt = self._find_name(self.tree_A.root(), course_B.name, 0)
-                # Add the course from academy B a el arbol de la oferta combinada 
+                # Add the course from academy B to the combined catalog tree 
                 new_course = Course(course_B.name, course_B.duration, course_B.students, course_B.level, course_B.language, course_B.price)
                 self.tree_add[key_B] = new_course
                 # If a course with the same name exists in academy A, append ' B' to its name
                 if cnt != 0:
                     self.tree_add[key_B].name += " B"
-            
+
     def _common_offer(self) -> None:
         """
-        Encuentra los cursos que tienen en común ambos cursos llamando a _union_courses para quedarse con el de mayor beneficio y añadiéndolos a tree_common para conseguir la oferta común.
+        Finds the courses common to both academies by calling _union_courses to retain the one with greater benefit and adding them to tree_common to achieve the common offer.
         
-        Este método recorre los catálogos de cursos de ambas academias y busca cursos con claves idénticas (las claves de los arboles A y B son lo mismo por lo que se define la igualdad de cursos). 
-        Si encuentra un curso con la misma clave (nombre, nivel e idioma) en ambas academias, compara sus beneficios 
-        (ingresos) y conserva el curso con mayor beneficio. Luego, añade este curso al árbol de la oferta común (tree_common).
+        This method iterates over the course catalogs of both academies and looks for courses with identical keys (the keys of trees A and B are the same so the equality of courses is defined by course attributes). 
+        If it finds a course with the same key (name, level, and language) in both academies, it compares their benefits 
+        (revenue) and retains the course with greater benefit. Then, it adds this course to the tree of common offer (tree_common).
         
         Returns
         -------
@@ -389,9 +387,8 @@ class CursesManager():
                 course_B = self.tree_B[key_A]
                 union_course = self._union_courses(course_A, course_B)
                 self.tree_common[key_A] = union_course
-                
-        
-    def _show_stadistics(self) -> None:
+            
+    def _show_statistics(self) -> None:
         """
         Displays a menu for the user to choose which tree to show statistics for using the _pandas_stats() method.
         
@@ -399,8 +396,8 @@ class CursesManager():
         The user can choose from four options: 
             1) Statistics for courses in academy A.
             2) Statistics for courses in academy B.
-            3) Statistics for la oferta agregada of courses from both academies.
-            4) Statistics for la oferta comun of courses shared by both academies.
+            3) Statistics for the combined offer of courses from both academies.
+            4) Statistics for the common offer of courses shared by both academies.
         
         Returns
         -------
@@ -408,24 +405,25 @@ class CursesManager():
         
         Notes 
         -----
-        Este metodo es llamado internamente cuando en el menu principal el usuario selecciona la opcion 4 
+        This method is internally called when the user selects option 4 in the main menu.
         """
         try:
-            option2 = int(input("\n-- Catálogos disponibles para las estadísticas --\n 1) Oferta curso A \n 2) Oferta curso B \n 3) Oferta sumada de los cursos \n 4) Oferta común de los cursos \n"))
-            if option2 in (1,2,3,4): 
-                option_dict = {1:self.tree_A, 2:self.tree_B, 3:self.tree_add, 4:self.tree_common}
+            option2 = int(input("\n-- Available catalogs for statistics --\n 1) Academy A course offer \n 2) Academy B course offer \n 3) Added course offer \n 4) Common course offer \n"))
+            if option2 in (1, 2, 3, 4): 
+                option_dict = {1: self.tree_A, 2: self.tree_B, 3: self.tree_add, 4: self.tree_common}
                 self._pandas_stats(option_dict[option2])
             else:
-                print("\nIntroduzca una opción válida")
+                print("\nPlease enter a valid option.")
         except:
-            print("\nIntroduzca una opción válida")
+            print("\nPlease enter a valid option.")
+
 
     def _pandas_stats(self, tree: "AVL") -> None:
         """
         Displays statistical information (average students per language and per level, and total income) for the selected AVL tree using Pandas.
         
         This method generates statistical information for the courses stored in the given AVL tree.
-        Primero, obtiene una lista de los cursos a partir del arbol para hacer el dataframe.
+        First, it obtains a list of courses from the tree to create the dataframe.
         It calculates the mean number of students per language and per level, as well as the total income generated by all courses.
         The statistical information is displayed in tabular format using the Pandas library.
         
@@ -485,11 +483,6 @@ class CursesManager():
         The purpose of this recursive helper function is to print the preorder representation
         of a binary subtree of the AVL tree. It prints each node in the subtree along with its key
         and value, using indentation to represent the depth of each node in the subtree.
-            
-        Example:
-        --------
-        Printing a complete AVL tree called 'tree'
-        preorder_indent_BST(tree, tree.root(), 0)
         """
         if p is not None:
             # use depth for indentation
