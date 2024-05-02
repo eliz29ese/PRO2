@@ -7,6 +7,36 @@ Rodríguez Polín, Isabel
 """
 
 class Course:
+    """
+    Clase que representa los objetos Course, cursos de unas academias que incluten su nombre, duración, número de estudiantes, nivel y precio.
+    Esta clase permite la comparácion de sus objetos, necesaria para la ordenación de los cursos.
+    
+    Attributes
+    ----------
+    name : str
+        The name of the course.
+    duration : float
+        The duration of the course (hours).
+    students : int
+        The number of students enrolled in the course.
+    level : str
+        The level of the course.
+    language : str
+        The language of the course.
+    price : float
+        The price of the course.
+
+    Methods
+    -------
+    Dunder methods:
+        __str__(self) -> str:
+           Devuelve un string con los atributos del curso.
+
+        __eq__(self, other: Film) -> bool:
+           Compara si los cursos son iguales: si tienen el mismo nombre, idioma y nivel.
+        
+       
+    """
     def __init__(self, name: str, duration: float, students: int, level: str, language: str, price: float):
         """
         Creates a Course with the given attributes.
@@ -255,10 +285,24 @@ class Course:
         return f"Name: {self.name}, Duration: {self.duration} hours, Students: {self.students}, Level: {self.level}, Language: {self.language}, Price: {self.price}€"
    
     def __eq__(self, other: "Course"):
+        """
+        Este método comprueba si el Course es igual (==) al other Course introducido como parámetro, comprobando si los siguientes atributos son iguales en ambos cursos: 
+        nombre, language and level. Devueve True si esto ocurre y False en otro caso.
+        
+        Parameters
+        ----------
+        other : "Course"
+            El Corse que queremos comparar con el que llama a la función, se quiere saber si son iguales.
+        Returns
+        -------
+        boolean
+            True if Course == other, and False otherwise.
+        """
         if self.name == other.name:
             if self.level == other.level: 
-                return self.language == other.language
+                return self.level == other.level
             else: 
                 return self.level == other.level
         else:
             return self.name == other.name
+
