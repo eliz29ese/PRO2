@@ -8,8 +8,8 @@ Rodríguez Polín, Isabel
 
 class Course:
     """
-    Clase que representa los objetos Course, cursos de unas academias que incluten su nombre, duración, número de estudiantes, nivel y precio.
-    Esta clase permite la comparácion de sus objetos, necesaria para la ordenación de los cursos.
+    Class representing Course objects, courses from academies that include their name, duration, number of students, level, and price.
+    This class allows comparison of its objects, necessary for sorting the courses.
     
     Attributes
     ----------
@@ -25,18 +25,15 @@ class Course:
         The language of the course.
     price : float
         The price of the course.
-
+    
     Methods
     -------
     Dunder methods:
         __str__(self) -> str:
-           Devuelve un string con los atributos del curso.
-
-        __eq__(self, other: Film) -> bool:
-           Compara si los cursos son iguales: si tienen el mismo nombre, idioma y nivel.
-        
-       
+            Returns a string with the attributes of the course.
     """
+
+    
     def __init__(self, name: str, duration: float, students: int, level: str, language: str, price: float):
         """
         Creates a Course with the given attributes.
@@ -283,4 +280,3 @@ class Course:
             A string representing the Course object.
         """
         return f"Name: {self.name}, Duration: {self.duration} hours, Students: {self.students}, Level: {self.level}, Language: {self.language}, Price: {self.price}€"
-
