@@ -283,26 +283,4 @@ class Course:
             A string representing the Course object.
         """
         return f"Name: {self.name}, Duration: {self.duration} hours, Students: {self.students}, Level: {self.level}, Language: {self.language}, Price: {self.price}€"
-   
-    def __eq__(self, other: "Course"):
-        """
-        Este método comprueba si el Course es igual (==) al other Course introducido como parámetro, comprobando si los siguientes atributos son iguales en ambos cursos: 
-        nombre, language and level. Devueve True si esto ocurre y False en otro caso.
-        
-        Parameters
-        ----------
-        other : "Course"
-            El Corse que queremos comparar con el que llama a la función, se quiere saber si son iguales.
-        Returns
-        -------
-        boolean
-            True if Course == other, and False otherwise.
-        """
-        if self.name == other.name:
-            if self.level == other.level: 
-                return self.level == other.level
-            else: 
-                return self.level == other.level
-        else:
-            return self.name == other.name
 
