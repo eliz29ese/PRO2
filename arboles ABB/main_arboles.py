@@ -161,17 +161,17 @@ class CursesManager():
     def user_menu(self) -> None:
         """
         Interactive menu allowing the user to choose the information they want to add/consult about the course catalog of the academy. 
-        It presents an interface with 4 possible options (1, 2, 3, 4). If the user enters a different option, the menu will exit and "Exiting.." will be displayed on the screen 
-        (if a number is entered, the while loop will exit due to the condition not being met, and if any other character is added, an exception will occur when trying to cast it to an integer and 
-        the try-except block will be entered). Otherwise, the menu will continue to appear, calling the get_menu_option() function to determine the action the user wants to perform. 
-        When calling the user_menu() function, it will be necessary to enter the catalogs of the academies, this means, at first, the user should choose option 1 to fill the trees, otherwise the user will be prompted 
+        It presents an interface with 4 possible options (1, 2, 3, 4), that will be entered by get_menu_option() . If the user enters a different option, the menu will exit and "Exiting.." will 
+        be displayed on the screen (if a number is entered, the while loop will exit due to the condition not being met, and if any other character is added, an exception will occur that will be 
+        treated by the funcion get_menu_option() ). Otherwise, the menu will continue to appear, calling get_menu_option() to determine the action the user wants to perform. 
+        It will be necessary to enter the catalogs of the academies, this means, at first, the user should choose option 1 to fill the trees, otherwise the user will be prompted 
         to choose this option to continue.
         
         Menu Options:
             
         1- Enter the catalogs of academies A and B. It has a try-except block to handle the exception caused when asking the user to enter the file names where the catalogs are located and 
            they are not in the directory or cannot be accessed. Otherwise, it calls the private method read_courses() to obtain the courses and fill the trees of academy A (tree_A) and B (tree_B), 
-           and if they are empty also the one for the added offer (tree_add) and the common one (tree_common).
+           and also the one for the added offer (tree_add) and the common one (tree_common).
         2- Show added offer. Only available if option 1 has been previously chosen. Calls the preorder_indent_BST() function to print the contents of tree_add with the union of the courses from the academies, 
            passing this tree and its root position as parameters.
         3- Show common offer. Only available if option 1 has been previously chosen. Calls the preorder_indent_BST() function to print the contents of tree_common with the common courses of the academies, 
@@ -182,7 +182,6 @@ class CursesManager():
         -------
         None
         """
-        # option must be an integer, else: except
         option = self._get_menu_option()
         while option in (1,2,3,4):
             if (len(self.tree_A) == 0 or len(self.tree_B) == 0) and option in (2,3,4):
@@ -193,11 +192,9 @@ class CursesManager():
                 try:
                      self._read_courses()
                      print("\nFiles read successfully")
-    
-                     if self.tree_common.is_empty():
-                         self._common_offer()
-                     if self.tree_add.is_empty():
-                         self._added_offer()
+                 
+                     self._common_offer()
+                     self._added_offer()
                 except:
                     print("\nEnter valid file names in your directory")
     
@@ -213,7 +210,7 @@ class CursesManager():
                 
             if option == 4:
                 self._show_statistics()
-                
+
             option = self._get_menu_option()
         print("Exiting...")
 
@@ -315,13 +312,41 @@ class CursesManager():
             result_course = Course(course_B.name, course_B.duration, course_B.students+course_A.students, course_B.level, course_B.language, course_B.price)
         return result_course
     
-    def _find_name(self, p, name:str, cnt:int) -> int:
-        if p is not self.tree_A.last() and p is not None:
-            print(p.value().name)
+
+    def _find_name(self, p: AVL.Position, name:str, cnt:int) -> int:
+        """
+        This method allows us to determine how many courses from academy A's tree (tree_A) share the same name as the one provided as a parameter (name). To differentiate them in the combined offering, we append " A" to the 
+        end of the course name in the tree tree_add or " AB" if it's one of the courses common to both academies. This distinction is included if it hasn't been added before. To achieve this, the function begins at the specified 
+        position within tree_A and checks, if it is not None, if it contains a course with the given name. If a course is found and it also exists in tree_add, then " AB" is appended to the name if it's common to academy B as well, 
+        or " A" otherwise. The counter is incremented by 1 in either case. This process is repeated recursively with the children of position p, continuing to search through the rest of the tree if they are not None. The counter is 
+        saved to return the total at the end of the function.
+        Parameters
+        ----------
+        p : AVL.Position
+            Position in the tree from which we want to search the name.
+        name : str
+            Name of a course that we want to find in the tree of academy A (tree_A).
+        cnt : int
+            Counter that increases by 1 each time the name is found in the tree.
+        
+        Returns
+        -------
+        int
+            The resulting counter increased according to the number of times the name appears in the tree.
+        """
+        # It starts at the p Position, making sure that is not None
+        if p is not None:
+            # If the name is in a course of tree_A that is in tree_add
             if p.value().name == name and p.key() in self.tree_add.keys():
-                if not  self.tree_add[p.key()].name.endswith(" A"):
+                # If it is a common course it adds "AB" to the name in tree_add if it does not have it yet
+                if p.key() in self.tree_B and not self.tree_add[p.key()].name.endswith(" AB"):
+                    self.tree_add[p.key()].name += " AB"
+                # It adds " A" to the end if it does not have it yet
+                elif not p.key() in self.tree_B and not self.tree_add[p.key()].name.endswith(" A"):
                     self.tree_add[p.key()].name += " A"
+                # cnt +1 if the name was founded            
                 cnt +=1
+            # It repeats the execution with its children.
             if self.tree_A.children(p) is not None:
                 for c in self.tree_A.children(p):
                     cnt = self._find_name(c, name, cnt)
